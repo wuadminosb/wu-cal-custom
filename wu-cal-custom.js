@@ -1,15 +1,12 @@
 (function () {
     'use strict';
 
-    const DATE_LABEL_SELECTOR =
-        'label[for="searchDatePicker"] mat-label';
-
     /**
      * Ändert die Feldbezeichnung „Daten“ in „Datum“.
      */
     function changeDateLabel() {
         const dateLabels = document.querySelectorAll(
-            DATE_LABEL_SELECTOR
+            'label[for="searchDatePicker"] mat-label'
         );
 
         dateLabels.forEach(function (dateLabel) {
@@ -20,14 +17,58 @@
     }
 
     /**
-     * Führt alle Anpassungen aus.
+     * Entfernt Samstag und Sonntag aus der Wochentagsauswahl
+     * bei der Veranstaltungs-Serie.
      */
-    function applyWuAdjustments() {
-        changeDateLabel();
+    function removeWeekendButtons() {
+        const elements = document.querySelectorAll(
+            'button, mat-button-toggle, .mat-button-toggle, .mat-mdc-button'
+        );
+
+        elements.forEach(function (element) {
+            const text = element.textContent
+                .replace(/\s+/g, ' ')
+                .trim();
+
+            const isSunday =
+                text === 'So.' ||
+                text === 'So' ||
+                text === 'Sonntag';
+
+            const isSaturday =
+                text === 'Sa.' ||
+                text === 'Sa' ||
+                text === 'Samstag';
+
+            if (isSunday || isSaturday) {
+                const button =
+                    element.closest('mat-button-toggle') ||
+                    element.closest('.mat-button-toggle') ||
+                    element.closest('button') ||
+                    element;
+
+                button.style.setProperty(
+                    'display',
+                    'none',
+                    'important'
+                );
+
+                button.setAttribute('aria-hidden', 'true');
+                button.setAttribute('tabindex', '-1');
+            }
+        });
     }
 
     /**
-     * Erste Ausführung nach dem Laden der Seite.
+     * Führt alle WU-Anpassungen aus.
+     */
+    function applyWuAdjustments() {
+        changeDateLabel();
+        removeWeekendButtons();
+    }
+
+    /**
+     * Anpassungen nach dem Laden starten.
      */
     if (document.readyState === 'loading') {
         document.addEventListener(
@@ -39,19 +80,14 @@
     }
 
     /**
-     * Zusätzliche Wiederholungen, weil Momentus die App
-     * möglicherweise zeitverzögert lädt.
+     * Wiederholungen wegen des verzögerten Ladens der OSB-App.
      */
-    window.setTimeout(applyWuAdjustments, 250);
-    window.setTimeout(applyWuAdjustments, 500);
-    window.setTimeout(applyWuAdjustments, 1000);
-    window.setTimeout(applyWuAdjustments, 2000);
-    window.setTimeout(applyWuAdjustments, 4000);
+    [250, 500, 1000, 2000, 4000].forEach(function (delay) {
+        window.setTimeout(applyWuAdjustments, delay);
+    });
 
     /**
-     * Überwacht dynamische Änderungen der Momentus-App.
-     * Dadurch wird „Datum“ auch nach einem Seitenwechsel
-     * oder erneuten Rendern beibehalten.
+     * Anpassungen nach dynamischen Seitenänderungen wiederholen.
      */
     const observer = new MutationObserver(function () {
         window.requestAnimationFrame(applyWuAdjustments);
