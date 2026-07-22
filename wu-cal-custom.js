@@ -2,49 +2,105 @@
   "use strict";
 
   /* =========================================================
+     KONFIGURATION
+     ========================================================= */
+
+  const CSS_URL =
+    "https://cdn.jsdelivr.net/gh/wuadminosb/wu-cal-custom@main/wu-cal-custom.css?v=4";
+
+
+  /* =========================================================
+     EXTERNES CSS LADEN
+     ========================================================= */
+
+  function loadExternalCss() {
+    const existingLink = document.getElementById(
+      "wu-cal-custom-css"
+    );
+
+    if (existingLink) {
+      return;
+    }
+
+    const link = document.createElement("link");
+
+    link.id = "wu-cal-custom-css";
+    link.rel = "stylesheet";
+    link.type = "text/css";
+    link.href = CSS_URL;
+
+    document.head.appendChild(link);
+  }
+
+
+  /* =========================================================
      TEXTE UND UHRZEITEN ANPASSEN
      ========================================================= */
 
   function replaceText(text) {
-    if (!text) return text;
+    if (!text) {
+      return text;
+    }
 
     /* SPACE durch RAUM ersetzen */
-    text = text.replace(/\bSPACE\b/gi, "RAUM");
+    let changedText = text.replace(/\bSPACE\b/gi, "RAUM");
 
     /* Uhrzeiten von AM/PM auf 24-Stunden-Format umstellen */
-    return text.replace(
+    changedText = changedText.replace(
       /\b(1[0-2]|[1-9])(?::([0-5][0-9]))?\s*(AM|PM)\b/gi,
       function (_, hour, minutes, period) {
-        hour = Number(hour);
-        minutes = minutes || "00";
+        let convertedHour = Number(hour);
+        const convertedMinutes = minutes || "00";
 
         if (period.toUpperCase() === "AM") {
-          if (hour === 12) {
-            hour = 0;
+          if (convertedHour === 12) {
+            convertedHour = 0;
           }
-        } else if (hour !== 12) {
-          hour += 12;
+        } else if (convertedHour !== 12) {
+          convertedHour += 12;
         }
 
         return (
-          String(hour).padStart(2, "0") +
+          String(convertedHour).padStart(2, "0") +
           ":" +
-          minutes
+          convertedMinutes
         );
       }
     );
+
+    return changedText;
   }
 
   function updateText(root) {
-    if (!root) return;
+    if (!root) {
+      return;
+    }
 
     if (root.nodeType === Node.TEXT_NODE) {
+      const parentTag = root.parentElement?.tagName;
+
+      if (
+        parentTag === "SCRIPT" ||
+        parentTag === "STYLE" ||
+        parentTag === "TEXTAREA"
+      ) {
+        return;
+      }
+
       const changedText = replaceText(root.nodeValue);
 
       if (changedText !== root.nodeValue) {
         root.nodeValue = changedText;
       }
 
+      return;
+    }
+
+    if (
+      root.nodeType !== Node.ELEMENT_NODE &&
+      root.nodeType !== Node.DOCUMENT_NODE &&
+      root.nodeType !== Node.DOCUMENT_FRAGMENT_NODE
+    ) {
       return;
     }
 
@@ -74,20 +130,25 @@
     }
   }
 
+
   /* =========================================================
-     START UND DYNAMISCH GELADENE INHALTE
+     DYNAMISCH GELADENE INHALTE BEOBACHTEN
      ========================================================= */
 
-  function start() {
-    if (!document.body) return;
+  function observePage() {
+    if (!document.body) {
+      return;
+    }
 
     updateText(document.body);
 
     const observer = new MutationObserver(function (mutations) {
       mutations.forEach(function (mutation) {
-        mutation.addedNodes.forEach(function (node) {
-          updateText(node);
-        });
+        if (mutation.type === "childList") {
+          mutation.addedNodes.forEach(function (node) {
+            updateText(node);
+          });
+        }
 
         if (
           mutation.type === "characterData" &&
@@ -105,8 +166,22 @@
     });
   }
 
+
+  /* =========================================================
+     START
+     ========================================================= */
+
+  function start() {
+    loadExternalCss();
+    observePage();
+  }
+
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", start);
+    document.addEventListener(
+      "DOMContentLoaded",
+      start,
+      { once: true }
+    );
   } else {
     start();
   }
