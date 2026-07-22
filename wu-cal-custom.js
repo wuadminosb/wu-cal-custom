@@ -1,3 +1,4 @@
+JavaScript1alert('SCRIPT LÄUFT');2``
 (function () {
     'use strict';
 
