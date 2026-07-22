@@ -1,54 +1,73 @@
 (function () {
     'use strict';
 
-    function replaceDateLabel() {
-        const elements = document.querySelectorAll(
-            'mat-label, label, .mdc-floating-label'
+    const DATE_LABEL_SELECTOR =
+        'label[for="searchDatePicker"] mat-label';
+
+    /**
+     * Ändert die Feldbezeichnung „Daten“ in „Datum“.
+     */
+    function changeDateLabel() {
+        const dateLabels = document.querySelectorAll(
+            DATE_LABEL_SELECTOR
         );
 
-        elements.forEach(function (element) {
-            Array.from(element.childNodes).forEach(function (node) {
-                if (
-                    node.nodeType === Node.TEXT_NODE &&
-                    /\bDaten\b/.test(node.textContent)
-                ) {
-                    node.textContent = node.textContent.replace(
-                        /\bDaten\b/g,
-                        'Datum'
-                    );
-                }
-            });
-
-            /* Falls Momentus den Text in weiteren Elementen verschachtelt */
-            if (/\bDaten\b/.test(element.textContent)) {
-                element.querySelectorAll('*').forEach(function (child) {
-                    Array.from(child.childNodes).forEach(function (node) {
-                        if (
-                            node.nodeType === Node.TEXT_NODE &&
-                            /\bDaten\b/.test(node.textContent)
-                        ) {
-                            node.textContent = node.textContent.replace(
-                                /\bDaten\b/g,
-                                'Datum'
-                            );
-                        }
-                    });
-                });
+        dateLabels.forEach(function (dateLabel) {
+            if (dateLabel.textContent.trim() !== 'Datum') {
+                dateLabel.textContent = 'Datum';
             }
         });
     }
 
-    /* Mehrfach ausführen, da Momentus die Inhalte verzögert lädt */
-    replaceDateLabel();
-    setTimeout(replaceDateLabel, 500);
-    setTimeout(replaceDateLabel, 1500);
-    setTimeout(replaceDateLabel, 3000);
+    /**
+     * Führt alle Anpassungen aus.
+     */
+    function applyWuAdjustments() {
+        changeDateLabel();
+    }
 
-    const observer = new MutationObserver(replaceDateLabel);
+    /**
+     * Erste Ausführung nach dem Laden der Seite.
+     */
+    if (document.readyState === 'loading') {
+        document.addEventListener(
+            'DOMContentLoaded',
+            applyWuAdjustments
+        );
+    } else {
+        applyWuAdjustments();
+    }
 
-    observer.observe(document.body, {
-        childList: true,
-        subtree: true,
-        characterData: true
+    /**
+     * Zusätzliche Wiederholungen, weil Momentus die App
+     * möglicherweise zeitverzögert lädt.
+     */
+    window.setTimeout(applyWuAdjustments, 250);
+    window.setTimeout(applyWuAdjustments, 500);
+    window.setTimeout(applyWuAdjustments, 1000);
+    window.setTimeout(applyWuAdjustments, 2000);
+    window.setTimeout(applyWuAdjustments, 4000);
+
+    /**
+     * Überwacht dynamische Änderungen der Momentus-App.
+     * Dadurch wird „Datum“ auch nach einem Seitenwechsel
+     * oder erneuten Rendern beibehalten.
+     */
+    const observer = new MutationObserver(function () {
+        window.requestAnimationFrame(applyWuAdjustments);
     });
+
+    function startObserver() {
+        if (!document.body) {
+            window.setTimeout(startObserver, 100);
+            return;
+        }
+
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true
+        });
+    }
+
+    startObserver();
 })();
