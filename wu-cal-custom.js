@@ -19,12 +19,18 @@
         minutes = minutes || "00";
 
         if (period.toUpperCase() === "AM") {
-          if (hour === 12) hour = 0;
+          if (hour === 12) {
+            hour = 0;
+          }
         } else if (hour !== 12) {
           hour += 12;
         }
 
-        return String(hour).padStart(2, "0") + ":" + minutes;
+        return (
+          String(hour).padStart(2, "0") +
+          ":" +
+          minutes
+        );
       }
     );
   }
@@ -69,77 +75,13 @@
   }
 
   /* =========================================================
-     RAUMSPALTE AUTOMATISCH VERBREITERN
-     ========================================================= */
-
-  function adjustRoomColumnWidth() {
-    const contents = document.querySelectorAll(
-      ".rowHeadLeftCss3 .rowHeaderContent"
-    );
-
-    if (!contents.length) return;
-
-    let widestContent = 0;
-
-    contents.forEach(function (element) {
-      const width = Math.max(
-        element.scrollWidth,
-        Math.ceil(element.getBoundingClientRect().width)
-      );
-
-      widestContent = Math.max(widestContent, width);
-    });
-
-    if (widestContent === 0) return;
-
-    /* Innenabstände und Abstand rechts */
-    const columnWidth = Math.ceil(widestContent + 32);
-
-    document
-      .querySelectorAll(".rowHeadLeftCss3")
-      .forEach(function (element) {
-        element.style.setProperty(
-          "width",
-          columnWidth + "px",
-          "important"
-        );
-
-        element.style.setProperty(
-          "min-width",
-          columnWidth + "px",
-          "important"
-        );
-
-        element.style.setProperty(
-          "max-width",
-          columnWidth + "px",
-          "important"
-        );
-      });
-  }
-
-  let adjustmentPending = false;
-
-  function scheduleAdjustment() {
-    if (adjustmentPending) return;
-
-    adjustmentPending = true;
-
-    window.requestAnimationFrame(function () {
-      adjustmentPending = false;
-      adjustRoomColumnWidth();
-    });
-  }
-
-  /* =========================================================
-     START UND DYNAMISCHE ÄNDERUNGEN
+     START UND DYNAMISCH GELADENE INHALTE
      ========================================================= */
 
   function start() {
     if (!document.body) return;
 
     updateText(document.body);
-    scheduleAdjustment();
 
     const observer = new MutationObserver(function (mutations) {
       mutations.forEach(function (mutation) {
@@ -154,8 +96,6 @@
           updateText(mutation.target);
         }
       });
-
-      scheduleAdjustment();
     });
 
     observer.observe(document.body, {
@@ -163,9 +103,6 @@
       subtree: true,
       characterData: true
     });
-
-    window.addEventListener("resize", scheduleAdjustment);
-    window.addEventListener("load", scheduleAdjustment);
   }
 
   if (document.readyState === "loading") {
