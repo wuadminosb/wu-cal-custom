@@ -2,102 +2,72 @@
     'use strict';
 
     /**
-     * Ändert die Feldbezeichnung „Daten“ in „Datum“.
+     * Ändert „Daten“ in „Datum“.
      */
     function changeDateLabel() {
-        const dateLabels = document.querySelectorAll(
-            'label[for="searchDatePicker"] mat-label'
-        );
-
-        dateLabels.forEach(function (dateLabel) {
-            if (dateLabel.textContent.trim() !== 'Datum') {
-                dateLabel.textContent = 'Datum';
-            }
-        });
+        document
+            .querySelectorAll('label[for="searchDatePicker"] mat-label')
+            .forEach(function (label) {
+                label.textContent = 'Datum';
+            });
     }
 
     /**
-     * Entfernt Samstag und Sonntag aus der Wochentagsauswahl
-     * bei der Veranstaltungs-Serie.
+     * Blendet Sonntag (value="0") und Samstag (value="6")
+     * ausschließlich in der Wochentagsauswahl aus.
      */
-    function removeWeekendButtons() {
-        const elements = document.querySelectorAll(
-            'button, mat-button-toggle, .mat-button-toggle, .mat-mdc-button'
+    function hideWeekendButtons() {
+        const dayGroups = document.querySelectorAll(
+            'mat-button-toggle-group[aria-label="Days"], ' +
+            'mat-button-toggle-group.usi-dayOfWeekButtons'
         );
 
-        elements.forEach(function (element) {
-            const text = element.textContent
-                .replace(/\s+/g, ' ')
-                .trim();
+        dayGroups.forEach(function (group) {
+            const weekendButtons = group.querySelectorAll(
+                'mat-button-toggle[value="0"], ' +
+                'mat-button-toggle[value="6"]'
+            );
 
-            const isSunday =
-                text === 'So.' ||
-                text === 'So' ||
-                text === 'Sonntag';
-
-            const isSaturday =
-                text === 'Sa.' ||
-                text === 'Sa' ||
-                text === 'Samstag';
-
-            if (isSunday || isSaturday) {
-                const button =
-                    element.closest('mat-button-toggle') ||
-                    element.closest('.mat-button-toggle') ||
-                    element.closest('button') ||
-                    element;
-
-                button.style.setProperty(
+            weekendButtons.forEach(function (toggle) {
+                toggle.style.setProperty(
                     'display',
                     'none',
                     'important'
                 );
 
-                button.setAttribute('aria-hidden', 'true');
-                button.setAttribute('tabindex', '-1');
-            }
+                toggle.setAttribute('aria-hidden', 'true');
+
+                const button = toggle.querySelector('button');
+
+                if (button) {
+                    button.setAttribute('tabindex', '-1');
+                    button.setAttribute('aria-hidden', 'true');
+                }
+            });
         });
     }
 
     /**
-     * Führt alle WU-Anpassungen aus.
+     * Führt alle Anpassungen aus.
      */
     function applyWuAdjustments() {
         changeDateLabel();
-        removeWeekendButtons();
+        hideWeekendButtons();
     }
 
     /**
-     * Anpassungen nach dem Laden starten.
+     * Änderungen nach dem Laden anwenden.
      */
-    if (document.readyState === 'loading') {
-        document.addEventListener(
-            'DOMContentLoaded',
-            applyWuAdjustments
-        );
-    } else {
+    function initialize() {
         applyWuAdjustments();
-    }
 
-    /**
-     * Wiederholungen wegen des verzögerten Ladens der OSB-App.
-     */
-    [250, 500, 1000, 2000, 4000].forEach(function (delay) {
-        window.setTimeout(applyWuAdjustments, delay);
-    });
+        [250, 500, 1000, 2000, 4000].forEach(function (delay) {
+            window.setTimeout(applyWuAdjustments, delay);
+        });
 
-    /**
-     * Anpassungen nach dynamischen Seitenänderungen wiederholen.
-     */
-    const observer = new MutationObserver(function () {
-        window.requestAnimationFrame(applyWuAdjustments);
-    });
-
-    function startObserver() {
-        if (!document.body) {
-            window.setTimeout(startObserver, 100);
-            return;
-        }
+        const observer = new MutationObserver(function () {
+            window.requestAnimationFrame(applyWuAdjustments);
+        });
 
         observer.observe(document.body, {
             childList: true,
@@ -105,5 +75,9 @@
         });
     }
 
-    startObserver();
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initialize);
+    } else {
+        initialize();
+    }
 })();
