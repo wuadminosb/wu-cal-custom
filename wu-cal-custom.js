@@ -1,226 +1,309 @@
 (function () {
     'use strict';
 
-    let updateScheduled = false;
+    let observer;
+    let updatePending = false;
 
-    /**
-     * Ändert die Feldbezeichnung „Daten“ in „Datum“.
-     */
+    /* =========================================================
+       DATUMSBESCHRIFTUNG ANPASSEN
+       ========================================================= */
+
     function changeDateLabel() {
         document
             .querySelectorAll(
-                'label[for="searchDatePicker"] mat-label'
+                'label[for="searchDatePicker"] mat-label, ' +
+                'label[for="searchDatePicker"], ' +
+                '#searchDatePicker mat-label'
             )
             .forEach(function (label) {
-                if (label.textContent.trim() !== 'Datum') {
+                const text = label.textContent
+                    .replace(/\s+/g, ' ')
+                    .trim();
+
+                if (
+                    text === 'Daten' ||
+                    text === 'Date' ||
+                    text === 'Datum'
+                ) {
                     label.textContent = 'Datum';
                 }
             });
     }
 
-    /**
-     * Sucht die Wochentagsauswahl.
-     */
-    function findWeekdayGroup() {
-        const groups = document.querySelectorAll(
-            'mat-button-toggle-group'
-        );
 
-        return Array.from(groups).find(function (group) {
-            const text = group.textContent
-                .replace(/\s+/g, ' ')
-                .trim();
+    /* =========================================================
+       EINZELNEN WOCHENTAG ERMITTELN
+       ========================================================= */
 
-            return (
-                group.classList.contains('usi-dayOfWeekButtons') ||
-                group.getAttribute('aria-label') === 'Days' ||
-                (
-                    text.includes('Mo.') &&
-                    text.includes('Di.') &&
-                    text.includes('Fr.')
-                )
-            );
-        });
+    function getDayText(element) {
+        return element.textContent
+            .replace(/\s+/g, '')
+            .replace(/\u00a0/g, '')
+            .trim()
+            .toLowerCase();
     }
 
-    /**
-     * Blendet Sonntag und Samstag aus.
-     */
-    function hideWeekendDays(dayGroup) {
-        if (!dayGroup) {
-            return;
-        }
 
-        const toggles = Array.from(
-            dayGroup.querySelectorAll('mat-button-toggle')
-        );
-
-        toggles.forEach(function (toggle, index) {
-            const value =
-                toggle.getAttribute('value') ||
-                toggle.getAttribute('ng-reflect-value') ||
-                '';
-
-            const text = toggle.textContent
-                .replace(/\s+/g, '')
-                .trim();
-
-            const isSunday =
-                value === '0' ||
-                text === 'So.' ||
-                text === 'So' ||
-                text === 'Sonntag';
-
-            const isSaturday =
-                value === '6' ||
-                text === 'Sa.' ||
-                text === 'Sa' ||
-                text === 'Samstag';
-
-            const isFirstOrLast =
-                toggles.length === 7 &&
-                (index === 0 || index === toggles.length - 1);
-
-            if (isSunday || isSaturday || isFirstOrLast) {
-                toggle.classList.add('wu-hidden-weekend');
-                toggle.setAttribute('aria-hidden', 'true');
-
-                const button = toggle.querySelector('button');
-
-                if (button) {
-                    button.setAttribute('tabindex', '-1');
-                    button.setAttribute('aria-hidden', 'true');
-                }
-            } else {
-                toggle.classList.add('wu-visible-weekday');
-            }
-        });
-    }
-
-    /**
-     * Sucht das Feld „Wiederholt“.
-     */
-    function findRepeatField() {
-        const labels = document.querySelectorAll(
-            'mat-label, label, .mdc-floating-label'
-        );
-
-        const repeatLabel = Array.from(labels).find(
-            function (element) {
-                const text = element.textContent
-                    .replace(/\s+/g, ' ')
-                    .trim();
-
-                return text.startsWith('Wiederholt');
-            }
-        );
-
-        if (!repeatLabel) {
-            return null;
-        }
-
+    function isSunday(text) {
         return (
-            repeatLabel.closest('mat-form-field') ||
-            repeatLabel.closest('.mat-mdc-form-field') ||
-            null
+            text === 'so.' ||
+            text === 'so' ||
+            text === 'sonntag' ||
+            text === 'sun' ||
+            text === 'sunday'
         );
     }
 
-    /**
-     * Ordnet „Wiederholt“ und die Werktage in einer Zeile an.
-     */
-    function arrangeRepeatAndWeekdays() {
-        const dayGroup = findWeekdayGroup();
-        const repeatField = findRepeatField();
 
-        if (!dayGroup) {
-            return;
-        }
+    function isSaturday(text) {
+        return (
+            text === 'sa.' ||
+            text === 'sa' ||
+            text === 'samstag' ||
+            text === 'sat' ||
+            text === 'saturday'
+        );
+    }
 
-        hideWeekendDays(dayGroup);
-        dayGroup.classList.add('wu-weekday-group');
 
-        if (!repeatField) {
-            return;
-        }
+    function isWeekday(text) {
+        return (
+            text === 'mo.' ||
+            text === 'mo' ||
+            text === 'montag' ||
+            text === 'di.' ||
+            text === 'di' ||
+            text === 'dienstag' ||
+            text === 'mi.' ||
+            text === 'mi' ||
+            text === 'mittwoch' ||
+            text === 'do.' ||
+            text === 'do' ||
+            text === 'donnerstag' ||
+            text === 'fr.' ||
+            text === 'fr' ||
+            text === 'freitag'
+        );
+    }
 
-        repeatField.classList.add('wu-repeat-field');
 
-        let row = document.getElementById(
-            'wu-repeat-weekday-row'
+    /* =========================================================
+       TOGGLE-ELEMENT ZU EINER SCHALTFLÄCHE FINDEN
+       ========================================================= */
+
+    function findToggleContainer(element) {
+        return (
+            element.closest('mat-button-toggle') ||
+            element.closest('.mat-button-toggle') ||
+            element.closest('.mat-mdc-button-toggle') ||
+            element.closest('[role="radio"]') ||
+            element.closest('[role="button"]') ||
+            element
+        );
+    }
+
+
+    /* =========================================================
+       SAMSTAG UND SONNTAG AUSBLENDEN
+       ========================================================= */
+
+    function hideWeekendDays() {
+        const candidates = document.querySelectorAll(
+            'mat-button-toggle, ' +
+            '.mat-button-toggle, ' +
+            '.mat-mdc-button-toggle, ' +
+            'button, ' +
+            '[role="radio"]'
         );
 
-        if (!row) {
-            row = document.createElement('div');
-            row.id = 'wu-repeat-weekday-row';
-            row.className = 'wu-repeat-weekday-row';
+        candidates.forEach(function (candidate) {
+            const text = getDayText(candidate);
 
-            const insertionParent = repeatField.parentNode;
-
-            if (!insertionParent) {
+            if (!isSunday(text) && !isSaturday(text)) {
                 return;
             }
 
-            insertionParent.insertBefore(row, repeatField);
-        }
+            const toggle = findToggleContainer(candidate);
 
-        if (repeatField.parentElement !== row) {
-            row.appendChild(repeatField);
-        }
+            toggle.classList.add('wu-hidden-weekend');
+            toggle.setAttribute('aria-hidden', 'true');
+            toggle.hidden = true;
 
-        if (dayGroup.parentElement !== row) {
-            row.appendChild(dayGroup);
-        }
+            toggle.style.setProperty(
+                'display',
+                'none',
+                'important'
+            );
+
+            toggle.style.setProperty(
+                'visibility',
+                'hidden',
+                'important'
+            );
+
+            toggle.style.setProperty(
+                'width',
+                '0',
+                'important'
+            );
+
+            toggle.style.setProperty(
+                'min-width',
+                '0',
+                'important'
+            );
+
+            toggle.style.setProperty(
+                'max-width',
+                '0',
+                'important'
+            );
+
+            toggle.style.setProperty(
+                'margin',
+                '0',
+                'important'
+            );
+
+            toggle.style.setProperty(
+                'padding',
+                '0',
+                'important'
+            );
+
+            toggle.style.setProperty(
+                'border',
+                '0',
+                'important'
+            );
+
+            const button = toggle.querySelector('button');
+
+            if (button) {
+                button.setAttribute('tabindex', '-1');
+                button.setAttribute('aria-hidden', 'true');
+
+                button.style.setProperty(
+                    'display',
+                    'none',
+                    'important'
+                );
+            }
+        });
     }
 
-    /**
-     * Führt alle Anpassungen aus.
-     */
+
+    /* =========================================================
+       WOCHENTAGSGRUPPE KENNZEICHNEN
+       ========================================================= */
+
+    function markWeekdayGroup() {
+        const groups = document.querySelectorAll(
+            'mat-button-toggle-group, ' +
+            '.mat-button-toggle-group, ' +
+            '[role="group"]'
+        );
+
+        groups.forEach(function (group) {
+            const children = group.querySelectorAll(
+                'mat-button-toggle, ' +
+                '.mat-button-toggle, ' +
+                '.mat-mdc-button-toggle, ' +
+                'button, ' +
+                '[role="radio"]'
+            );
+
+            let weekdayCount = 0;
+
+            children.forEach(function (child) {
+                if (isWeekday(getDayText(child))) {
+                    weekdayCount += 1;
+                }
+            });
+
+            if (weekdayCount >= 3) {
+                group.classList.add('wu-weekday-group');
+
+                const possibleRow =
+                    group.parentElement;
+
+                if (possibleRow) {
+                    possibleRow.classList.add(
+                        'wu-repeat-weekday-native-row'
+                    );
+                }
+            }
+        });
+    }
+
+
+    /* =========================================================
+       ALLE ANPASSUNGEN AUSFÜHREN
+       ========================================================= */
+
     function applyWuAdjustments() {
         changeDateLabel();
-        arrangeRepeatAndWeekdays();
+        markWeekdayGroup();
+        hideWeekendDays();
     }
 
-    /**
-     * Verhindert unnötig viele gleichzeitige Ausführungen.
-     */
+
     function scheduleUpdate() {
-        if (updateScheduled) {
+        if (updatePending) {
             return;
         }
 
-        updateScheduled = true;
+        updatePending = true;
 
         window.requestAnimationFrame(function () {
-            updateScheduled = false;
+            updatePending = false;
             applyWuAdjustments();
         });
     }
 
-    /**
-     * Initialisierung.
-     */
+
+    /* =========================================================
+       INITIALISIERUNG
+       ========================================================= */
+
     function initialize() {
         applyWuAdjustments();
 
-        [250, 500, 1000, 2000, 4000].forEach(
-            function (delay) {
-                window.setTimeout(
-                    applyWuAdjustments,
-                    delay
-                );
-            }
-        );
+        [
+            100,
+            250,
+            500,
+            1000,
+            2000,
+            4000,
+            8000
+        ].forEach(function (delay) {
+            window.setTimeout(
+                applyWuAdjustments,
+                delay
+            );
+        });
 
-        const observer = new MutationObserver(
+        observer = new MutationObserver(
             scheduleUpdate
         );
 
         observer.observe(document.body, {
             childList: true,
-            subtree: true
+            subtree: true,
+            characterData: true
         });
+
+        /*
+         * Momentus baut die Auswahl teilweise neu auf,
+         * ohne eine verwertbare DOM-Änderung auszulösen.
+         */
+        window.setInterval(
+            applyWuAdjustments,
+            1500
+        );
     }
+
 
     if (document.readyState === 'loading') {
         document.addEventListener(
