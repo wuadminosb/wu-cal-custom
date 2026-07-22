@@ -1,99 +1,62 @@
 (function () {
     'use strict';
 
-    let updatePending = false;
+    function injectCss() {
+
+        if (document.getElementById('wu-hide-weekends')) {
+            return;
+        }
+
+        const style = document.createElement('style');
+
+        style.id = 'wu-hide-weekends';
+
+        style.textContent = `
+            .usi-dayOfWeekButtons mat-button-toggle[value="0"],
+            .usi-dayOfWeekButtons mat-button-toggle[value="6"] {
+                display: none !important;
+            }
+        `;
+
+        document.head.appendChild(style);
+    }
 
     function changeDateLabel() {
+
         document.querySelectorAll(
             'label[for="searchDatePicker"] mat-label,' +
             'label[for="searchDatePicker"],' +
             '#searchDatePicker mat-label'
         ).forEach(function (label) {
 
-            const text = label.textContent
-                .replace(/\s+/g, ' ')
-                .trim();
+            const text = label.textContent.trim();
 
             if (
                 text === 'Daten' ||
-                text === 'Date' ||
-                text === 'Datum'
+                text === 'Date'
             ) {
                 label.textContent = 'Datum';
             }
         });
     }
 
-    function hideWeekendButtons() {
-
-        const group = document.querySelector(
-            '.usi-dayOfWeekButtons'
-        );
-
-        if (!group) {
-            return;
-        }
-
-        const toggles = group.querySelectorAll(
-            'mat-button-toggle'
-        );
-
-        if (toggles.length >= 7) {
-
-            toggles[0].remove(); // Sonntag
-            toggles[6].remove(); // Samstag
-
-        }
-    }
-
     function applyWuAdjustments() {
+        injectCss();
         changeDateLabel();
-        hideWeekendButtons();
-    }
-
-    function scheduleUpdate() {
-
-        if (updatePending) {
-            return;
-        }
-
-        updatePending = true;
-
-        requestAnimationFrame(function () {
-
-            updatePending = false;
-
-            applyWuAdjustments();
-
-        });
     }
 
     function initialize() {
 
         applyWuAdjustments();
 
-        [100, 250, 500, 1000, 2000, 4000, 8000].forEach(
-            function (delay) {
-                setTimeout(
-                    applyWuAdjustments,
-                    delay
-                );
-            }
-        );
-
         const observer = new MutationObserver(
-            scheduleUpdate
+            applyWuAdjustments
         );
 
         observer.observe(document.body, {
             childList: true,
             subtree: true
         });
-
-        setInterval(
-            applyWuAdjustments,
-            1000
-        );
     }
 
     if (document.readyState === 'loading') {
