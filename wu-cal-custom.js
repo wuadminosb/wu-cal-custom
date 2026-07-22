@@ -1,9 +1,6 @@
 (function () {
     'use strict';
 
-    /**
-     * Ändert „Daten“ in „Datum“.
-     */
     function changeDateLabel() {
         document
             .querySelectorAll('label[for="searchDatePicker"] mat-label')
@@ -12,52 +9,93 @@
             });
     }
 
-    /**
-     * Blendet Sonntag (value="0") und Samstag (value="6")
-     * ausschließlich in der Wochentagsauswahl aus.
-     */
-    function hideWeekendButtons() {
-        const dayGroups = document.querySelectorAll(
-            'mat-button-toggle-group[aria-label="Days"], ' +
-            'mat-button-toggle-group.usi-dayOfWeekButtons'
-        );
-
-        dayGroups.forEach(function (group) {
-            const weekendButtons = group.querySelectorAll(
-                'mat-button-toggle[value="0"], ' +
-                'mat-button-toggle[value="6"]'
+    function arrangeRepeatAndWeekdays() {
+        const dayGroup =
+            document.querySelector(
+                'mat-button-toggle-group.usi-dayOfWeekButtons'
+            ) ||
+            document.querySelector(
+                'mat-button-toggle-group[aria-label="Days"]'
             );
 
-            weekendButtons.forEach(function (toggle) {
-                toggle.style.setProperty(
-                    'display',
-                    'none',
-                    'important'
-                );
+        if (!dayGroup) {
+            return;
+        }
 
-                toggle.setAttribute('aria-hidden', 'true');
+        /* Sonntag und Samstag entfernen */
+        const toggles = dayGroup.querySelectorAll('mat-button-toggle');
 
-                const button = toggle.querySelector('button');
+        toggles.forEach(function (toggle, index) {
+            const value = toggle.getAttribute('value');
+            const text = toggle.textContent.replace(/\s+/g, '').trim();
 
-                if (button) {
-                    button.setAttribute('tabindex', '-1');
-                    button.setAttribute('aria-hidden', 'true');
-                }
-            });
+            if (
+                value === '0' ||
+                value === '6' ||
+                index === 0 ||
+                index === toggles.length - 1 ||
+                text === 'So.' ||
+                text === 'Sa.'
+            ) {
+                toggle.style.setProperty('display', 'none', 'important');
+            }
         });
+
+        /* Feld „Wiederholt“ suchen */
+        const repeatLabel = Array.from(
+            document.querySelectorAll(
+                'mat-label, label, .mdc-floating-label'
+            )
+        ).find(function (element) {
+            return element.textContent
+                .replace(/\s+/g, ' ')
+                .trim()
+                .startsWith('Wiederholt');
+        });
+
+        if (!repeatLabel) {
+            return;
+        }
+
+        const repeatField =
+            repeatLabel.closest('mat-form-field') ||
+            repeatLabel.closest('.mat-mdc-form-field') ||
+            repeatLabel.parentElement;
+
+        if (!repeatField) {
+            return;
+        }
+
+        /* Gemeinsame Zeile nur einmal erstellen */
+        let row = document.getElementById('wu-repeat-weekday-row');
+
+        if (!row) {
+            row = document.createElement('div');
+            row.id = 'wu-repeat-weekday-row';
+            row.className = 'wu-repeat-weekday-row';
+
+            repeatField.parentNode.insertBefore(row, repeatField);
+            row.appendChild(repeatField);
+            row.appendChild(dayGroup);
+        } else {
+            if (repeatField.parentElement !== row) {
+                row.appendChild(repeatField);
+            }
+
+            if (dayGroup.parentElement !== row) {
+                row.appendChild(dayGroup);
+            }
+        }
+
+        repeatField.classList.add('wu-repeat-field');
+        dayGroup.classList.add('wu-weekday-group');
     }
 
-    /**
-     * Führt alle Anpassungen aus.
-     */
     function applyWuAdjustments() {
         changeDateLabel();
-        hideWeekendButtons();
+        arrangeRepeatAndWeekdays();
     }
 
-    /**
-     * Änderungen nach dem Laden anwenden.
-     */
     function initialize() {
         applyWuAdjustments();
 
