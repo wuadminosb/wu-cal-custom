@@ -1,11 +1,10 @@
 (function () {
     'use strict';
 
-    let observer;
     let updatePending = false;
 
     /* =========================================================
-       DATUMSBESCHRIFTUNG ANPASSEN
+       DATEN → DATUM
        ========================================================= */
 
     function changeDateLabel() {
@@ -32,33 +31,27 @@
 
 
     /* =========================================================
-       EINZELNEN WOCHENTAG ERMITTELN
+       TEXTE VEREINHEITLICHEN
        ========================================================= */
 
-    function getDayText(element) {
+    function normalizeText(element) {
         return element.textContent
-            .replace(/\s+/g, '')
             .replace(/\u00a0/g, '')
+            .replace(/\s+/g, '')
             .trim()
             .toLowerCase();
     }
 
 
-    function isSunday(text) {
+    function isWeekendText(text) {
         return (
-            text === 'so.' ||
             text === 'so' ||
+            text === 'so.' ||
             text === 'sonntag' ||
             text === 'sun' ||
-            text === 'sunday'
-        );
-    }
-
-
-    function isSaturday(text) {
-        return (
-            text === 'sa.' ||
+            text === 'sunday' ||
             text === 'sa' ||
+            text === 'sa.' ||
             text === 'samstag' ||
             text === 'sat' ||
             text === 'saturday'
@@ -66,146 +59,41 @@
     }
 
 
-    function isWeekday(text) {
+    function isWeekdayText(text) {
         return (
-            text === 'mo.' ||
             text === 'mo' ||
+            text === 'mo.' ||
             text === 'montag' ||
-            text === 'di.' ||
             text === 'di' ||
+            text === 'di.' ||
             text === 'dienstag' ||
-            text === 'mi.' ||
             text === 'mi' ||
+            text === 'mi.' ||
             text === 'mittwoch' ||
-            text === 'do.' ||
             text === 'do' ||
+            text === 'do.' ||
             text === 'donnerstag' ||
-            text === 'fr.' ||
             text === 'fr' ||
+            text === 'fr.' ||
             text === 'freitag'
         );
     }
 
 
     /* =========================================================
-       TOGGLE-ELEMENT ZU EINER SCHALTFLÄCHE FINDEN
+       WOCHENTAGSGRUPPE FINDEN
        ========================================================= */
 
-    function findToggleContainer(element) {
-        return (
-            element.closest('mat-button-toggle') ||
-            element.closest('.mat-button-toggle') ||
-            element.closest('.mat-mdc-button-toggle') ||
-            element.closest('[role="radio"]') ||
-            element.closest('[role="button"]') ||
-            element
-        );
-    }
-
-
-    /* =========================================================
-       SAMSTAG UND SONNTAG AUSBLENDEN
-       ========================================================= */
-
-    function hideWeekendDays() {
-        const candidates = document.querySelectorAll(
-            'mat-button-toggle, ' +
-            '.mat-button-toggle, ' +
-            '.mat-mdc-button-toggle, ' +
-            'button, ' +
-            '[role="radio"]'
-        );
-
-        candidates.forEach(function (candidate) {
-            const text = getDayText(candidate);
-
-            if (!isSunday(text) && !isSaturday(text)) {
-                return;
-            }
-
-            const toggle = findToggleContainer(candidate);
-
-            toggle.classList.add('wu-hidden-weekend');
-            toggle.setAttribute('aria-hidden', 'true');
-            toggle.hidden = true;
-
-            toggle.style.setProperty(
-                'display',
-                'none',
-                'important'
-            );
-
-            toggle.style.setProperty(
-                'visibility',
-                'hidden',
-                'important'
-            );
-
-            toggle.style.setProperty(
-                'width',
-                '0',
-                'important'
-            );
-
-            toggle.style.setProperty(
-                'min-width',
-                '0',
-                'important'
-            );
-
-            toggle.style.setProperty(
-                'max-width',
-                '0',
-                'important'
-            );
-
-            toggle.style.setProperty(
-                'margin',
-                '0',
-                'important'
-            );
-
-            toggle.style.setProperty(
-                'padding',
-                '0',
-                'important'
-            );
-
-            toggle.style.setProperty(
-                'border',
-                '0',
-                'important'
-            );
-
-            const button = toggle.querySelector('button');
-
-            if (button) {
-                button.setAttribute('tabindex', '-1');
-                button.setAttribute('aria-hidden', 'true');
-
-                button.style.setProperty(
-                    'display',
-                    'none',
-                    'important'
-                );
-            }
-        });
-    }
-
-
-    /* =========================================================
-       WOCHENTAGSGRUPPE KENNZEICHNEN
-       ========================================================= */
-
-    function markWeekdayGroup() {
+    function findWeekdayGroups() {
         const groups = document.querySelectorAll(
             'mat-button-toggle-group, ' +
             '.mat-button-toggle-group, ' +
+            '.usi-dayOfWeekButtons, ' +
             '[role="group"]'
         );
 
-        groups.forEach(function (group) {
-            const children = group.querySelectorAll(
+        return Array.from(groups).filter(function (group) {
+            const controls = group.querySelectorAll(
                 'mat-button-toggle, ' +
                 '.mat-button-toggle, ' +
                 '.mat-mdc-button-toggle, ' +
@@ -213,38 +101,190 @@
                 '[role="radio"]'
             );
 
-            let weekdayCount = 0;
+            let recognizedDays = 0;
 
-            children.forEach(function (child) {
-                if (isWeekday(getDayText(child))) {
-                    weekdayCount += 1;
+            controls.forEach(function (control) {
+                const text = normalizeText(control);
+
+                if (
+                    isWeekdayText(text) ||
+                    isWeekendText(text)
+                ) {
+                    recognizedDays += 1;
                 }
             });
 
-            if (weekdayCount >= 3) {
-                group.classList.add('wu-weekday-group');
+            return recognizedDays >= 5;
+        });
+    }
 
-                const possibleRow =
-                    group.parentElement;
 
-                if (possibleRow) {
-                    possibleRow.classList.add(
-                        'wu-repeat-weekday-native-row'
-                    );
+    /* =========================================================
+       SAMSTAG UND SONNTAG PHYSISCH ENTFERNEN
+       ========================================================= */
+
+    function removeWeekendButtons() {
+        const groups = findWeekdayGroups();
+
+        groups.forEach(function (group) {
+            group.classList.add('wu-weekday-group');
+
+            const toggles = Array.from(
+                group.querySelectorAll(
+                    'mat-button-toggle, ' +
+                    '.mat-button-toggle, ' +
+                    '.mat-mdc-button-toggle, ' +
+                    '[role="radio"]'
+                )
+            );
+
+            toggles.forEach(function (toggle) {
+                const text = normalizeText(toggle);
+
+                if (isWeekendText(text)) {
+                    toggle.remove();
                 }
+            });
+
+            /*
+             * Ersatzregel: Falls Momentus keine eindeutigen Texte
+             * liefert und genau sieben Tagesschaltflächen vorhanden
+             * sind, werden die erste und letzte entfernt.
+             */
+            const remainingToggles = Array.from(
+                group.querySelectorAll(
+                    'mat-button-toggle, ' +
+                    '.mat-button-toggle, ' +
+                    '.mat-mdc-button-toggle, ' +
+                    '[role="radio"]'
+                )
+            );
+
+            if (remainingToggles.length === 7) {
+                remainingToggles[6].remove();
+                remainingToggles[0].remove();
             }
         });
     }
 
 
     /* =========================================================
-       ALLE ANPASSUNGEN AUSFÜHREN
+       ALTERNATIVE SUCHE ÜBER SICHTBARE TEXTKNOTEN
+       ========================================================= */
+
+    function removeWeekendByTextNodes() {
+        const walker = document.createTreeWalker(
+            document.body,
+            NodeFilter.SHOW_TEXT
+        );
+
+        const nodesToCheck = [];
+        let currentNode;
+
+        while ((currentNode = walker.nextNode())) {
+            const text = currentNode.nodeValue
+                .replace(/\u00a0/g, '')
+                .replace(/\s+/g, '')
+                .trim()
+                .toLowerCase();
+
+            if (isWeekendText(text)) {
+                nodesToCheck.push(currentNode);
+            }
+        }
+
+        nodesToCheck.forEach(function (textNode) {
+            const parent = textNode.parentElement;
+
+            if (!parent) {
+                return;
+            }
+
+            const toggle =
+                parent.closest('mat-button-toggle') ||
+                parent.closest('.mat-button-toggle') ||
+                parent.closest('.mat-mdc-button-toggle') ||
+                parent.closest('[role="radio"]');
+
+            if (!toggle) {
+                return;
+            }
+
+            const group =
+                toggle.closest('mat-button-toggle-group') ||
+                toggle.closest('.mat-button-toggle-group') ||
+                toggle.closest('.usi-dayOfWeekButtons') ||
+                toggle.closest('[role="group"]');
+
+            if (!group) {
+                return;
+            }
+
+            const groupText = normalizeText(group);
+
+            if (
+                groupText.includes('mo') &&
+                groupText.includes('di') &&
+                groupText.includes('fr')
+            ) {
+                toggle.remove();
+            }
+        });
+    }
+
+
+    /* =========================================================
+       WIEDERHOLT UND WERKTAGE KENNZEICHNEN
+       ========================================================= */
+
+    function markRepeatAndWeekdayArea() {
+        const groups = findWeekdayGroups();
+
+        groups.forEach(function (group) {
+            group.classList.add('wu-weekday-group');
+
+            const parent = group.parentElement;
+
+            if (parent) {
+                parent.classList.add(
+                    'wu-repeat-weekday-native-row'
+                );
+            }
+        });
+
+        const labels = document.querySelectorAll(
+            'mat-label, label, .mdc-floating-label'
+        );
+
+        Array.from(labels).forEach(function (label) {
+            const text = label.textContent
+                .replace(/\s+/g, ' ')
+                .trim();
+
+            if (!text.startsWith('Wiederholt')) {
+                return;
+            }
+
+            const field =
+                label.closest('mat-form-field') ||
+                label.closest('.mat-mdc-form-field');
+
+            if (field) {
+                field.classList.add('wu-repeat-field');
+            }
+        });
+    }
+
+
+    /* =========================================================
+       ANPASSUNGEN AUSFÜHREN
        ========================================================= */
 
     function applyWuAdjustments() {
         changeDateLabel();
-        markWeekdayGroup();
-        hideWeekendDays();
+        removeWeekendByTextNodes();
+        removeWeekendButtons();
+        markRepeatAndWeekdayArea();
     }
 
 
@@ -284,7 +324,7 @@
             );
         });
 
-        observer = new MutationObserver(
+        const observer = new MutationObserver(
             scheduleUpdate
         );
 
@@ -295,8 +335,8 @@
         });
 
         /*
-         * Momentus baut die Auswahl teilweise neu auf,
-         * ohne eine verwertbare DOM-Änderung auszulösen.
+         * Erneute Kontrolle, falls Momentus die Schaltflächen
+         * nachträglich vollständig neu erzeugt.
          */
         window.setInterval(
             applyWuAdjustments,
