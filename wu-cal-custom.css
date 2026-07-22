@@ -1,0 +1,146 @@
+/* =========================================================
+   WU – MOMENTUS ONLINE SPACE BOOKING
+   Hauptfarbe: #2d80a9
+   ========================================================= */
+
+
+/* =========================================================
+   EINGABE- UND AUSWAHLFELDER
+   ========================================================= */
+
+.mat-mdc-text-field-wrapper,
+.mat-mdc-form-field-flex {
+    border-radius: 0 !important;
+}
+
+
+/* Linker Rahmenteil */
+
+.mat-mdc-form-field .mdc-notched-outline__leading {
+    border-top-color: #2d80a9 !important;
+    border-bottom-color: #2d80a9 !important;
+    border-left-color: #2d80a9 !important;
+    border-right: none !important;
+    border-radius: 0 !important;
+}
+
+
+/* Mittlerer Rahmenteil ohne senkrechte Innenlinien */
+
+.mat-mdc-form-field .mdc-notched-outline__notch {
+    border-top-color: #2d80a9 !important;
+    border-bottom-color: #2d80a9 !important;
+    border-left: none !important;
+    border-right: none !important;
+    border-radius: 0 !important;
+}
+
+
+/* Rechter Rahmenteil */
+
+.mat-mdc-form-field .mdc-notched-outline__trailing {
+    border-top-color: #2d80a9 !important;
+    border-bottom-color: #2d80a9 !important;
+    border-right-color: #2d80a9 !important;
+    border-left: none !important;
+    border-radius: 0 !important;
+}
+
+
+/* Zusätzliche Rahmen der Eingabefelder entfernen */
+
+.mat-mdc-form-field input,
+.mat-mdc-form-field select {
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+
+/* =========================================================
+   FOKUSZUSTAND
+   ========================================================= */
+
+.mat-mdc-form-field.mat-focused
+.mdc-notched-outline__leading {
+    border-top-color: #2d80a9 !important;
+    border-bottom-color: #2d80a9 !important;
+    border-left-color: #2d80a9 !important;
+    border-right: none !important;
+    border-radius: 0 !important;
+}
+
+.mat-mdc-form-field.mat-focused
+.mdc-notched-outline__notch {
+    border-top-color: #2d80a9 !important;
+    border-bottom-color: #2d80a9 !important;
+    border-left: none !important;
+    border-right: none !important;
+    border-radius: 0 !important;
+}
+
+.mat-mdc-form-field.mat-focused
+.mdc-notched-outline__trailing {
+    border-top-color: #2d80a9 !important;
+    border-bottom-color: #2d80a9 !important;
+    border-right-color: #2d80a9 !important;
+    border-left: none !important;
+    border-radius: 0 !important;
+}
+
+
+/* =========================================================
+   NICHT BUCHBARE KALENDERBEREICHE
+   ========================================================= */
+
+.chadmo .chadmo-merged-cell,
+.chadmo-merged-cell {
+    background: #2d80a9 !important;
+    background-color: #2d80a9 !important;
+    color: #ffffff !important;
+    opacity: 1 !important;
+}
+
+.chadmo .chadmo-merged-cell *,
+.chadmo-merged-cell * {
+    color: #ffffff !important;
+}
+
+
+/* =========================================================
+   RAUMSPALTE
+   ========================================================= */
+
+/* Feste Breite der vollständigen Raumspalte */
+
+.rowHeadLeftCss3 {
+    width: 320px !important;
+    min-width: 320px !important;
+    max-width: 320px !important;
+    box-sizing: border-box !important;
+    white-space: nowrap !important;
+}
+
+
+/* Raumnamen innerhalb der Spalte */
+
+.rowHeadLeftCss3 .rowHeaderContent {
+    display: block !important;
+    width: calc(100% - 20px) !important;
+    max-width: none !important;
+    box-sizing: border-box !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+}
+
+
+/* =========================================================
+   MOBILE ANSICHT NICHT VERÄNDERN
+   ========================================================= */
+
+app-calendar-mobile-view .rowHeadLeftCss3 {
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: none !important;
+}
