@@ -40,8 +40,8 @@
 
         if (toggles.length >= 7) {
 
-            toggles[0].style.display = 'none'; // Sonntag
-            toggles[6].style.display = 'none'; // Samstag
+            toggles[0].remove(); // Sonntag
+            toggles[6].remove(); // Samstag
 
         }
     }
