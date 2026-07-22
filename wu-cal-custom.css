@@ -25,7 +25,7 @@
 }
 
 
-/* Mittlerer Rahmenteil ohne senkrechte Innenlinien */
+/* Mittlerer Rahmenteil */
 
 .mat-mdc-form-field .mdc-notched-outline__notch {
     border-top-color: #2d80a9 !important;
@@ -47,7 +47,7 @@
 }
 
 
-/* Zusätzliche Rahmen der Eingabefelder entfernen */
+/* Zusätzliche Eingaberahmen entfernen */
 
 .mat-mdc-form-field input,
 .mat-mdc-form-field select {
@@ -58,7 +58,7 @@
 
 
 /* =========================================================
-   FOKUSZUSTAND
+   FOKUSZUSTAND DER EINGABEFELDER
    ========================================================= */
 
 .mat-mdc-form-field.mat-focused
@@ -70,6 +70,7 @@
     border-radius: 0 !important;
 }
 
+
 .mat-mdc-form-field.mat-focused
 .mdc-notched-outline__notch {
     border-top-color: #2d80a9 !important;
@@ -78,6 +79,7 @@
     border-right: none !important;
     border-radius: 0 !important;
 }
+
 
 .mat-mdc-form-field.mat-focused
 .mdc-notched-outline__trailing {
@@ -90,16 +92,222 @@
 
 
 /* =========================================================
+   REGISTERKARTEN
+   ========================================================= */
+
+.mat-mdc-tab,
+.mat-tab-label {
+    background-color: #ffffff !important;
+    --mdc-tab-state-layer-color: #2d80a9;
+    --mat-tab-header-active-ripple-color: #2d80a9;
+    --mat-tab-header-inactive-ripple-color: #2d80a9;
+}
+
+
+.mat-mdc-tab.mdc-tab--active,
+.mat-mdc-tab.mat-mdc-tab-active,
+.mat-tab-label.mat-tab-label-active,
+.mat-tab-label-active {
+    background-color: #ffffff !important;
+}
+
+
+.mat-mdc-tab.mdc-tab--active .mdc-tab__text-label,
+.mat-mdc-tab.mat-mdc-tab-active .mdc-tab__text-label,
+.mat-tab-label.mat-tab-label-active,
+.mat-tab-label-active {
+    color: #2d80a9 !important;
+    opacity: 1 !important;
+}
+
+
+.mat-mdc-tab.mdc-tab--active
+.mdc-tab-indicator__content--underline,
+.mat-mdc-tab.mat-mdc-tab-active
+.mdc-tab-indicator__content--underline,
+.mat-mdc-tab .mdc-tab-indicator__content--underline {
+    border-color: #2d80a9 !important;
+}
+
+
+.mat-ink-bar,
+.mat-tab-group.mat-primary .mat-ink-bar,
+.mat-tab-nav-bar.mat-primary .mat-ink-bar {
+    background-color: #2d80a9 !important;
+}
+
+
+.mat-mdc-tab:hover,
+.mat-tab-label:hover {
+    background-color: rgba(45, 128, 169, 0.10) !important;
+}
+
+
+.mat-mdc-tab:hover .mdc-tab__text-label,
+.mat-tab-label:hover {
+    color: #2d80a9 !important;
+}
+
+
+.mat-mdc-tab:active,
+.mat-tab-label:active {
+    background-color: rgba(45, 128, 169, 0.25) !important;
+}
+
+
+.mat-mdc-tab .mat-ripple-element,
+.mat-tab-label .mat-ripple-element {
+    background-color: rgba(45, 128, 169, 0.30) !important;
+}
+
+
+.mat-mdc-tab:not(:hover):not(:active),
+.mat-tab-label:not(:hover):not(:active) {
+    background-color: #ffffff !important;
+}
+
+
+/* =========================================================
+   WIEDERHOLT UND WOCHENTAGE NEBENEINANDER
+   ========================================================= */
+
+.wu-repeat-weekday-row {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    flex-wrap: nowrap !important;
+    column-gap: 18px !important;
+    width: 100% !important;
+    margin: 4px 0 20px !important;
+    box-sizing: border-box !important;
+}
+
+
+/* Feld „Wiederholt“ */
+
+.wu-repeat-weekday-row .wu-repeat-field {
+    flex: 0 0 275px !important;
+    width: 275px !important;
+    min-width: 275px !important;
+    max-width: 275px !important;
+    margin: 0 !important;
+}
+
+
+/* Wochentagsgruppe */
+
+.usi-dayOfWeekButtons,
+.wu-repeat-weekday-row .wu-weekday-group {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    flex: 0 0 auto !important;
+    gap: 8px !important;
+    width: auto !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+}
+
+
+/* =========================================================
+   SAMSTAG UND SONNTAG AUSBLENDEN
+   ========================================================= */
+
+/* Sonntag */
+
+mat-button-toggle[value="0"],
+mat-button-toggle[ng-reflect-value="0"] {
+    display: none !important;
+}
+
+
+/* Samstag */
+
+mat-button-toggle[value="6"],
+mat-button-toggle[ng-reflect-value="6"] {
+    display: none !important;
+}
+
+
+/* =========================================================
+   MONTAG BIS FREITAG
+   ========================================================= */
+
+.usi-dayOfWeekButtons mat-button-toggle,
+.wu-repeat-weekday-row
+.wu-weekday-group
+mat-button-toggle {
+    flex: 0 0 48px !important;
+    width: 48px !important;
+    min-width: 48px !important;
+    max-width: 48px !important;
+    height: 36px !important;
+    margin: 0 !important;
+    border: 1px solid #b7b7b7 !important;
+    border-radius: 18px !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+}
+
+
+.usi-dayOfWeekButtons mat-button-toggle button,
+.wu-repeat-weekday-row
+.wu-weekday-group
+mat-button-toggle button {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 48px !important;
+    min-width: 48px !important;
+    height: 34px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+
+.usi-dayOfWeekButtons
+.mat-button-toggle-label-content,
+.wu-repeat-weekday-row
+.wu-weekday-group
+.mat-button-toggle-label-content {
+    padding: 0 !important;
+    line-height: 34px !important;
+    text-align: center !important;
+}
+
+
+/* Ausgewählter Wochentag */
+
+.usi-dayOfWeekButtons
+.mat-button-toggle-checked,
+.usi-dayOfWeekButtons
+.mat-mdc-button-toggle-checked,
+.wu-repeat-weekday-row
+.wu-weekday-group
+.mat-button-toggle-checked,
+.wu-repeat-weekday-row
+.wu-weekday-group
+.mat-mdc-button-toggle-checked {
+    color: #ffffff !important;
+    background-color: #2d80a9 !important;
+    border-color: #2d80a9 !important;
+}
+
+
+/* =========================================================
    NICHT BUCHBARE KALENDERBEREICHE
    ========================================================= */
 
 .chadmo .chadmo-merged-cell,
 .chadmo-merged-cell {
+    color: #ffffff !important;
     background: #2d80a9 !important;
     background-color: #2d80a9 !important;
-    color: #ffffff !important;
     opacity: 1 !important;
 }
+
 
 .chadmo .chadmo-merged-cell *,
 .chadmo-merged-cell * {
@@ -108,26 +316,60 @@
 
 
 /* =========================================================
+   KALENDERBREITE
+   ========================================================= */
+
+.usi-calendarSection,
+.usi-calendarParent,
+.usi-desktop,
+app-availability-calendar,
+app-calendar-day-view {
+    position: static !important;
+    left: auto !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    box-sizing: border-box !important;
+}
+
+
+.chadmo,
+.chadmo.calendarGrid,
+.chadmo.calendarGrid.day-view,
+.chadmo-viewport,
+.chadmo-gridsView {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+
+.chadmo-viewport {
+    overflow-x: auto !important;
+}
+
+
+/* =========================================================
    RAUMSPALTE
    ========================================================= */
 
-/* Feste Breite der vollständigen Raumspalte */
-
+.chadmo .rowHeadLeftCss3,
 .rowHeadLeftCss3 {
-    width: 320px !important;
-    min-width: 320px !important;
-    max-width: 320px !important;
+    width: 240px !important;
+    min-width: 240px !important;
+    max-width: 240px !important;
     box-sizing: border-box !important;
     white-space: nowrap !important;
 }
 
 
-/* Raumnamen innerhalb der Spalte */
-
+.chadmo .rowHeadLeftCss3 .rowHeaderContent,
 .rowHeadLeftCss3 .rowHeaderContent {
     display: block !important;
-    width: calc(100% - 20px) !important;
-    max-width: none !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    padding-right: 8px !important;
     box-sizing: border-box !important;
     white-space: nowrap !important;
     overflow: hidden !important;
@@ -136,11 +378,62 @@
 
 
 /* =========================================================
-   MOBILE ANSICHT NICHT VERÄNDERN
+   HINWEISBOX
    ========================================================= */
 
-app-calendar-mobile-view .rowHeadLeftCss3 {
-    width: auto !important;
-    min-width: 0 !important;
-    max-width: none !important;
+.wu-info-box {
+    width: 100%;
+    margin-top: 24px;
+    padding: 18px 20px;
+    box-sizing: border-box;
+    border-left: 5px solid #2d80a9;
+    background-color: rgba(45, 128, 169, 0.08);
+    color: #333333;
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+
+.wu-info-box h2 {
+    margin: 0 0 8px;
+    color: #2d80a9;
+    font-size: 20px;
+}
+
+
+.wu-info-box p {
+    margin: 0;
+}
+
+
+/* =========================================================
+   MOBILE DARSTELLUNG
+   ========================================================= */
+
+@media screen and (max-width: 768px) {
+    .wu-repeat-weekday-row {
+        align-items: stretch !important;
+        flex-wrap: wrap !important;
+        row-gap: 10px !important;
+        column-gap: 8px !important;
+    }
+
+    .wu-repeat-weekday-row .wu-repeat-field {
+        flex: 1 1 100% !important;
+        width: 100% !important;
+        min-width: 0 !important;
+        max-width: none !important;
+    }
+
+    .usi-dayOfWeekButtons,
+    .wu-repeat-weekday-row .wu-weekday-group {
+        flex-wrap: wrap !important;
+        width: auto !important;
+    }
+
+    app-calendar-mobile-view .rowHeadLeftCss3 {
+        width: auto !important;
+        min-width: 0 !important;
+        max-width: none !important;
+    }
 }
