@@ -32,12 +32,12 @@
         ].includes(text);
     }
 
-    /* Ändert ausschließlich die sichtbare Einzelbezeichnung „SPACE“ auf „RAUM“. */
-    function changeSpaceLabel() {
-        const walker = document.createTreeWalker(
-            document.body,
-            NodeFilter.SHOW_TEXT
-        );
+    /* Bezeichnung „Space“ durch „Raum“ ersetzen */
+document.querySelectorAll('.originCellContent').forEach(element => {
+    if (element.textContent.trim().toLowerCase() === 'space') {
+        element.textContent = 'Raum';
+    }
+});
         const textNodes = [];
         let node;
 
