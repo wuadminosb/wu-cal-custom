@@ -164,8 +164,11 @@
         });
     }
 
-    /* Entfernt Samstag und Sonntag direkt aus dem erzeugten HTML. */
-    function removeWeekendButtons() {
+    /* 
+     * Markiert Samstag und Sonntag mit CSS-Klasse statt sie zu entfernen.
+     * Die CSS-Datei verbirgt sie dann mit display:none.
+     */
+    function markWeekendButtons() {
         findWeekdayGroups().forEach(function (group) {
             group.classList.add('wu-weekday-group');
 
@@ -182,8 +185,9 @@
                     toggle.getAttribute('ng-reflect-value');
                 const text = normalizedText(toggle);
 
+                /* Markiere Wochenende mit Klasse */
                 if (value === '0' || value === '6' || isWeekend(text)) {
-                    toggle.remove();
+                    toggle.classList.add('wu-hidden-weekend');
                 }
             });
         });
@@ -231,7 +235,7 @@
         changeSpaceLabel();
         changeCalendarTimeFormat();
         changeDateLabel();
-        removeWeekendButtons();
+        markWeekendButtons();  /* Neu: markiert statt zu entfernen */
         markRepeatAndWeekdayArea();
     }
 
