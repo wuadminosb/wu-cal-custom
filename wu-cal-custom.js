@@ -43,13 +43,14 @@
         let node;
 
         while ((node = walker.nextNode())) {
-            if (node.nodeValue && node.nodeValue.includes('SPACE')) {
+            if (node.nodeValue && node.nodeValue.toUpperCase().includes('SPACE')) {
                 textNodes.push(node);
             }
         }
 
         textNodes.forEach(function (textNode) {
-            textNode.nodeValue = textNode.nodeValue.replace(/\bSPACE\b/g, 'RAUM');
+            /* Case-insensitive Ersetzung */
+            textNode.nodeValue = textNode.nodeValue.replace(/\bspace\b/gi, 'RAUM');
         });
     }
 
@@ -65,18 +66,16 @@
         let node;
 
         while ((node = walker.nextNode())) {
-            if (
-                /^\s*\d{1,2}(?::\d{2})?\s*(?:AM|PM)\s*$/i.test(
-                    node.nodeValue || ''
-                )
-            ) {
+            const nodeValue = (node.nodeValue || '').trim();
+            /* Flexiblerer Regex – auch mit Leerzeichen und verschiedenen Formaten */
+            if (/\d{1,2}\s*(?::\d{2})?\s*(?:AM|PM)/i.test(nodeValue)) {
                 textNodes.push(node);
             }
         }
 
         textNodes.forEach(function (textNode) {
-            const match = (textNode.nodeValue || '').match(
-                /^\s*(\d{1,2})(?::(\d{2}))?\s*(AM|PM)\s*$/i
+            const match = (textNode.nodeValue || '').trim().match(
+                /^(\d{1,2})\s*(?::(\d{2}))?\s*(AM|PM)$/i
             );
 
             if (!match) {
@@ -84,7 +83,7 @@
             }
 
             let hour = parseInt(match[1], 10);
-            const minutes = match[2] || '00';
+            const minutes = (match[2] || '00').trim();
             const ampm = match[3].toUpperCase();
 
             // Korrekte AM/PM-Konvertierung
@@ -101,11 +100,11 @@
         // Strategie 2: Spezifisch Tabellenzellen durchsuchen
         document.querySelectorAll('th, td').forEach(function (cell) {
             const content = cell.textContent.trim();
-            const match = content.match(/^(\d{1,2})(?::(\d{2}))?\s*(AM|PM)$/i);
+            const match = content.match(/^(\d{1,2})\s*(?::(\d{2}))?\s*(AM|PM)$/i);
 
             if (match) {
                 let hour = parseInt(match[1], 10);
-                const minutes = match[2] || '00';
+                const minutes = (match[2] || '00').trim();
                 const ampm = match[3].toUpperCase();
 
                 if (ampm === 'AM') {
@@ -116,6 +115,33 @@
 
                 const newTime = String(hour).padStart(2, '0') + ':' + minutes;
                 cell.textContent = newTime;
+            }
+        });
+
+        // Strategie 3: Alle anderen Elemente mit innerHTML durchsuchen und ersetzen
+        const allElements = document.querySelectorAll('*');
+        allElements.forEach(function (element) {
+            if (element.children.length === 0) {
+                let html = element.innerHTML;
+                const newHtml = html.replace(
+                    /(\d{1,2})\s*(?::(\d{2}))?\s*(AM|PM)/gi,
+                    function (match, hour, minutes, ampm) {
+                        let h = parseInt(hour, 10);
+                        const m = (minutes || '00').trim();
+                        const ap = ampm.toUpperCase();
+
+                        if (ap === 'AM') {
+                            if (h === 12) h = 0;
+                        } else {
+                            if (h !== 12) h += 12;
+                        }
+
+                        return String(h).padStart(2, '0') + ':' + m;
+                    }
+                );
+                if (newHtml !== html) {
+                    element.innerHTML = newHtml;
+                }
             }
         });
     }
@@ -235,7 +261,7 @@
         changeSpaceLabel();
         changeCalendarTimeFormat();
         changeDateLabel();
-        markWeekendButtons();  /* Neu: markiert statt zu entfernen */
+        markWeekendButtons();
         markRepeatAndWeekdayArea();
     }
 
