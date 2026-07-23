@@ -55,6 +55,7 @@
 
     /* Wandelt die Stundenachse von AM/PM in das 24-Stunden-Format HH:MM um. */
     function changeCalendarTimeFormat() {
+        // Strategie 1: Alle Textelemente im gesamten Dokument
         const walker = document.createTreeWalker(
             document.body,
             NodeFilter.SHOW_TEXT
@@ -95,6 +96,27 @@
 
             textNode.nodeValue =
                 String(hour).padStart(2, '0') + ':' + minutes;
+        });
+
+        // Strategie 2: Spezifisch Tabellenzellen durchsuchen
+        document.querySelectorAll('th, td').forEach(function (cell) {
+            const content = cell.textContent.trim();
+            const match = content.match(/^(\d{1,2})(?::(\d{2}))?\s*(AM|PM)$/i);
+
+            if (match) {
+                let hour = parseInt(match[1], 10);
+                const minutes = match[2] || '00';
+                const ampm = match[3].toUpperCase();
+
+                if (ampm === 'AM') {
+                    if (hour === 12) hour = 0;
+                } else {
+                    if (hour !== 12) hour += 12;
+                }
+
+                const newTime = String(hour).padStart(2, '0') + ':' + minutes;
+                cell.textContent = newTime;
+            }
         });
     }
 
