@@ -32,76 +32,73 @@
         ].includes(text);
     }
 
-    /* Bezeichnung „Space“ durch „Raum“ ersetzen */
-document.querySelectorAll('.originCellContent').forEach(element => {
-    if (element.textContent.trim().toLowerCase() === 'space') {
-        element.textContent = 'Raum';
-    }
-});
+    /* Ändert „SPACE" auf „RAUM" überall auf der Seite. */
+    function changeSpaceLabel() {
+        const walker = document.createTreeWalker(
+            document.body,
+            NodeFilter.SHOW_TEXT
+        );
+
         const textNodes = [];
         let node;
 
         while ((node = walker.nextNode())) {
-            if ((node.nodeValue || '').trim().toUpperCase() === 'SPACE') {
+            if (node.nodeValue && node.nodeValue.includes('SPACE')) {
                 textNodes.push(node);
             }
         }
 
         textNodes.forEach(function (textNode) {
-            const leadingSpace =
-                (textNode.nodeValue.match(/^\s*/) || [''])[0];
-            const trailingSpace =
-                (textNode.nodeValue.match(/\s*$/) || [''])[0];
-
-            textNode.nodeValue = leadingSpace + 'RAUM' + trailingSpace;
+            textNode.nodeValue = textNode.nodeValue.replace(/\bSPACE\b/g, 'RAUM');
         });
     }
 
     /* Wandelt die Stundenachse von AM/PM in das 24-Stunden-Format HH:MM um. */
     function changeCalendarTimeFormat() {
-        document.querySelectorAll('.chadmo, .calendarGrid').forEach(
-            function (calendar) {
-                const walker = document.createTreeWalker(
-                    calendar,
-                    NodeFilter.SHOW_TEXT
-                );
-                const textNodes = [];
-                let node;
-
-                while ((node = walker.nextNode())) {
-                    if (
-                        /^\s*\d{1,2}(?::\d{2})?\s*(?:AM|PM)\s*$/i.test(
-                            node.nodeValue || ''
-                        )
-                    ) {
-                        textNodes.push(node);
-                    }
-                }
-
-                textNodes.forEach(function (textNode) {
-                    const match = (textNode.nodeValue || '').match(
-                        /^\s*(\d{1,2})(?::(\d{2}))?\s*(AM|PM)\s*$/i
-                    );
-
-                    if (!match) {
-                        return;
-                    }
-
-                    let hour = Number(match[1]) % 12;
-                    const minutes = match[2] || '00';
-
-                    if (match[3].toUpperCase() === 'PM') {
-                        hour += 12;
-                    }
-
-                    textNode.nodeValue =
-                        String(hour).padStart(2, '0') + ':' + minutes;
-                });
-            }
+        const walker = document.createTreeWalker(
+            document.body,
+            NodeFilter.SHOW_TEXT
         );
+
+        const textNodes = [];
+        let node;
+
+        while ((node = walker.nextNode())) {
+            if (
+                /^\s*\d{1,2}(?::\d{2})?\s*(?:AM|PM)\s*$/i.test(
+                    node.nodeValue || ''
+                )
+            ) {
+                textNodes.push(node);
+            }
+        }
+
+        textNodes.forEach(function (textNode) {
+            const match = (textNode.nodeValue || '').match(
+                /^\s*(\d{1,2})(?::(\d{2}))?\s*(AM|PM)\s*$/i
+            );
+
+            if (!match) {
+                return;
+            }
+
+            let hour = parseInt(match[1], 10);
+            const minutes = match[2] || '00';
+            const ampm = match[3].toUpperCase();
+
+            // Korrekte AM/PM-Konvertierung
+            if (ampm === 'AM') {
+                if (hour === 12) hour = 0;
+            } else {
+                if (hour !== 12) hour += 12;
+            }
+
+            textNode.nodeValue =
+                String(hour).padStart(2, '0') + ':' + minutes;
+        });
     }
 
-    /* Korrigiert die Datumsbeschriftung auf „Datum“. */
+    /* Korrigiert die Datumsbeschriftung auf „Datum". */
     function changeDateLabel() {
         document.querySelectorAll(
             'label[for="searchDatePicker"] mat-label, ' +
@@ -171,7 +168,7 @@ document.querySelectorAll('.originCellContent').forEach(element => {
     }
 
     /*
-     * Vergibt CSS-Hilfsklassen, damit „Wiederholt“ und Mo.–Fr.
+     * Vergibt CSS-Hilfsklassen, damit „Wiederholt" und Mo.–Fr.
      * gemeinsam gestaltet und in einer Zeile angeordnet werden können.
      */
     function markRepeatAndWeekdayArea() {
