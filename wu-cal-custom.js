@@ -74,20 +74,18 @@
         document.querySelectorAll(
             '[aria-label], [title], [placeholder]'
         ).forEach(function (element) {
-            [
-                'aria-label',
-                'title',
-                'placeholder'
-            ].forEach(function (attribute) {
-                const value = element.getAttribute(attribute);
+            ['aria-label', 'title', 'placeholder'].forEach(
+                function (attribute) {
+                    const value = element.getAttribute(attribute);
 
-                if (value && /\bspace\b/gi.test(value)) {
-                    element.setAttribute(
-                        attribute,
-                        value.replace(/\bspace\b/gi, 'Raum')
-                    );
+                    if (value && /\bspace\b/gi.test(value)) {
+                        element.setAttribute(
+                            attribute,
+                            value.replace(/\bspace\b/gi, 'Raum')
+                        );
+                    }
                 }
-            });
+            );
         });
     }
 
@@ -150,94 +148,6 @@
             ) {
                 label.textContent = 'Datum';
             }
-        });
-    }
-
-    /*
-     * Kalenderdatum als deutsches Datum anzeigen.
-     *
-     * Der originale, von Angular verwaltete Text bleibt unverändert.
-     * Die deutsche Anzeige wird nur im data-Attribut abgelegt und
-     * durch CSS eingeblendet. Dadurch aktualisiert Angular das Datum
-     * beim Betätigen der Kalenderpfeile weiterhin selbst.
-     */
-    function changeCalendarDateFormat() {
-        const weekdays = {
-            sunday: 'Sonntag',
-            monday: 'Montag',
-            tuesday: 'Dienstag',
-            wednesday: 'Mittwoch',
-            thursday: 'Donnerstag',
-            friday: 'Freitag',
-            saturday: 'Samstag',
-            sonntag: 'Sonntag',
-            montag: 'Montag',
-            dienstag: 'Dienstag',
-            mittwoch: 'Mittwoch',
-            donnerstag: 'Donnerstag',
-            freitag: 'Freitag',
-            samstag: 'Samstag'
-        };
-
-        const months = {
-            january: 'Januar',
-            february: 'Februar',
-            march: 'März',
-            april: 'April',
-            may: 'Mai',
-            june: 'Juni',
-            july: 'Juli',
-            august: 'August',
-            september: 'September',
-            october: 'Oktober',
-            november: 'November',
-            december: 'Dezember'
-        };
-
-        const datePattern =
-            /^(Sunday|Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sonntag|Montag|Dienstag|Mittwoch|Donnerstag|Freitag|Samstag),\s*(January|February|March|April|May|June|July|August|September|October|November|December)\s+(\d{1,2}),\s*(\d{4})$/i;
-
-        document.querySelectorAll(
-            '.usi-calendarMonthLabel'
-        ).forEach(function (element) {
-            const text = (element.textContent || '')
-                .replace(/\s+/g, ' ')
-                .trim();
-
-            const match = text.match(datePattern);
-
-            if (!match) {
-                element.classList.remove(
-                    'wu-calendar-date-formatted'
-                );
-
-                element.removeAttribute(
-                    'data-wu-calendar-date'
-                );
-
-                return;
-            }
-
-            const weekday =
-                weekdays[match[1].toLowerCase()];
-
-            const month =
-                months[match[2].toLowerCase()];
-
-            const formattedDate =
-                weekday + ', ' +
-                parseInt(match[3], 10) + '. ' +
-                month + ' ' +
-                match[4];
-
-            element.setAttribute(
-                'data-wu-calendar-date',
-                formattedDate
-            );
-
-            element.classList.add(
-                'wu-calendar-date-formatted'
-            );
         });
     }
 
@@ -493,7 +403,6 @@
         changeSpaceLabel();
         changeCalendarTimeFormat();
         changeDateLabel();
-        changeCalendarDateFormat();
         formatRoomHeaders();
         markWeekendButtons();
         markRepeatAndWeekdayArea();
