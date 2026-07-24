@@ -28,44 +28,42 @@
         ].includes(text);
     }
 
-    /* SPACE → Raum Konvertierung - ALL INCLUSIVE */
+    /* „Space" → „Raum" */
     function changeSpaceLabel() {
-        // Strategie 1: Alle Textelemente mit TreeWalker
-        const walker = document.createTreeWalker(
-            document.body,
-            NodeFilter.SHOW_TEXT
-        );
+        // Bezeichnung in der Kalenderzeile ändern
+        document.querySelectorAll('.originCellContent').forEach(function (element) {
+            const text = (element.textContent || '').trim();
 
-        const textNodes = [];
-        let node;
-
-        while ((node = walker.nextNode())) {
-            const val = node.nodeValue || '';
-            if (/\bspace\b/gi.test(val)) {
-                textNodes.push(node);
-            }
-        }
-
-        textNodes.forEach(function (textNode) {
-            textNode.nodeValue = textNode.nodeValue.replace(/\bspace\b/gi, 'Raum');
-        });
-
-        // Strategie 2: Spezifische Elemente mit textContent
-        document.querySelectorAll('.originCellContent, [class*="Cell"], .rowHeaderContent, span, div, label, p').forEach(function (element) {
-            if (element.children.length === 0) {
-                const text = element.textContent;
-                if (/\bspace\b/gi.test(text)) {
-                    element.textContent = text.replace(/\bspace\b/gi, 'Raum');
-                }
+            if (text.toLowerCase() === 'space') {
+                element.textContent = 'Raum';
             }
         });
 
-        // Strategie 3: Attribute durchsuchen
-        document.querySelectorAll('[aria-label], [title], [placeholder], [data-*]').forEach(function (element) {
-            ['aria-label', 'title', 'placeholder'].forEach(function (attr) {
-                const val = element.getAttribute(attr);
-                if (val && /\bspace\b/gi.test(val)) {
-                    element.setAttribute(attr, val.replace(/\bspace\b/gi, 'Raum'));
+        // Weitere einzelne Textelemente berücksichtigen
+        document.querySelectorAll('span, div, label, p').forEach(function (element) {
+            if (element.children.length > 0) {
+                return;
+            }
+
+            const text = (element.textContent || '').trim();
+
+            if (text.toLowerCase() === 'space') {
+                element.textContent = 'Raum';
+            }
+        });
+
+        // Barrierefreiheits- und Hinweisattribute anpassen
+        document.querySelectorAll(
+            '[aria-label], [title], [placeholder]'
+        ).forEach(function (element) {
+            ['aria-label', 'title', 'placeholder'].forEach(function (attribute) {
+                const value = element.getAttribute(attribute);
+
+                if (value && /\bspace\b/i.test(value)) {
+                    element.setAttribute(
+                        attribute,
+                        value.replace(/\bspace\b/gi, 'Raum')
+                    );
                 }
             });
         });
