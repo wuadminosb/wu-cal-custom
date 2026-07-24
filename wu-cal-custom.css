@@ -170,7 +170,7 @@
     white-space: nowrap !important;
 }
 
-/* Feld „Wiederholt“ links */
+/* Feld „Wiederholt" links */
 
 .wu-repeat-weekday-row .wu-repeat-field,
 .wu-repeat-weekday-native-row .wu-repeat-field,
@@ -183,7 +183,7 @@
     vertical-align: middle !important;
 }
 
-/* Wochentage direkt rechts neben „Wiederholt“ */
+/* Wochentage direkt rechts neben „Wiederholt" */
 
 .usi-dayOfWeekButtons,
 .wu-repeat-weekday-row .wu-weekday-group,
@@ -510,12 +510,12 @@ app-calendar-day-view {
     overflow: hidden !important;
 }
 
-/* Auswahl „Ich selbst“ ausblenden */
+/* Auswahl „Ich selbst" ausblenden */
 .usi-orgSelectOptions .usi-selfOpt {
     display: none !important;
 }
 
-/* Schaltfläche „Zurück zur Anmeldung“ ausblenden */
+/* Schaltfläche „Zurück zur Anmeldung" ausblenden */
 .usi-orgSelectionContainer
 .usi-buttonGroup
 button.usi-button.secondary {
@@ -548,9 +548,19 @@ button.usi-button.secondary {
     outline: none !important;
 }
 
-/* Grauen Statuspunkt „nicht verfügbar“ in WU-Farbe darstellen */
+/* Grauen Statuspunkt „nicht verfügbar" in WU-Farbe darstellen */
 span.usi-circle.unavailable,
 .usi-circle.unavailable {
     background-color: #3d80ab !important;
     border-color: #3d80ab !important;
+}
+
+/* Bezeichnung „Space" visuell durch „Raum" ersetzen */
+span.originCellContent {
+    font-size: 0 !important;
+}
+
+span.originCellContent::after {
+    content: "Raum";
+    font-size: 14px !important;
 }
