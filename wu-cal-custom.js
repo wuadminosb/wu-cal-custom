@@ -28,8 +28,9 @@
         ].includes(text);
     }
 
-    /* SPACE → Raum Konvertierung */
+    /* SPACE → Raum Konvertierung - ALL INCLUSIVE */
     function changeSpaceLabel() {
+        // Strategie 1: Alle Textelemente mit TreeWalker
         const walker = document.createTreeWalker(
             document.body,
             NodeFilter.SHOW_TEXT
@@ -49,6 +50,7 @@
             textNode.nodeValue = textNode.nodeValue.replace(/\bspace\b/gi, 'Raum');
         });
 
+        // Strategie 2: Spezifische Elemente mit textContent
         document.querySelectorAll('.originCellContent, [class*="Cell"], .rowHeaderContent, span, div, label, p').forEach(function (element) {
             if (element.children.length === 0) {
                 const text = element.textContent;
@@ -58,7 +60,8 @@
             }
         });
 
-        document.querySelectorAll('[aria-label], [title], [placeholder]').forEach(function (element) {
+        // Strategie 3: Attribute durchsuchen
+        document.querySelectorAll('[aria-label], [title], [placeholder], [data-*]').forEach(function (element) {
             ['aria-label', 'title', 'placeholder'].forEach(function (attr) {
                 const val = element.getAttribute(attr);
                 if (val && /\bspace\b/gi.test(val)) {
@@ -68,85 +71,32 @@
         });
     }
 
-    /* Zeit AM/PM → 24h Format - AGGRESSIV */
+    /* Zeit AM/PM → 24h Format */
     function changeCalendarTimeFormat() {
-        // Strategie 1: Alle Textelemente durchsuchen
-        const walker = document.createTreeWalker(
-            document.body,
-            NodeFilter.SHOW_TEXT
-        );
-
-        const textNodes = [];
-        let node;
-
-        while ((node = walker.nextNode())) {
-            const val = (node.nodeValue || '').trim();
-            // Flexiblerer Regex: optional Leerzeichen, optional Minuten
-            if (/\d{1,2}\s*(?::\d{2})?\s*(?:AM|PM)/i.test(val)) {
-                textNodes.push(node);
-            }
-        }
-
-        textNodes.forEach(function (textNode) {
-            const newValue = convertTime(textNode.nodeValue);
-            if (newValue !== textNode.nodeValue) {
-                textNode.nodeValue = newValue;
-            }
-        });
-
-        // Strategie 2: Alle Elemente mit textContent durchsuchen
-        document.querySelectorAll('span, div, td, th, p, label, button, .header-column, .mergedHeaderContent').forEach(function (element) {
-            if (element.children.length === 0) {
+        // Suche alle Elemente die Zeit enthalten könnten
+        document.querySelectorAll('span, div, td, th, p, label, button').forEach(function (element) {
+            if (element.children.length === 0 && element.textContent) {
                 const text = element.textContent.trim();
-                if (/\d{1,2}\s*(?::\d{2})?\s*(?:AM|PM)/i.test(text)) {
-                    const newText = convertTime(text);
-                    if (newText !== text) {
-                        element.textContent = newText;
+                
+                // Regex für AM/PM Format: "8 AM", "8AM", "8:00 AM", etc.
+                const match = text.match(/^(\d{1,2})\s*(?::(\d{2}))?\s*(AM|PM|am|pm)$/i);
+                
+                if (match) {
+                    let hour = parseInt(match[1], 10);
+                    const minutes = (match[2] || '00').trim();
+                    const ampm = match[3].toUpperCase();
+
+                    if (ampm === 'AM') {
+                        if (hour === 12) hour = 0;
+                    } else {
+                        if (hour !== 12) hour += 12;
                     }
+
+                    const newTime = String(hour).padStart(2, '0') + ':' + minutes;
+                    element.textContent = newTime;
                 }
             }
         });
-
-        // Strategie 3: innerHTML für verschachtelte Elemente
-        document.querySelectorAll('*').forEach(function (element) {
-            if (element.innerHTML && !element.querySelector('*')) {
-                const html = element.innerHTML;
-                const newHtml = html.replace(
-                    /(\d{1,2})\s*(?::(\d{2}))?\s*(AM|PM|am|pm)/gi,
-                    function (match, hour, minutes, ampm) {
-                        return convertTimeString(hour, minutes, ampm);
-                    }
-                );
-                if (newHtml !== html) {
-                    element.innerHTML = newHtml;
-                }
-            }
-        });
-    }
-
-    /* Konvertiert einzelne Zeit */
-    function convertTime(timeString) {
-        return timeString.replace(
-            /(\d{1,2})\s*(?::(\d{2}))?\s*(AM|PM|am|pm)/gi,
-            function (match, hour, minutes, ampm) {
-                return convertTimeString(hour, minutes, ampm);
-            }
-        );
-    }
-
-    /* Hilfsfunktion für Zeit-Konvertierung */
-    function convertTimeString(hour, minutes, ampm) {
-        let h = parseInt(hour, 10);
-        const m = (minutes || '00').trim();
-        const ap = ampm.toUpperCase();
-
-        if (ap === 'AM') {
-            if (h === 12) h = 0;
-        } else {
-            if (h !== 12) h += 12;
-        }
-
-        return String(h).padStart(2, '0') + ':' + m;
     }
 
     function changeDateLabel() {
@@ -271,8 +221,8 @@
     function initialize() {
         applyWuAdjustments();
 
-        // Sehr häufige Wiederholungen
-        [50, 100, 150, 250, 500, 750, 1000, 1500, 2000, 3000, 5000].forEach(function (delay) {
+        // Häufigere Wiederholungen für bessere Coverage
+        [50, 100, 200, 500, 1000, 2000, 3000, 5000, 8000].forEach(function (delay) {
             window.setTimeout(applyWuAdjustments, delay);
         });
 
@@ -280,11 +230,13 @@
         observer.observe(document.body, {
             childList: true,
             subtree: true,
-            characterData: true
+            characterData: true,
+            attributes: true,
+            attributeFilter: ['textContent', 'innerText']
         });
 
-        // Sehr häufige Interval-Prüfung
-        window.setInterval(applyWuAdjustments, 500);
+        // Noch häufigere Interval-Prüfung für Angular-Rendering
+        window.setInterval(applyWuAdjustments, 1000);
     }
 
     if (document.readyState === 'loading') {
