@@ -74,18 +74,20 @@
         document.querySelectorAll(
             '[aria-label], [title], [placeholder]'
         ).forEach(function (element) {
-            ['aria-label', 'title', 'placeholder'].forEach(
-                function (attribute) {
-                    const value = element.getAttribute(attribute);
+            [
+                'aria-label',
+                'title',
+                'placeholder'
+            ].forEach(function (attribute) {
+                const value = element.getAttribute(attribute);
 
-                    if (value && /\bspace\b/gi.test(value)) {
-                        element.setAttribute(
-                            attribute,
-                            value.replace(/\bspace\b/gi, 'Raum')
-                        );
-                    }
+                if (value && /\bspace\b/gi.test(value)) {
+                    element.setAttribute(
+                        attribute,
+                        value.replace(/\bspace\b/gi, 'Raum')
+                    );
                 }
-            );
+            });
         });
     }
 
@@ -152,10 +154,12 @@
     }
 
     /*
-     * Kalenderdatum ins deutsche Format umwandeln:
-     * Freitag, August 7, 2026
-     * wird zu
-     * Freitag, 7. August 2026
+     * Kalenderdatum als deutsches Datum anzeigen.
+     *
+     * Der originale, von Angular verwaltete Text bleibt unverändert.
+     * Die deutsche Anzeige wird nur im data-Attribut abgelegt und
+     * durch CSS eingeblendet. Dadurch aktualisiert Angular das Datum
+     * beim Betätigen der Kalenderpfeile weiterhin selbst.
      */
     function changeCalendarDateFormat() {
         const weekdays = {
@@ -194,22 +198,23 @@
             /^(Sunday|Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sonntag|Montag|Dienstag|Mittwoch|Donnerstag|Freitag|Samstag),\s*(January|February|March|April|May|June|July|August|September|October|November|December)\s+(\d{1,2}),\s*(\d{4})$/i;
 
         document.querySelectorAll(
-            'span, div, p, button, h1, h2, h3, h4, h5, h6'
+            '.usi-calendarMonthLabel'
         ).forEach(function (element) {
-            if (
-                element.children.length !== 0 ||
-                !element.textContent
-            ) {
-                return;
-            }
-
-            const text = element.textContent
+            const text = (element.textContent || '')
                 .replace(/\s+/g, ' ')
                 .trim();
 
             const match = text.match(datePattern);
 
             if (!match) {
+                element.classList.remove(
+                    'wu-calendar-date-formatted'
+                );
+
+                element.removeAttribute(
+                    'data-wu-calendar-date'
+                );
+
                 return;
             }
 
@@ -219,11 +224,20 @@
             const month =
                 months[match[2].toLowerCase()];
 
-            element.textContent =
+            const formattedDate =
                 weekday + ', ' +
                 parseInt(match[3], 10) + '. ' +
                 month + ' ' +
                 match[4];
+
+            element.setAttribute(
+                'data-wu-calendar-date',
+                formattedDate
+            );
+
+            element.classList.add(
+                'wu-calendar-date-formatted'
+            );
         });
     }
 
