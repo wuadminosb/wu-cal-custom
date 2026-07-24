@@ -13,7 +13,6 @@
     border-radius: 0 !important;
 }
 
-
 /* Linker Rahmenteil */
 
 .mat-mdc-form-field .mdc-notched-outline__leading {
@@ -23,7 +22,6 @@
     border-right: none !important;
     border-radius: 0 !important;
 }
-
 
 /* Mittlerer Rahmenteil */
 
@@ -35,7 +33,6 @@
     border-radius: 0 !important;
 }
 
-
 /* Rechter Rahmenteil */
 
 .mat-mdc-form-field .mdc-notched-outline__trailing {
@@ -45,7 +42,6 @@
     border-left: none !important;
     border-radius: 0 !important;
 }
-
 
 /* Zusätzliche Eingaberahmen entfernen */
 
@@ -70,7 +66,6 @@
     border-radius: 0 !important;
 }
 
-
 .mat-mdc-form-field.mat-focused
 .mdc-notched-outline__notch {
     border-top-color: #2d80a9 !important;
@@ -79,7 +74,6 @@
     border-right: none !important;
     border-radius: 0 !important;
 }
-
 
 .mat-mdc-form-field.mat-focused
 .mdc-notched-outline__trailing {
@@ -103,14 +97,12 @@
     --mat-tab-header-inactive-ripple-color: #2d80a9;
 }
 
-
 .mat-mdc-tab.mdc-tab--active,
 .mat-mdc-tab.mat-mdc-tab-active,
 .mat-tab-label.mat-tab-label-active,
 .mat-tab-label-active {
     background-color: #ffffff !important;
 }
-
 
 .mat-mdc-tab.mdc-tab--active .mdc-tab__text-label,
 .mat-mdc-tab.mat-mdc-tab-active .mdc-tab__text-label,
@@ -120,7 +112,6 @@
     opacity: 1 !important;
 }
 
-
 .mat-mdc-tab.mdc-tab--active
 .mdc-tab-indicator__content--underline,
 .mat-mdc-tab.mat-mdc-tab-active
@@ -129,37 +120,31 @@
     border-color: #2d80a9 !important;
 }
 
-
 .mat-ink-bar,
 .mat-tab-group.mat-primary .mat-ink-bar,
 .mat-tab-nav-bar.mat-primary .mat-ink-bar {
     background-color: #2d80a9 !important;
 }
 
-
 .mat-mdc-tab:hover,
 .mat-tab-label:hover {
     background-color: rgba(45, 128, 169, 0.10) !important;
 }
-
 
 .mat-mdc-tab:hover .mdc-tab__text-label,
 .mat-tab-label:hover {
     color: #2d80a9 !important;
 }
 
-
 .mat-mdc-tab:active,
 .mat-tab-label:active {
     background-color: rgba(45, 128, 169, 0.25) !important;
 }
 
-
 .mat-mdc-tab .mat-ripple-element,
 .mat-tab-label .mat-ripple-element {
     background-color: rgba(45, 128, 169, 0.30) !important;
 }
-
 
 .mat-mdc-tab:not(:hover):not(:active),
 .mat-tab-label:not(:hover):not(:active) {
@@ -168,46 +153,56 @@
 
 
 /* =========================================================
-   WIEDERHOLT UND WOCHENTAGE NEBENEINANDER
+   WIEDERHOLT LINKS – MO BIS FR DIREKT DANEBEN
    ========================================================= */
 
-.wu-repeat-weekday-row {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: flex-start !important;
-    flex-wrap: nowrap !important;
-    column-gap: 18px !important;
+/*
+   Die gemeinsame Zeile wird nicht mit display:flex überschrieben.
+   Dadurch bleibt die ursprüngliche Momentus-Anordnung erhalten.
+*/
+
+.wu-repeat-weekday-row,
+.wu-repeat-weekday-native-row {
     width: 100% !important;
-    margin: 4px 0 20px !important;
+    margin-top: 4px !important;
+    margin-bottom: 30px !important;
     box-sizing: border-box !important;
+    white-space: nowrap !important;
 }
 
+/* Feld „Wiederholt“ links */
 
-/* Feld „Wiederholt“ */
-
-.wu-repeat-weekday-row .wu-repeat-field {
-    flex: 0 0 275px !important;
+.wu-repeat-weekday-row .wu-repeat-field,
+.wu-repeat-weekday-native-row .wu-repeat-field,
+.wu-repeat-field {
+    display: inline-block !important;
     width: 275px !important;
     min-width: 275px !important;
     max-width: 275px !important;
     margin: 0 !important;
+    vertical-align: middle !important;
 }
 
-
-/* Wochentagsgruppe */
+/* Wochentage direkt rechts neben „Wiederholt“ */
 
 .usi-dayOfWeekButtons,
-.wu-repeat-weekday-row .wu-weekday-group {
-    display: flex !important;
+.wu-repeat-weekday-row .wu-weekday-group,
+.wu-repeat-weekday-native-row .wu-weekday-group,
+.wu-weekday-group {
+    display: inline-flex !important;
+    flex-direction: row !important;
     align-items: center !important;
     justify-content: flex-start !important;
-    flex: 0 0 auto !important;
+    flex-wrap: nowrap !important;
     gap: 8px !important;
     width: auto !important;
+    min-width: 0 !important;
     max-width: none !important;
-    margin: 0 !important;
+    margin: 0 0 0 18px !important;
     padding: 0 !important;
     border: none !important;
+    vertical-align: middle !important;
+    box-sizing: border-box !important;
 }
 
 
@@ -222,12 +217,27 @@ mat-button-toggle[ng-reflect-value="0"] {
     display: none !important;
 }
 
-
 /* Samstag */
 
 mat-button-toggle[value="6"],
 mat-button-toggle[ng-reflect-value="6"] {
     display: none !important;
+}
+
+/* Zusätzliche Absicherung über die JavaScript-Klasse */
+
+mat-button-toggle.wu-hidden-weekend,
+.mat-button-toggle.wu-hidden-weekend,
+.mat-mdc-button-toggle.wu-hidden-weekend {
+    display: none !important;
+    visibility: hidden !important;
+    width: 0 !important;
+    min-width: 0 !important;
+    max-width: 0 !important;
+    height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
 }
 
 
@@ -238,7 +248,11 @@ mat-button-toggle[ng-reflect-value="6"] {
 .usi-dayOfWeekButtons mat-button-toggle,
 .wu-repeat-weekday-row
 .wu-weekday-group
+mat-button-toggle,
+.wu-repeat-weekday-native-row
+.wu-weekday-group
 mat-button-toggle {
+    display: inline-flex !important;
     flex: 0 0 48px !important;
     width: 48px !important;
     min-width: 48px !important;
@@ -251,9 +265,11 @@ mat-button-toggle {
     overflow: hidden !important;
 }
 
-
 .usi-dayOfWeekButtons mat-button-toggle button,
 .wu-repeat-weekday-row
+.wu-weekday-group
+mat-button-toggle button,
+.wu-repeat-weekday-native-row
 .wu-weekday-group
 mat-button-toggle button {
     display: flex !important;
@@ -266,17 +282,18 @@ mat-button-toggle button {
     margin: 0 !important;
 }
 
-
 .usi-dayOfWeekButtons
 .mat-button-toggle-label-content,
 .wu-repeat-weekday-row
+.wu-weekday-group
+.mat-button-toggle-label-content,
+.wu-repeat-weekday-native-row
 .wu-weekday-group
 .mat-button-toggle-label-content {
     padding: 0 !important;
     line-height: 34px !important;
     text-align: center !important;
 }
-
 
 /* Ausgewählter Wochentag */
 
@@ -289,10 +306,33 @@ mat-button-toggle button {
 .mat-button-toggle-checked,
 .wu-repeat-weekday-row
 .wu-weekday-group
+.mat-mdc-button-toggle-checked,
+.wu-repeat-weekday-native-row
+.wu-weekday-group
+.mat-button-toggle-checked,
+.wu-repeat-weekday-native-row
+.wu-weekday-group
 .mat-mdc-button-toggle-checked {
     color: #ffffff !important;
     background-color: #2d80a9 !important;
     border-color: #2d80a9 !important;
+}
+
+/* Text im ausgewählten Wochentag */
+
+.usi-dayOfWeekButtons
+.mat-button-toggle-checked
+.mat-button-toggle-label-content,
+.usi-dayOfWeekButtons
+.mat-mdc-button-toggle-checked
+.mat-button-toggle-label-content,
+.wu-weekday-group
+.mat-button-toggle-checked
+.mat-button-toggle-label-content,
+.wu-weekday-group
+.mat-mdc-button-toggle-checked
+.mat-button-toggle-label-content {
+    color: #ffffff !important;
 }
 
 
@@ -307,7 +347,6 @@ mat-button-toggle button {
     background-color: #2d80a9 !important;
     opacity: 1 !important;
 }
-
 
 .chadmo .chadmo-merged-cell *,
 .chadmo-merged-cell * {
@@ -333,7 +372,6 @@ app-calendar-day-view {
     box-sizing: border-box !important;
 }
 
-
 .chadmo,
 .chadmo.calendarGrid,
 .chadmo.calendarGrid.day-view,
@@ -343,7 +381,6 @@ app-calendar-day-view {
     max-width: 100% !important;
     box-sizing: border-box !important;
 }
-
 
 .chadmo-viewport {
     overflow-x: auto !important;
@@ -362,7 +399,6 @@ app-calendar-day-view {
     box-sizing: border-box !important;
     white-space: nowrap !important;
 }
-
 
 .chadmo .rowHeadLeftCss3 .rowHeaderContent,
 .rowHeadLeftCss3 .rowHeaderContent {
@@ -393,13 +429,11 @@ app-calendar-day-view {
     line-height: 1.5;
 }
 
-
 .wu-info-box h2 {
     margin: 0 0 8px;
     color: #2d80a9;
     font-size: 20px;
 }
-
 
 .wu-info-box p {
     margin: 0;
@@ -411,24 +445,30 @@ app-calendar-day-view {
    ========================================================= */
 
 @media screen and (max-width: 768px) {
-    .wu-repeat-weekday-row {
-        align-items: stretch !important;
-        flex-wrap: wrap !important;
-        row-gap: 10px !important;
-        column-gap: 8px !important;
+    .wu-repeat-weekday-row,
+    .wu-repeat-weekday-native-row {
+        white-space: normal !important;
+        margin-bottom: 30px !important;
     }
 
-    .wu-repeat-weekday-row .wu-repeat-field {
-        flex: 1 1 100% !important;
+    .wu-repeat-weekday-row .wu-repeat-field,
+    .wu-repeat-weekday-native-row .wu-repeat-field,
+    .wu-repeat-field {
+        display: block !important;
         width: 100% !important;
         min-width: 0 !important;
         max-width: none !important;
+        margin-bottom: 10px !important;
     }
 
     .usi-dayOfWeekButtons,
-    .wu-repeat-weekday-row .wu-weekday-group {
+    .wu-repeat-weekday-row .wu-weekday-group,
+    .wu-repeat-weekday-native-row .wu-weekday-group,
+    .wu-weekday-group {
+        display: flex !important;
         flex-wrap: wrap !important;
         width: auto !important;
+        margin-left: 0 !important;
     }
 
     app-calendar-mobile-view .rowHeadLeftCss3 {
@@ -436,4 +476,81 @@ app-calendar-day-view {
         min-width: 0 !important;
         max-width: none !important;
     }
+}
+/* =========================================================
+   WOCHENENDE ENDGÜLTIG AUSBLENDEN
+   Muss am Ende der CSS-Datei stehen
+   ========================================================= */
+
+/* Sonntag – erster Button */
+.usi-dayOfWeekButtons mat-button-toggle:first-child,
+.wu-weekday-group mat-button-toggle:first-child,
+
+/* Samstag – letzter Button */
+.usi-dayOfWeekButtons mat-button-toggle:last-child,
+.wu-weekday-group mat-button-toggle:last-child,
+
+/* Absicherung über Werte und JavaScript-Klasse */
+.usi-dayOfWeekButtons mat-button-toggle[value="0"],
+.usi-dayOfWeekButtons mat-button-toggle[value="6"],
+.wu-weekday-group mat-button-toggle[value="0"],
+.wu-weekday-group mat-button-toggle[value="6"],
+.usi-dayOfWeekButtons mat-button-toggle.wu-hidden-weekend,
+.wu-weekday-group mat-button-toggle.wu-hidden-weekend {
+    display: none !important;
+    visibility: hidden !important;
+    flex: 0 0 0 !important;
+    width: 0 !important;
+    min-width: 0 !important;
+    max-width: 0 !important;
+    height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    overflow: hidden !important;
+}
+
+/* Auswahl „Ich selbst“ ausblenden */
+.usi-orgSelectOptions .usi-selfOpt {
+    display: none !important;
+}
+
+/* Schaltfläche „Zurück zur Anmeldung“ ausblenden */
+.usi-orgSelectionContainer
+.usi-buttonGroup
+button.usi-button.secondary {
+    display: none !important;
+}
+
+/* Rahmen der Organisation dauerhaft in WU-Farbe */
+.usi-orgSelectionContainer
+.usi-orgSelectOptions
+.usi-orgOpt {
+    border: 2px solid #2d80a9 !important;
+    border-color: #2d80a9 !important;
+}
+
+/* WU-Rahmen auch bei Hover, Fokus und Auswahl beibehalten */
+.usi-orgSelectionContainer
+.usi-orgSelectOptions
+.usi-orgOpt:hover,
+.usi-orgSelectionContainer
+.usi-orgSelectOptions
+.usi-orgOpt:focus,
+.usi-orgSelectionContainer
+.usi-orgSelectOptions
+.usi-orgOpt:focus-visible,
+.usi-orgSelectionContainer
+.usi-orgSelectOptions
+.usi-orgOpt.selected {
+    border: 2px solid #2d80a9 !important;
+    border-color: #2d80a9 !important;
+    outline: none !important;
+}
+
+/* Grauen Statuspunkt „nicht verfügbar“ in WU-Farbe darstellen */
+span.usi-circle.unavailable,
+.usi-circle.unavailable {
+    background-color: #3d80ab !important;
+    border-color: #3d80ab !important;
 }
