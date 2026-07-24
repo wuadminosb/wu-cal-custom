@@ -480,14 +480,17 @@ app-calendar-day-view {
    ========================================================= */
 
 /* Sonntag – erster Button */
+
 .usi-dayOfWeekButtons mat-button-toggle:first-child,
 .wu-weekday-group mat-button-toggle:first-child,
 
 /* Samstag – letzter Button */
+
 .usi-dayOfWeekButtons mat-button-toggle:last-child,
 .wu-weekday-group mat-button-toggle:last-child,
 
 /* Absicherung über Werte und JavaScript-Klasse */
+
 .usi-dayOfWeekButtons mat-button-toggle[value="0"],
 .usi-dayOfWeekButtons mat-button-toggle[value="6"],
 .wu-weekday-group mat-button-toggle[value="0"],
@@ -566,22 +569,4 @@ span.originCellContent {
 span.originCellContent::after {
     content: "Raum";
     font-size: 14px !important;
-}
-
-
-/* =========================================================
-   DYNAMISCHE DEUTSCHE KALENDER-DATUMSANZEIGE
-
-   Der Originaltext bleibt für Angular vollständig erhalten.
-   JavaScript hinterlegt nur die deutsche Anzeige im data-Attribut.
-   ========================================================= */
-
-.usi-calendarMonthLabel.wu-calendar-date-formatted {
-    font-size: 0 !important;
-}
-
-.usi-calendarMonthLabel.wu-calendar-date-formatted::after {
-    content: attr(data-wu-calendar-date);
-    font-size: 16px;
-    line-height: normal;
 }
