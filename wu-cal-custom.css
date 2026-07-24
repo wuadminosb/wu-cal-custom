@@ -156,11 +156,6 @@
    WIEDERHOLT LINKS – MO BIS FR DIREKT DANEBEN
    ========================================================= */
 
-/*
-   Die gemeinsame Zeile wird nicht mit display:flex überschrieben.
-   Dadurch bleibt die ursprüngliche Momentus-Anordnung erhalten.
-*/
-
 .wu-repeat-weekday-row,
 .wu-repeat-weekday-native-row {
     width: 100% !important;
@@ -170,7 +165,7 @@
     white-space: nowrap !important;
 }
 
-/* Feld „Wiederholt" links */
+/* Feld „Wiederholt“ links */
 
 .wu-repeat-weekday-row .wu-repeat-field,
 .wu-repeat-weekday-native-row .wu-repeat-field,
@@ -183,7 +178,7 @@
     vertical-align: middle !important;
 }
 
-/* Wochentage direkt rechts neben „Wiederholt" */
+/* Wochentage direkt rechts neben „Wiederholt“ */
 
 .usi-dayOfWeekButtons,
 .wu-repeat-weekday-row .wu-weekday-group,
@@ -477,6 +472,8 @@ app-calendar-day-view {
         max-width: none !important;
     }
 }
+
+
 /* =========================================================
    WOCHENENDE ENDGÜLTIG AUSBLENDEN
    Muss am Ende der CSS-Datei stehen
@@ -510,12 +507,14 @@ app-calendar-day-view {
     overflow: hidden !important;
 }
 
-/* Auswahl „Ich selbst" ausblenden */
+/* Auswahl „Ich selbst“ ausblenden */
+
 .usi-orgSelectOptions .usi-selfOpt {
     display: none !important;
 }
 
-/* Schaltfläche „Zurück zur Anmeldung" ausblenden */
+/* Schaltfläche „Zurück zur Anmeldung“ ausblenden */
+
 .usi-orgSelectionContainer
 .usi-buttonGroup
 button.usi-button.secondary {
@@ -523,6 +522,7 @@ button.usi-button.secondary {
 }
 
 /* Rahmen der Organisation dauerhaft in WU-Farbe */
+
 .usi-orgSelectionContainer
 .usi-orgSelectOptions
 .usi-orgOpt {
@@ -531,6 +531,7 @@ button.usi-button.secondary {
 }
 
 /* WU-Rahmen auch bei Hover, Fokus und Auswahl beibehalten */
+
 .usi-orgSelectionContainer
 .usi-orgSelectOptions
 .usi-orgOpt:hover,
@@ -548,14 +549,16 @@ button.usi-button.secondary {
     outline: none !important;
 }
 
-/* Grauen Statuspunkt „nicht verfügbar" in WU-Farbe darstellen */
+/* Grauen Statuspunkt „nicht verfügbar“ in WU-Farbe darstellen */
+
 span.usi-circle.unavailable,
 .usi-circle.unavailable {
     background-color: #3d80ab !important;
     border-color: #3d80ab !important;
 }
 
-/* Bezeichnung „Space" visuell durch „Raum" ersetzen */
+/* Bezeichnung „Space“ visuell durch „Raum“ ersetzen */
+
 span.originCellContent {
     font-size: 0 !important;
 }
@@ -563,4 +566,22 @@ span.originCellContent {
 span.originCellContent::after {
     content: "Raum";
     font-size: 14px !important;
+}
+
+
+/* =========================================================
+   DYNAMISCHE DEUTSCHE KALENDER-DATUMSANZEIGE
+
+   Der Originaltext bleibt für Angular vollständig erhalten.
+   JavaScript hinterlegt nur die deutsche Anzeige im data-Attribut.
+   ========================================================= */
+
+.usi-calendarMonthLabel.wu-calendar-date-formatted {
+    font-size: 0 !important;
+}
+
+.usi-calendarMonthLabel.wu-calendar-date-formatted::after {
+    content: attr(data-wu-calendar-date);
+    font-size: 16px;
+    line-height: normal;
 }
