@@ -1,10 +1,8 @@
 (function () {
     'use strict';
 
-    /* Verhindert, dass mehrere DOM-Aktualisierungen gleichzeitig laufen. */
     let updatePending = false;
 
-    /* Vereinheitlicht Buttontexte für die zuverlässige Tageserkennung. */
     function normalizedText(element) {
         return (element.textContent || '')
             .replace(/\u00a0/g, '')
@@ -13,7 +11,6 @@
             .toLowerCase();
     }
 
-    /* Erkennt Samstag und Sonntag auf Deutsch und Englisch. */
     function isWeekend(text) {
         return [
             'so', 'so.', 'sonntag', 'sun', 'sunday',
@@ -21,7 +18,6 @@
         ].includes(text);
     }
 
-    /* Erkennt Montag bis Freitag auf Deutsch. */
     function isWeekday(text) {
         return [
             'mo', 'mo.', 'montag',
@@ -32,9 +28,9 @@
         ].includes(text);
     }
 
-    /* Ändert „SPACE" auf „RAUM" überall auf der Seite mit verbesserter Logik. */
+    /* SPACE → Raum Konvertierung - ALL INCLUSIVE */
     function changeSpaceLabel() {
-        // Strategie 1: TreeWalker für Textknoten
+        // Strategie 1: Alle Textelemente mit TreeWalker
         const walker = document.createTreeWalker(
             document.body,
             NodeFilter.SHOW_TEXT
@@ -45,115 +41,64 @@
 
         while ((node = walker.nextNode())) {
             const val = node.nodeValue || '';
-            if (val.toUpperCase().includes('SPACE')) {
+            if (/\bspace\b/gi.test(val)) {
                 textNodes.push(node);
             }
         }
 
         textNodes.forEach(function (textNode) {
-            /* Case-insensitive Ersetzung */
-            textNode.nodeValue = textNode.nodeValue.replace(/\bspace\b/gi, 'Raum').replace(/\bSpace\b/g, 'Raum').replace(/\bSPACE\b/g, 'RAUM');
+            textNode.nodeValue = textNode.nodeValue.replace(/\bspace\b/gi, 'Raum');
         });
 
-        // Strategie 2: innerHTML für Elemente ohne Kinder
-        document.querySelectorAll('*').forEach(function (element) {
-            if (element.children.length === 0 && element.textContent) {
-                const text = element.textContent;
-                if (text.includes('Space') || text.includes('SPACE') || text.includes('space')) {
-                    element.textContent = text.replace(/\bspace\b/gi, 'Raum').replace(/\bSpace\b/g, 'Raum').replace(/\bSPACE\b/g, 'RAUM');
-                }
-            }
-        });
-
-        // Strategie 3: Spezifische Elemente mit aria-labels, titles, etc.
-        document.querySelectorAll('[aria-label], [title], [placeholder]').forEach(function (element) {
-            const ariaLabel = element.getAttribute('aria-label');
-            if (ariaLabel && (ariaLabel.includes('Space') || ariaLabel.includes('space'))) {
-                element.setAttribute('aria-label', ariaLabel.replace(/\bspace\b/gi, 'Raum').replace(/\bSpace\b/g, 'Raum'));
-            }
-            
-            const title = element.getAttribute('title');
-            if (title && (title.includes('Space') || title.includes('space'))) {
-                element.setAttribute('title', title.replace(/\bspace\b/gi, 'Raum').replace(/\bSpace\b/g, 'Raum'));
-            }
-
-            const placeholder = element.getAttribute('placeholder');
-            if (placeholder && (placeholder.includes('Space') || placeholder.includes('space'))) {
-                element.setAttribute('placeholder', placeholder.replace(/\bspace\b/gi, 'Raum').replace(/\bSpace\b/g, 'Raum'));
-            }
-        });
-    }
-
-    /* Wandelt die Stundenachse von AM/PM in das 24-Stunden-Format HH:MM um. */
-    function changeCalendarTimeFormat() {
-        // Regex für AM/PM Format
-        const ampmRegex = /(\d{1,2})\s*(?::(\d{2}))?\s*(AM|PM|am|pm)/;
-        const timeFormatRegex = /\d{1,2}(?::\d{2})?\s*(?:AM|PM|am|pm)/gi;
-
-        // Strategie 1: Alle Textelemente im gesamten Dokument durchsuchen und ersetzen
-        const walker = document.createTreeWalker(
-            document.body,
-            NodeFilter.SHOW_TEXT
-        );
-
-        const textNodes = [];
-        let node;
-
-        while ((node = walker.nextNode())) {
-            const nodeValue = (node.nodeValue || '').trim();
-            if (timeFormatRegex.test(nodeValue)) {
-                textNodes.push(node);
-            }
-        }
-
-        textNodes.forEach(function (textNode) {
-            textNode.nodeValue = convertTime(textNode.nodeValue);
-        });
-
-        // Strategie 2: Tabellenzellen durchsuchen
-        document.querySelectorAll('th, td, div, span, p, li, label').forEach(function (element) {
+        // Strategie 2: Spezifische Elemente mit textContent
+        document.querySelectorAll('.originCellContent, [class*="Cell"], .rowHeaderContent, span, div, label, p').forEach(function (element) {
             if (element.children.length === 0) {
-                const content = element.textContent;
-                if (timeFormatRegex.test(content)) {
-                    element.textContent = convertTime(content);
+                const text = element.textContent;
+                if (/\bspace\b/gi.test(text)) {
+                    element.textContent = text.replace(/\bspace\b/gi, 'Raum');
                 }
             }
         });
 
-        // Strategie 3: Elemente mit innerHTML durchsuchen und ersetzen
-        document.querySelectorAll('*').forEach(function (element) {
-            if (element.children.length === 0 && element.innerHTML && element.innerHTML.includes(':')) {
-                let html = element.innerHTML;
-                const newHtml = html.replace(timeFormatRegex, function (match) {
-                    return convertTime(match);
-                });
-                if (newHtml !== html) {
-                    element.innerHTML = newHtml;
+        // Strategie 3: Attribute durchsuchen
+        document.querySelectorAll('[aria-label], [title], [placeholder], [data-*]').forEach(function (element) {
+            ['aria-label', 'title', 'placeholder'].forEach(function (attr) {
+                const val = element.getAttribute(attr);
+                if (val && /\bspace\b/gi.test(val)) {
+                    element.setAttribute(attr, val.replace(/\bspace\b/gi, 'Raum'));
+                }
+            });
+        });
+    }
+
+    /* Zeit AM/PM → 24h Format */
+    function changeCalendarTimeFormat() {
+        // Suche alle Elemente die Zeit enthalten könnten
+        document.querySelectorAll('span, div, td, th, p, label, button').forEach(function (element) {
+            if (element.children.length === 0 && element.textContent) {
+                const text = element.textContent.trim();
+                
+                // Regex für AM/PM Format: "8 AM", "8AM", "8:00 AM", etc.
+                const match = text.match(/^(\d{1,2})\s*(?::(\d{2}))?\s*(AM|PM|am|pm)$/i);
+                
+                if (match) {
+                    let hour = parseInt(match[1], 10);
+                    const minutes = (match[2] || '00').trim();
+                    const ampm = match[3].toUpperCase();
+
+                    if (ampm === 'AM') {
+                        if (hour === 12) hour = 0;
+                    } else {
+                        if (hour !== 12) hour += 12;
+                    }
+
+                    const newTime = String(hour).padStart(2, '0') + ':' + minutes;
+                    element.textContent = newTime;
                 }
             }
         });
     }
 
-    /* Konvertiert Zeitformat von AM/PM zu 24-Stunden-Format. */
-    function convertTime(timeString) {
-        const regex = /(\d{1,2})\s*(?::(\d{2}))?\s*(AM|PM|am|pm)/gi;
-        
-        return timeString.replace(regex, function (match, hour, minutes, ampm) {
-            let h = parseInt(hour, 10);
-            const m = (minutes || '00').trim();
-            const ap = ampm.toUpperCase();
-
-            if (ap === 'AM') {
-                if (h === 12) h = 0;
-            } else {
-                if (h !== 12) h += 12;
-            }
-
-            return String(h).padStart(2, '0') + ':' + m;
-        });
-    }
-
-    /* Korrigiert die Datumsbeschriftung auf „Datum". */
     function changeDateLabel() {
         document.querySelectorAll(
             'label[for="searchDatePicker"] mat-label, ' +
@@ -168,7 +113,6 @@
         });
     }
 
-    /* Findet die von Momentus erzeugte Gruppe der Wochentagsbuttons. */
     function findWeekdayGroups() {
         const groups = document.querySelectorAll(
             'mat-button-toggle-group, ' +
@@ -197,10 +141,6 @@
         });
     }
 
-    /* 
-     * Markiert Samstag und Sonntag mit CSS-Klasse statt sie zu entfernen.
-     * Die CSS-Datei verbirgt sie dann mit display:none.
-     */
     function markWeekendButtons() {
         findWeekdayGroups().forEach(function (group) {
             group.classList.add('wu-weekday-group');
@@ -218,7 +158,6 @@
                     toggle.getAttribute('ng-reflect-value');
                 const text = normalizedText(toggle);
 
-                /* Markiere Wochenende mit Klasse */
                 if (value === '0' || value === '6' || isWeekend(text)) {
                     toggle.classList.add('wu-hidden-weekend');
                 }
@@ -226,10 +165,6 @@
         });
     }
 
-    /*
-     * Vergibt CSS-Hilfsklassen, damit „Wiederholt" und Mo.–Fr.
-     * gemeinsam gestaltet und in einer Zeile angeordnet werden können.
-     */
     function markRepeatAndWeekdayArea() {
         findWeekdayGroups().forEach(function (group) {
             group.classList.add('wu-weekday-group');
@@ -263,7 +198,6 @@
         });
     }
 
-    /* Führt alle WU-Anpassungen in der richtigen Reihenfolge aus. */
     function applyWuAdjustments() {
         changeSpaceLabel();
         changeCalendarTimeFormat();
@@ -272,7 +206,6 @@
         markRepeatAndWeekdayArea();
     }
 
-    /* Bündelt schnelle DOM-Änderungen in einen einzigen Browser-Zyklus. */
     function scheduleUpdate() {
         if (updatePending) {
             return;
@@ -285,14 +218,11 @@
         });
     }
 
-    /*
-     * Startet die Anpassungen, wiederholt sie während des Seitenaufbaus
-     * und überwacht spätere dynamische Änderungen der Angular-Oberfläche.
-     */
     function initialize() {
         applyWuAdjustments();
 
-        [100, 250, 500, 1000, 2000, 4000, 8000].forEach(function (delay) {
+        // Häufigere Wiederholungen für bessere Coverage
+        [50, 100, 200, 500, 1000, 2000, 3000, 5000, 8000].forEach(function (delay) {
             window.setTimeout(applyWuAdjustments, delay);
         });
 
@@ -300,10 +230,13 @@
         observer.observe(document.body, {
             childList: true,
             subtree: true,
-            characterData: true
+            characterData: true,
+            attributes: true,
+            attributeFilter: ['textContent', 'innerText']
         });
 
-        window.setInterval(applyWuAdjustments, 1500);
+        // Noch häufigere Interval-Prüfung für Angular-Rendering
+        window.setInterval(applyWuAdjustments, 1000);
     }
 
     if (document.readyState === 'loading') {
