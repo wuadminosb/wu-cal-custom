@@ -1,360 +1,341 @@
 (function () {
     'use strict';
 
-    function initializeWuCalendar() {
-        const styleId = 'wu-calendar-custom-styles';
+    let updatePending = false;
 
-        /*
-         * Vorherige Skriptinstanz bereinigen,
-         * falls die Datei mehrfach geladen wurde.
-         */
-        if (window.wuCalendarObserver) {
-            window.wuCalendarObserver.disconnect();
-        }
+    function normalizedText(element) {
+        return (element.textContent || '')
+            .replace(/\u00a0/g, '')
+            .replace(/\s+/g, '')
+            .trim()
+            .toLowerCase();
+    }
 
-        if (window.wuCalendarInterval) {
-            window.clearInterval(window.wuCalendarInterval);
-        }
+    function isWeekend(text) {
+        return [
+            'so', 'so.', 'sonntag', 'sun', 'sunday',
+            'sa', 'sa.', 'samstag', 'sat', 'saturday'
+        ].includes(text);
+    }
 
-        document.getElementById(styleId)?.remove();
+    function isWeekday(text) {
+        return [
+            'mo', 'mo.', 'montag',
+            'di', 'di.', 'dienstag',
+            'mi', 'mi.', 'mittwoch',
+            'do', 'do.', 'donnerstag',
+            'fr', 'fr.', 'freitag'
+        ].includes(text);
+    }
 
-        /*
-         * WU-Formatierungen einfügen.
-         */
-        const style = document.createElement('style');
-        style.id = styleId;
+    /* SPACE â†’ Raum Konvertierung - ALL INCLUSIVE */
+    function changeSpaceLabel() {
+        // Strategie 1: Alle Textelemente mit TreeWalker
+        const walker = document.createTreeWalker(
+            document.body,
+            NodeFilter.SHOW_TEXT
+        );
 
-        style.textContent = `
-            /*
-             * Ursprüngliche Beschriftung „Space“ ausblenden.
-             */
-            span.originCellContent {
-                font-size: 0 !important;
-            }
+        const textNodes = [];
+        let node;
 
-            /*
-             * Deutsche Bezeichnung „Raum“ anzeigen.
-             */
-            span.originCellContent::after {
-                content: "Raum" !important;
-                display: inline-block !important;
-                font-family: Verdana, Geneva, sans-serif !important;
-                font-size: 16px !important;
-                font-weight: 700 !important;
-                font-style: normal !important;
-                line-height: 1.2 !important;
-                letter-spacing: normal !important;
-                text-transform: none !important;
-                color: #000000 !important;
-                opacity: 1 !important;
-                -webkit-text-fill-color: #000000 !important;
-            }
-
-            /*
-             * Uhrzeiten formatieren.
-             */
-            .wu-calendar-time {
-                font-family: Verdana, Geneva, sans-serif !important;
-                font-size: 16px !important;
-                font-weight: 700 !important;
-                font-style: normal !important;
-                line-height: 1.2 !important;
-                letter-spacing: normal !important;
-                color: #000000 !important;
-                opacity: 1 !important;
-                -webkit-text-fill-color: #000000 !important;
-            }
-
-            /*
-             * Deutsches Kalenderdatum formatieren.
-             */
-            .wu-calendar-date {
-                font-family: Verdana, Geneva, sans-serif !important;
-            }
-        `;
-
-        (document.head || document.documentElement).appendChild(style);
-
-        const germanMonths = {
-            january: 'Jänner',
-            february: 'Februar',
-            march: 'März',
-            april: 'April',
-            may: 'Mai',
-            june: 'Juni',
-            july: 'Juli',
-            august: 'August',
-            september: 'September',
-            october: 'Oktober',
-            november: 'November',
-            december: 'Dezember'
-        };
-
-        /*
-         * AM/PM in das 24-Stunden-Format umwandeln.
-         */
-        function convertTime(text) {
-            return text.replace(
-                /\b(1[0-2]|0?[1-9])(?::([0-5]\d))?\s*(AM|PM)\b/gi,
-                function (_, hourValue, minuteValue, period) {
-                    let hour = Number(hourValue);
-                    const minutes = minuteValue || '00';
-
-                    if (period.toUpperCase() === 'AM') {
-                        if (hour === 12) {
-                            hour = 0;
-                        }
-                    } else if (hour !== 12) {
-                        hour += 12;
-                    }
-
-                    return (
-                        String(hour).padStart(2, '0') +
-                        ':' +
-                        minutes
-                    );
-                }
-            );
-        }
-
-        /*
-         * Englisches Datumsformat in die deutsche Schreibweise
-         * umwandeln.
-         *
-         * Beispiel:
-         * „Freitag, August 7, 2026“
-         * wird zu
-         * „Freitag, 7. August 2026“
-         */
-        function convertDate(text) {
-            return text.replace(
-                /^([^,]+),\s*(January|February|March|April|May|June|July|August|September|October|November|December)\s+(\d{1,2}),\s*(\d{4})$/i,
-                function (_, weekday, month, day, year) {
-                    return (
-                        weekday +
-                        ', ' +
-                        day +
-                        '. ' +
-                        germanMonths[month.toLowerCase()] +
-                        ' ' +
-                        year
-                    );
-                }
-            );
-        }
-
-        /*
-         * „Space“ in beschreibenden HTML-Attributen
-         * ebenfalls durch „Raum“ ersetzen.
-         */
-        function changeSpaceAttributes() {
-            document.querySelectorAll(
-                '[aria-label], [title], [placeholder]'
-            ).forEach(function (element) {
-                [
-                    'aria-label',
-                    'title',
-                    'placeholder'
-                ].forEach(function (attribute) {
-                    const value = element.getAttribute(attribute);
-
-                    if (value && /\bspace\b/i.test(value)) {
-                        element.setAttribute(
-                            attribute,
-                            value.replace(/\bspace\b/gi, 'Raum')
-                        );
-                    }
-                });
-            });
-        }
-
-        /*
-         * Bereits im 24-Stunden-Format dargestellte
-         * Kalenderzeiten erkennen und markieren.
-         */
-        function markExistingCalendarTimes() {
-            document.querySelectorAll(
-                '.timeCellContent, [class*="timeCell"], [class*="time-cell"]'
-            ).forEach(function (element) {
-                const text = (element.textContent || '').trim();
-
-                if (
-                    /^(?:[01]\d|2[0-3]):[0-5]\d$/.test(text)
-                ) {
-                    element.classList.add('wu-calendar-time');
-                }
-            });
-        }
-
-        /*
-         * Sämtliche Textanpassungen durchführen.
-         */
-        function applyWuFixes() {
-            if (!document.body) {
-                return;
-            }
-
-            changeSpaceAttributes();
-
-            const walker = document.createTreeWalker(
-                document.body,
-                NodeFilter.SHOW_TEXT
-            );
-
-            const textNodes = [];
-            let node;
-
-            while ((node = walker.nextNode())) {
+        while ((node = walker.nextNode())) {
+            const val = node.nodeValue || '';
+            if (/\bspace\b/gi.test(val)) {
                 textNodes.push(node);
             }
-
-            textNodes.forEach(function (textNode) {
-                const parent = textNode.parentElement;
-                const originalText = textNode.nodeValue || '';
-                const trimmedText = originalText.trim();
-
-                if (
-                    !parent ||
-                    !trimmedText ||
-                    parent.closest(
-                        'script, style, textarea, input, option'
-                    )
-                ) {
-                    return;
-                }
-
-                /*
-                 * AM/PM-Zeit umwandeln.
-                 */
-                if (
-                    /\b(1[0-2]|0?[1-9])(?::[0-5]\d)?\s*(AM|PM)\b/i
-                        .test(originalText)
-                ) {
-                    textNode.nodeValue = convertTime(originalText);
-                    parent.classList.add('wu-calendar-time');
-                }
-
-                /*
-                 * Bereits umgewandelte Kalenderzeiten markieren.
-                 */
-                if (
-                    /^(?:[01]\d|2[0-3]):[0-5]\d$/.test(trimmedText) &&
-                    (
-                        parent.closest('.timeCellContent') ||
-                        parent.closest('[class*="timeCell"]') ||
-                        parent.closest('[class*="time-cell"]') ||
-                        parent.classList.contains('wu-calendar-time')
-                    )
-                ) {
-                    parent.classList.add('wu-calendar-time');
-                }
-
-                /*
-                 * Englisches Datum deutsch formatieren.
-                 */
-                const convertedDate = convertDate(trimmedText);
-
-                if (convertedDate !== trimmedText) {
-                    textNode.nodeValue = convertedDate;
-                    parent.classList.add('wu-calendar-date');
-                }
-            });
-
-            markExistingCalendarTimes();
-
-            /*
-             * Erfolgreich getestete Mindesthöhe anwenden.
-             */
-            document.querySelectorAll(
-                '.wu-calendar-time'
-            ).forEach(function (time) {
-                if (time.parentElement) {
-                    time.parentElement.style.setProperty(
-                        'min-height',
-                        '25px',
-                        'important'
-                    );
-                }
-            });
         }
 
-        /*
-         * Viele unmittelbar aufeinanderfolgende Änderungen
-         * durch Angular in einem Durchlauf zusammenfassen.
-         */
-        let updatePending = false;
+        textNodes.forEach(function (textNode) {
+            textNode.nodeValue = textNode.nodeValue.replace(/\bspace\b/gi, 'Raum');
+        });
 
-        function scheduleUpdate() {
-            if (updatePending) {
-                return;
+        // Strategie 2: Spezifische Elemente mit textContent
+        document.querySelectorAll('.originCellContent, [class*="Cell"], .rowHeaderContent, span, div, label, p').forEach(function (element) {
+            if (element.children.length === 0) {
+                const text = element.textContent;
+                if (/\bspace\b/gi.test(text)) {
+                    element.textContent = text.replace(/\bspace\b/gi, 'Raum');
+                }
             }
+        });
 
-            updatePending = true;
-
-            window.requestAnimationFrame(function () {
-                updatePending = false;
-                applyWuFixes();
+        // Strategie 3: Attribute durchsuchen
+        document.querySelectorAll('[aria-label], [title], [placeholder]').forEach(function (element) {
+            ['aria-label', 'title', 'placeholder'].forEach(function (attr) {
+                const val = element.getAttribute(attr);
+                if (val && /\bspace\b/gi.test(val)) {
+                    element.setAttribute(attr, val.replace(/\bspace\b/gi, 'Raum'));
+                }
             });
-        }
-
-        /*
-         * Anpassungen sofort ausführen.
-         */
-        applyWuFixes();
-
-        /*
-         * Später geladene Angular-Inhalte automatisch bearbeiten.
-         */
-        window.wuCalendarObserver = new MutationObserver(
-            scheduleUpdate
-        );
-
-        window.wuCalendarObserver.observe(document.body, {
-            childList: true,
-            subtree: true,
-            characterData: true
         });
+    }
 
-        /*
-         * Zusätzliche Sicherheitsprüfung für dynamisch
-         * neu aufgebaute Kalenderbereiche.
-         */
-        window.wuCalendarInterval = window.setInterval(
-            applyWuFixes,
-            1000
-        );
+    /* Zeit AM/PM â†’ 24h Format */
+    function changeCalendarTimeFormat() {
+        // Suche alle Elemente die Zeit enthalten kÃ¶nnten
+        document.querySelectorAll('span, div, td, th, p, label, button').forEach(function (element) {
+            if (element.children.length === 0 && element.textContent) {
+                const text = element.textContent.trim();
+                
+                // Regex fÃ¼r AM/PM Format: "8 AM", "8AM", "8:00 AM", etc.
+                const match = text.match(/^(\d{1,2})\s*(?::(\d{2}))?\s*(AM|PM|am|pm)$/i);
+                
+                if (match) {
+                    let hour = parseInt(match[1], 10);
+                    const minutes = (match[2] || '00').trim();
+                    const ampm = match[3].toUpperCase();
 
-        /*
-         * Zusätzliche Startdurchläufe für verzögertes Rendering.
-         */
-        [
-            100,
-            250,
-            500,
-            1000,
-            2000,
-            4000,
-            8000
-        ].forEach(function (delay) {
-            window.setTimeout(applyWuFixes, delay);
+                    if (ampm === 'AM') {
+                        if (hour === 12) hour = 0;
+                    } else {
+                        if (hour !== 12) hour += 12;
+                    }
+
+                    const newTime = String(hour).padStart(2, '0') + ':' + minutes;
+                    element.textContent = newTime;
+                }
+            }
         });
+    }
 
-        console.log(
-            'WU-Kalenderanpassungen wurden erfolgreich geladen.'
-        );
+    function changeDateLabel() {
+        document.querySelectorAll(
+            'label[for="searchDatePicker"] mat-label, ' +
+            'label[for="searchDatePicker"], ' +
+            '#searchDatePicker mat-label'
+        ).forEach(function (label) {
+            const text = (label.textContent || '').replace(/\s+/g, ' ').trim();
+
+            if (text === 'Daten' || text === 'Date' || text === 'Datum') {
+                label.textContent = 'Datum';
+            }
+        });
     }
 
     /*
-     * Bei einer extern eingebundenen Datei sicherstellen,
-     * dass document.body bereits vorhanden ist.
+     * Raumnummer und Raumname in den Kalenderzeilen trennen.
+     * Erkennt unter anderem AD.0.089, D1.1.074, EA.01002,
+     * LC.2.400 und TC.0.01.
      */
-    if (document.readyState === 'loading') {
-        document.addEventListener(
-            'DOMContentLoaded',
-            initializeWuCalendar,
-            { once: true }
+    function formatRoomHeaders() {
+        const roomPattern =
+            /^\s*([A-ZÃ„Ã–Ãœ][A-ZÃ„Ã–Ãœ0-9-]*(?:\.[A-ZÃ„Ã–Ãœ0-9-]+)+)\s+(.+?)\s*$/i;
+
+        document.querySelectorAll(
+            '.headerCell .rowHeaderContent'
+        ).forEach(function (element) {
+            /*
+             * Bereits formatierte EintrÃ¤ge nicht erneut bearbeiten.
+             * Wird ein Element von Momentus neu befÃ¼llt, verschwinden diese
+             * Kind-Elemente und die neue Bezeichnung wird wieder erkannt.
+             */
+            if (element.querySelector('.wu-room-number')) {
+                return;
+            }
+
+            const originalText = (element.textContent || '').trim();
+            const match = originalText.match(roomPattern);
+
+            if (!match) {
+                return;
+            }
+
+            const numberElement = document.createElement('span');
+            numberElement.className = 'wu-room-number';
+            numberElement.textContent = match[1];
+
+            const nameElement = document.createElement('span');
+            nameElement.className = 'wu-room-name';
+            nameElement.textContent = match[2];
+
+            element.replaceChildren(
+                numberElement,
+                document.createElement('br'),
+                nameElement
+            );
+
+            /*
+             * Kompakte Darstellung innerhalb der unverÃ¤nderten
+             * Momentus-ZeilenhÃ¶he, damit das Kalenderraster ausgerichtet bleibt.
+             */
+            element.style.setProperty('display', 'block', 'important');
+            element.style.setProperty('width', '100%', 'important');
+            element.style.setProperty('text-align', 'center', 'important');
+            element.style.setProperty('white-space', 'normal', 'important');
+            element.style.setProperty('line-height', '14px', 'important');
+            element.style.setProperty('font-size', '12px', 'important');
+            element.style.setProperty('padding', '2px', 'important');
+            element.style.setProperty('box-sizing', 'border-box', 'important');
+            element.style.setProperty('overflow', 'visible', 'important');
+
+            /* Nur der Raumname wird fett dargestellt. */
+            numberElement.style.setProperty(
+                'font-weight',
+                'normal',
+                'important'
+            );
+
+            nameElement.style.setProperty(
+                'font-weight',
+                '700',
+                'important'
+            );
+
+            const headerCell = element.closest('.headerCell');
+
+            if (headerCell) {
+                headerCell.style.setProperty(
+                    'text-align',
+                    'center',
+                    'important'
+                );
+
+                headerCell.style.setProperty(
+                    'overflow',
+                    'visible',
+                    'important'
+                );
+
+                headerCell.style.setProperty(
+                    'box-sizing',
+                    'border-box',
+                    'important'
+                );
+            }
+        });
+    }
+
+    function findWeekdayGroups() {
+        const groups = document.querySelectorAll(
+            'mat-button-toggle-group, ' +
+            '.mat-button-toggle-group, ' +
+            '.usi-dayOfWeekButtons, ' +
+            '[role="group"]'
         );
+
+        return Array.from(groups).filter(function (group) {
+            const controls = group.querySelectorAll(
+                'mat-button-toggle, ' +
+                '.mat-button-toggle, ' +
+                '.mat-mdc-button-toggle, ' +
+                '[role="radio"]'
+            );
+            let recognizedDays = 0;
+
+            controls.forEach(function (control) {
+                const text = normalizedText(control);
+                if (isWeekday(text) || isWeekend(text)) {
+                    recognizedDays += 1;
+                }
+            });
+
+            return recognizedDays >= 5;
+        });
+    }
+
+    function markWeekendButtons() {
+        findWeekdayGroups().forEach(function (group) {
+            group.classList.add('wu-weekday-group');
+
+            const toggles = Array.from(group.querySelectorAll(
+                'mat-button-toggle, ' +
+                '.mat-button-toggle, ' +
+                '.mat-mdc-button-toggle, ' +
+                '[role="radio"]'
+            ));
+
+            toggles.forEach(function (toggle) {
+                const value =
+                    toggle.getAttribute('value') ||
+                    toggle.getAttribute('ng-reflect-value');
+                const text = normalizedText(toggle);
+
+                if (value === '0' || value === '6' || isWeekend(text)) {
+                    toggle.classList.add('wu-hidden-weekend');
+                }
+            });
+        });
+    }
+
+    function markRepeatAndWeekdayArea() {
+        findWeekdayGroups().forEach(function (group) {
+            group.classList.add('wu-weekday-group');
+
+            if (group.parentElement) {
+                group.parentElement.classList.add('wu-repeat-weekday-native-row');
+            }
+        });
+
+        document.querySelectorAll(
+            'mat-label, label, .mdc-floating-label'
+        ).forEach(function (label) {
+            const text = (label.textContent || '').replace(/\s+/g, ' ').trim();
+
+            if (!text.startsWith('Wiederholt')) {
+                return;
+            }
+
+            const field =
+                label.closest('mat-form-field') ||
+                label.closest('.mat-mdc-form-field');
+
+            if (field) {
+                field.classList.add('wu-repeat-field');
+                if (field.parentElement) {
+                    field.parentElement.classList.add(
+                        'wu-repeat-weekday-native-row'
+                    );
+                }
+            }
+        });
+    }
+
+    function applyWuAdjustments() {
+        changeSpaceLabel();
+        changeCalendarTimeFormat();
+        changeDateLabel();
+        formatRoomHeaders();
+        markWeekendButtons();
+        markRepeatAndWeekdayArea();
+    }
+
+    function scheduleUpdate() {
+        if (updatePending) {
+            return;
+        }
+
+        updatePending = true;
+        window.requestAnimationFrame(function () {
+            updatePending = false;
+            applyWuAdjustments();
+        });
+    }
+
+    function initialize() {
+        applyWuAdjustments();
+
+        // HÃ¤ufigere Wiederholungen fÃ¼r bessere Coverage
+        [50, 100, 200, 500, 1000, 2000, 3000, 5000, 8000].forEach(function (delay) {
+            window.setTimeout(applyWuAdjustments, delay);
+        });
+
+        const observer = new MutationObserver(scheduleUpdate);
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true,
+            characterData: true,
+            attributes: true,
+            attributeFilter: ['textContent', 'innerText']
+        });
+
+        // Noch hÃ¤ufigere Interval-PrÃ¼fung fÃ¼r Angular-Rendering
+        window.setInterval(applyWuAdjustments, 1000);
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initialize, { once: true });
     } else {
-        initializeWuCalendar();
+        initialize();
     }
 })();
