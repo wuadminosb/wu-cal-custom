@@ -74,18 +74,20 @@
         document.querySelectorAll(
             '[aria-label], [title], [placeholder]'
         ).forEach(function (element) {
-            ['aria-label', 'title', 'placeholder'].forEach(
-                function (attribute) {
-                    const value = element.getAttribute(attribute);
+            [
+                'aria-label',
+                'title',
+                'placeholder'
+            ].forEach(function (attribute) {
+                const value = element.getAttribute(attribute);
 
-                    if (value && /\bspace\b/gi.test(value)) {
-                        element.setAttribute(
-                            attribute,
-                            value.replace(/\bspace\b/gi, 'Raum')
-                        );
-                    }
+                if (value && /\bspace\b/gi.test(value)) {
+                    element.setAttribute(
+                        attribute,
+                        value.replace(/\bspace\b/gi, 'Raum')
+                    );
                 }
-            );
+            });
         });
     }
 
@@ -152,8 +154,92 @@
     }
 
     /*
+     * Kalenderdatum ins deutsche Format umwandeln.
+     *
+     * Beispiel:
+     * Freitag, August 7, 2026
+     * wird zu:
+     * Freitag, 7. August 2026
+     *
+     * Wichtig:
+     * Nur der vorhandene Textknoten wird geändert.
+     * Dadurch bleibt die Verbindung zum Kalender erhalten.
+     */
+    function changeCalendarDateFormat() {
+        const weekdays = {
+            sunday: 'Sonntag',
+            monday: 'Montag',
+            tuesday: 'Dienstag',
+            wednesday: 'Mittwoch',
+            thursday: 'Donnerstag',
+            friday: 'Freitag',
+            saturday: 'Samstag',
+            sonntag: 'Sonntag',
+            montag: 'Montag',
+            dienstag: 'Dienstag',
+            mittwoch: 'Mittwoch',
+            donnerstag: 'Donnerstag',
+            freitag: 'Freitag',
+            samstag: 'Samstag'
+        };
+
+        const months = {
+            january: 'Januar',
+            february: 'Februar',
+            march: 'März',
+            april: 'April',
+            may: 'Mai',
+            june: 'Juni',
+            july: 'Juli',
+            august: 'August',
+            september: 'September',
+            october: 'Oktober',
+            november: 'November',
+            december: 'Dezember'
+        };
+
+        const pattern =
+            /^(Sunday|Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sonntag|Montag|Dienstag|Mittwoch|Donnerstag|Freitag|Samstag),\s*(January|February|March|April|May|June|July|August|September|October|November|December)\s+(\d{1,2}),\s*(\d{4})$/i;
+
+        document.querySelectorAll(
+            '.usi-calendarMonthLabel'
+        ).forEach(function (element) {
+            const textNode = Array.from(element.childNodes)
+                .find(function (childNode) {
+                    return childNode.nodeType === Node.TEXT_NODE;
+                });
+
+            if (!textNode) {
+                return;
+            }
+
+            const text = (textNode.nodeValue || '')
+                .replace(/\s+/g, ' ')
+                .trim();
+
+            const match = text.match(pattern);
+
+            if (!match) {
+                return;
+            }
+
+            const weekday =
+                weekdays[match[1].toLowerCase()];
+
+            const month =
+                months[match[2].toLowerCase()];
+
+            textNode.nodeValue =
+                weekday + ', ' +
+                parseInt(match[3], 10) + '. ' +
+                month + ' ' +
+                match[4];
+        });
+    }
+
+    /*
      * Raumnummer und Raumname trennen.
-     * Bereits formatierte Einträge werden erneut ausgerichtet.
+     * Bereits formatierte Räume werden erneut ausgerichtet.
      */
     function formatRoomHeaders() {
         const roomPattern =
@@ -201,8 +287,7 @@
             }
 
             /*
-             * Raumbezeichnung innerhalb der bestehenden
-             * Zeilenhöhe formatieren.
+             * Raumbezeichnung formatieren.
              */
             element.style.setProperty(
                 'width',
@@ -247,7 +332,7 @@
             );
 
             /*
-             * Raumnummer normal, nur Raumname fett.
+             * Raumnummer normal, Raumname fett.
              */
             numberElement.style.setProperty(
                 'font-weight',
@@ -269,8 +354,7 @@
             }
 
             /*
-             * Horizontal und vertikal zentrieren,
-             * ohne die Zeilenhöhe zu verändern.
+             * Horizontal und vertikal zentrieren.
              */
             headerCell.style.setProperty(
                 'display',
@@ -417,6 +501,7 @@
         changeSpaceLabel();
         changeCalendarTimeFormat();
         changeDateLabel();
+        changeCalendarDateFormat();
         formatRoomHeaders();
         markWeekendButtons();
         markRepeatAndWeekdayArea();
@@ -462,12 +547,7 @@
         observer.observe(document.body, {
             childList: true,
             subtree: true,
-            characterData: true,
-            attributes: true,
-            attributeFilter: [
-                'textContent',
-                'innerText'
-            ]
+            characterData: true
         });
 
         window.setInterval(
