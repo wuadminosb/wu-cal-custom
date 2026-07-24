@@ -74,20 +74,18 @@
         document.querySelectorAll(
             '[aria-label], [title], [placeholder]'
         ).forEach(function (element) {
-            [
-                'aria-label',
-                'title',
-                'placeholder'
-            ].forEach(function (attribute) {
-                const value = element.getAttribute(attribute);
+            ['aria-label', 'title', 'placeholder'].forEach(
+                function (attribute) {
+                    const value = element.getAttribute(attribute);
 
-                if (value && /\bspace\b/gi.test(value)) {
-                    element.setAttribute(
-                        attribute,
-                        value.replace(/\bspace\b/gi, 'Raum')
-                    );
+                    if (value && /\bspace\b/gi.test(value)) {
+                        element.setAttribute(
+                            attribute,
+                            value.replace(/\bspace\b/gi, 'Raum')
+                        );
+                    }
                 }
-            });
+            );
         });
     }
 
@@ -154,16 +152,10 @@
     }
 
     /*
-     * Kalenderdatum ins deutsche Format umwandeln.
-     *
-     * Beispiel:
+     * Kalenderdatum ins deutsche Format umwandeln:
      * Freitag, August 7, 2026
-     * wird zu:
+     * wird zu
      * Freitag, 7. August 2026
-     *
-     * Wichtig:
-     * Nur der vorhandene Textknoten wird geändert.
-     * Dadurch bleibt die Verbindung zum Kalender erhalten.
      */
     function changeCalendarDateFormat() {
         const weekdays = {
@@ -198,26 +190,24 @@
             december: 'Dezember'
         };
 
-        const pattern =
+        const datePattern =
             /^(Sunday|Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sonntag|Montag|Dienstag|Mittwoch|Donnerstag|Freitag|Samstag),\s*(January|February|March|April|May|June|July|August|September|October|November|December)\s+(\d{1,2}),\s*(\d{4})$/i;
 
         document.querySelectorAll(
-            '.usi-calendarMonthLabel'
+            'span, div, p, button, h1, h2, h3, h4, h5, h6'
         ).forEach(function (element) {
-            const textNode = Array.from(element.childNodes)
-                .find(function (childNode) {
-                    return childNode.nodeType === Node.TEXT_NODE;
-                });
-
-            if (!textNode) {
+            if (
+                element.children.length !== 0 ||
+                !element.textContent
+            ) {
                 return;
             }
 
-            const text = (textNode.nodeValue || '')
+            const text = element.textContent
                 .replace(/\s+/g, ' ')
                 .trim();
 
-            const match = text.match(pattern);
+            const match = text.match(datePattern);
 
             if (!match) {
                 return;
@@ -229,7 +219,7 @@
             const month =
                 months[match[2].toLowerCase()];
 
-            textNode.nodeValue =
+            element.textContent =
                 weekday + ', ' +
                 parseInt(match[3], 10) + '. ' +
                 month + ' ' +
@@ -254,9 +244,6 @@
             let nameElement =
                 element.querySelector('.wu-room-name');
 
-            /*
-             * Noch nicht formatierte Räume aufteilen.
-             */
             if (!numberElement || !nameElement) {
                 const originalText =
                     (element.textContent || '').trim();
@@ -286,9 +273,6 @@
                 );
             }
 
-            /*
-             * Raumbezeichnung formatieren.
-             */
             element.style.setProperty(
                 'width',
                 '100%',
@@ -331,9 +315,6 @@
                 'important'
             );
 
-            /*
-             * Raumnummer normal, Raumname fett.
-             */
             numberElement.style.setProperty(
                 'font-weight',
                 'normal',
@@ -353,9 +334,6 @@
                 return;
             }
 
-            /*
-             * Horizontal und vertikal zentrieren.
-             */
             headerCell.style.setProperty(
                 'display',
                 'flex',
@@ -547,7 +525,12 @@
         observer.observe(document.body, {
             childList: true,
             subtree: true,
-            characterData: true
+            characterData: true,
+            attributes: true,
+            attributeFilter: [
+                'textContent',
+                'innerText'
+            ]
         });
 
         window.setInterval(
