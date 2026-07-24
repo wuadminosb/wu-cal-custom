@@ -28,9 +28,8 @@
         ].includes(text);
     }
 
-    /* SPACE â†’ Raum Konvertierung - ALL INCLUSIVE */
+    /* Space → Raum */
     function changeSpaceLabel() {
-        // Strategie 1: Alle Textelemente mit TreeWalker
         const walker = document.createTreeWalker(
             document.body,
             NodeFilter.SHOW_TEXT
@@ -40,136 +39,216 @@
         let node;
 
         while ((node = walker.nextNode())) {
-            const val = node.nodeValue || '';
-            if (/\bspace\b/gi.test(val)) {
+            const value = node.nodeValue || '';
+
+            if (/\bspace\b/gi.test(value)) {
                 textNodes.push(node);
             }
         }
 
         textNodes.forEach(function (textNode) {
-            textNode.nodeValue = textNode.nodeValue.replace(/\bspace\b/gi, 'Raum');
+            textNode.nodeValue = textNode.nodeValue.replace(
+                /\bspace\b/gi,
+                'Raum'
+            );
         });
 
-        // Strategie 2: Spezifische Elemente mit textContent
-        document.querySelectorAll('.originCellContent, [class*="Cell"], .rowHeaderContent, span, div, label, p').forEach(function (element) {
-            if (element.children.length === 0) {
-                const text = element.textContent;
-                if (/\bspace\b/gi.test(text)) {
-                    element.textContent = text.replace(/\bspace\b/gi, 'Raum');
-                }
+        document.querySelectorAll(
+            '.originCellContent, [class*="Cell"], ' +
+            '.rowHeaderContent, span, div, label, p'
+        ).forEach(function (element) {
+            if (element.children.length !== 0) {
+                return;
+            }
+
+            const text = element.textContent || '';
+
+            if (/\bspace\b/gi.test(text)) {
+                element.textContent = text.replace(
+                    /\bspace\b/gi,
+                    'Raum'
+                );
             }
         });
 
-        // Strategie 3: Attribute durchsuchen
-        document.querySelectorAll('[aria-label], [title], [placeholder]').forEach(function (element) {
-            ['aria-label', 'title', 'placeholder'].forEach(function (attr) {
-                const val = element.getAttribute(attr);
-                if (val && /\bspace\b/gi.test(val)) {
-                    element.setAttribute(attr, val.replace(/\bspace\b/gi, 'Raum'));
-                }
-            });
-        });
-    }
+        document.querySelectorAll(
+            '[aria-label], [title], [placeholder]'
+        ).forEach(function (element) {
+            ['aria-label', 'title', 'placeholder'].forEach(
+                function (attribute) {
+                    const value = element.getAttribute(attribute);
 
-    /* Zeit AM/PM â†’ 24h Format */
-    function changeCalendarTimeFormat() {
-        // Suche alle Elemente die Zeit enthalten kÃ¶nnten
-        document.querySelectorAll('span, div, td, th, p, label, button').forEach(function (element) {
-            if (element.children.length === 0 && element.textContent) {
-                const text = element.textContent.trim();
-                
-                // Regex fÃ¼r AM/PM Format: "8 AM", "8AM", "8:00 AM", etc.
-                const match = text.match(/^(\d{1,2})\s*(?::(\d{2}))?\s*(AM|PM|am|pm)$/i);
-                
-                if (match) {
-                    let hour = parseInt(match[1], 10);
-                    const minutes = (match[2] || '00').trim();
-                    const ampm = match[3].toUpperCase();
-
-                    if (ampm === 'AM') {
-                        if (hour === 12) hour = 0;
-                    } else {
-                        if (hour !== 12) hour += 12;
+                    if (value && /\bspace\b/gi.test(value)) {
+                        element.setAttribute(
+                            attribute,
+                            value.replace(/\bspace\b/gi, 'Raum')
+                        );
                     }
-
-                    const newTime = String(hour).padStart(2, '0') + ':' + minutes;
-                    element.textContent = newTime;
                 }
-            }
+            );
         });
     }
 
+    /* AM/PM → 24-Stunden-Format */
+    function changeCalendarTimeFormat() {
+        document.querySelectorAll(
+            'span, div, td, th, p, label, button'
+        ).forEach(function (element) {
+            if (
+                element.children.length !== 0 ||
+                !element.textContent
+            ) {
+                return;
+            }
+
+            const text = element.textContent.trim();
+
+            const match = text.match(
+                /^(\d{1,2})\s*(?::(\d{2}))?\s*(AM|PM)$/i
+            );
+
+            if (!match) {
+                return;
+            }
+
+            let hour = parseInt(match[1], 10);
+            const minutes = match[2] || '00';
+            const period = match[3].toUpperCase();
+
+            if (period === 'AM') {
+                if (hour === 12) {
+                    hour = 0;
+                }
+            } else if (hour !== 12) {
+                hour += 12;
+            }
+
+            element.textContent =
+                String(hour).padStart(2, '0') +
+                ':' +
+                minutes;
+        });
+    }
+
+    /* Date/Daten → Datum */
     function changeDateLabel() {
         document.querySelectorAll(
             'label[for="searchDatePicker"] mat-label, ' +
             'label[for="searchDatePicker"], ' +
             '#searchDatePicker mat-label'
         ).forEach(function (label) {
-            const text = (label.textContent || '').replace(/\s+/g, ' ').trim();
+            const text = (label.textContent || '')
+                .replace(/\s+/g, ' ')
+                .trim();
 
-            if (text === 'Daten' || text === 'Date' || text === 'Datum') {
+            if (
+                text === 'Daten' ||
+                text === 'Date' ||
+                text === 'Datum'
+            ) {
                 label.textContent = 'Datum';
             }
         });
     }
 
     /*
-     * Raumnummer und Raumname in den Kalenderzeilen trennen.
-     * Erkennt unter anderem AD.0.089, D1.1.074, EA.01002,
-     * LC.2.400 und TC.0.01.
+     * Raumnummer und Raumname trennen.
+     * Bereits formatierte Einträge werden erneut ausgerichtet.
      */
     function formatRoomHeaders() {
         const roomPattern =
-            /^\s*([A-ZÃ„Ã–Ãœ][A-ZÃ„Ã–Ãœ0-9-]*(?:\.[A-ZÃ„Ã–Ãœ0-9-]+)+)\s+(.+?)\s*$/i;
+            /^\s*([A-ZÄÖÜ][A-ZÄÖÜ0-9-]*(?:\.[A-ZÄÖÜ0-9-]+)+)\s+(.+?)\s*$/i;
 
         document.querySelectorAll(
             '.headerCell .rowHeaderContent'
         ).forEach(function (element) {
+            let numberElement =
+                element.querySelector('.wu-room-number');
+
+            let nameElement =
+                element.querySelector('.wu-room-name');
+
             /*
-             * Bereits formatierte EintrÃ¤ge nicht erneut bearbeiten.
-             * Wird ein Element von Momentus neu befÃ¼llt, verschwinden diese
-             * Kind-Elemente und die neue Bezeichnung wird wieder erkannt.
+             * Noch nicht formatierte Räume aufteilen.
              */
-            if (element.querySelector('.wu-room-number')) {
-                return;
+            if (!numberElement || !nameElement) {
+                const originalText =
+                    (element.textContent || '').trim();
+
+                const match = originalText.match(roomPattern);
+
+                if (!match) {
+                    return;
+                }
+
+                numberElement =
+                    document.createElement('span');
+
+                numberElement.className = 'wu-room-number';
+                numberElement.textContent = match[1];
+
+                nameElement =
+                    document.createElement('span');
+
+                nameElement.className = 'wu-room-name';
+                nameElement.textContent = match[2];
+
+                element.replaceChildren(
+                    numberElement,
+                    document.createElement('br'),
+                    nameElement
+                );
             }
 
-            const originalText = (element.textContent || '').trim();
-            const match = originalText.match(roomPattern);
+            /*
+             * Raumbezeichnung innerhalb der bestehenden
+             * Zeilenhöhe formatieren.
+             */
+            element.style.setProperty(
+                'width',
+                '100%',
+                'important'
+            );
 
-            if (!match) {
-                return;
-            }
+            element.style.setProperty(
+                'text-align',
+                'center',
+                'important'
+            );
 
-            const numberElement = document.createElement('span');
-            numberElement.className = 'wu-room-number';
-            numberElement.textContent = match[1];
+            element.style.setProperty(
+                'white-space',
+                'normal',
+                'important'
+            );
 
-            const nameElement = document.createElement('span');
-            nameElement.className = 'wu-room-name';
-            nameElement.textContent = match[2];
+            element.style.setProperty(
+                'line-height',
+                '14px',
+                'important'
+            );
 
-            element.replaceChildren(
-                numberElement,
-                document.createElement('br'),
-                nameElement
+            element.style.setProperty(
+                'font-size',
+                '12px',
+                'important'
+            );
+
+            element.style.setProperty(
+                'padding',
+                '0 2px',
+                'important'
+            );
+
+            element.style.setProperty(
+                'box-sizing',
+                'border-box',
+                'important'
             );
 
             /*
-             * Kompakte Darstellung innerhalb der unverÃ¤nderten
-             * Momentus-ZeilenhÃ¶he, damit das Kalenderraster ausgerichtet bleibt.
+             * Raumnummer normal, nur Raumname fett.
              */
-            element.style.setProperty('display', 'block', 'important');
-            element.style.setProperty('width', '100%', 'important');
-            element.style.setProperty('text-align', 'center', 'important');
-            element.style.setProperty('white-space', 'normal', 'important');
-            element.style.setProperty('line-height', '14px', 'important');
-            element.style.setProperty('font-size', '12px', 'important');
-            element.style.setProperty('padding', '2px', 'important');
-            element.style.setProperty('box-sizing', 'border-box', 'important');
-            element.style.setProperty('overflow', 'visible', 'important');
-
-            /* Nur der Raumname wird fett dargestellt. */
             numberElement.style.setProperty(
                 'font-weight',
                 'normal',
@@ -182,27 +261,52 @@
                 'important'
             );
 
-            const headerCell = element.closest('.headerCell');
+            const headerCell =
+                element.closest('.headerCell');
 
-            if (headerCell) {
-                headerCell.style.setProperty(
-                    'text-align',
-                    'center',
-                    'important'
-                );
-
-                headerCell.style.setProperty(
-                    'overflow',
-                    'visible',
-                    'important'
-                );
-
-                headerCell.style.setProperty(
-                    'box-sizing',
-                    'border-box',
-                    'important'
-                );
+            if (!headerCell) {
+                return;
             }
+
+            /*
+             * Horizontal und vertikal zentrieren,
+             * ohne die Zeilenhöhe zu verändern.
+             */
+            headerCell.style.setProperty(
+                'display',
+                'flex',
+                'important'
+            );
+
+            headerCell.style.setProperty(
+                'flex-direction',
+                'column',
+                'important'
+            );
+
+            headerCell.style.setProperty(
+                'justify-content',
+                'center',
+                'important'
+            );
+
+            headerCell.style.setProperty(
+                'align-items',
+                'center',
+                'important'
+            );
+
+            headerCell.style.setProperty(
+                'text-align',
+                'center',
+                'important'
+            );
+
+            headerCell.style.setProperty(
+                'box-sizing',
+                'border-box',
+                'important'
+            );
         });
     }
 
@@ -221,10 +325,12 @@
                 '.mat-mdc-button-toggle, ' +
                 '[role="radio"]'
             );
+
             let recognizedDays = 0;
 
             controls.forEach(function (control) {
                 const text = normalizedText(control);
+
                 if (isWeekday(text) || isWeekend(text)) {
                     recognizedDays += 1;
                 }
@@ -238,21 +344,30 @@
         findWeekdayGroups().forEach(function (group) {
             group.classList.add('wu-weekday-group');
 
-            const toggles = Array.from(group.querySelectorAll(
-                'mat-button-toggle, ' +
-                '.mat-button-toggle, ' +
-                '.mat-mdc-button-toggle, ' +
-                '[role="radio"]'
-            ));
+            const toggles = Array.from(
+                group.querySelectorAll(
+                    'mat-button-toggle, ' +
+                    '.mat-button-toggle, ' +
+                    '.mat-mdc-button-toggle, ' +
+                    '[role="radio"]'
+                )
+            );
 
             toggles.forEach(function (toggle) {
                 const value =
                     toggle.getAttribute('value') ||
                     toggle.getAttribute('ng-reflect-value');
+
                 const text = normalizedText(toggle);
 
-                if (value === '0' || value === '6' || isWeekend(text)) {
-                    toggle.classList.add('wu-hidden-weekend');
+                if (
+                    value === '0' ||
+                    value === '6' ||
+                    isWeekend(text)
+                ) {
+                    toggle.classList.add(
+                        'wu-hidden-weekend'
+                    );
                 }
             });
         });
@@ -263,14 +378,18 @@
             group.classList.add('wu-weekday-group');
 
             if (group.parentElement) {
-                group.parentElement.classList.add('wu-repeat-weekday-native-row');
+                group.parentElement.classList.add(
+                    'wu-repeat-weekday-native-row'
+                );
             }
         });
 
         document.querySelectorAll(
             'mat-label, label, .mdc-floating-label'
         ).forEach(function (label) {
-            const text = (label.textContent || '').replace(/\s+/g, ' ').trim();
+            const text = (label.textContent || '')
+                .replace(/\s+/g, ' ')
+                .trim();
 
             if (!text.startsWith('Wiederholt')) {
                 return;
@@ -280,13 +399,16 @@
                 label.closest('mat-form-field') ||
                 label.closest('.mat-mdc-form-field');
 
-            if (field) {
-                field.classList.add('wu-repeat-field');
-                if (field.parentElement) {
-                    field.parentElement.classList.add(
-                        'wu-repeat-weekday-native-row'
-                    );
-                }
+            if (!field) {
+                return;
+            }
+
+            field.classList.add('wu-repeat-field');
+
+            if (field.parentElement) {
+                field.parentElement.classList.add(
+                    'wu-repeat-weekday-native-row'
+                );
             }
         });
     }
@@ -306,6 +428,7 @@
         }
 
         updatePending = true;
+
         window.requestAnimationFrame(function () {
             updatePending = false;
             applyWuAdjustments();
@@ -315,26 +438,50 @@
     function initialize() {
         applyWuAdjustments();
 
-        // HÃ¤ufigere Wiederholungen fÃ¼r bessere Coverage
-        [50, 100, 200, 500, 1000, 2000, 3000, 5000, 8000].forEach(function (delay) {
-            window.setTimeout(applyWuAdjustments, delay);
+        [
+            50,
+            100,
+            200,
+            500,
+            1000,
+            2000,
+            3000,
+            5000,
+            8000
+        ].forEach(function (delay) {
+            window.setTimeout(
+                applyWuAdjustments,
+                delay
+            );
         });
 
-        const observer = new MutationObserver(scheduleUpdate);
+        const observer = new MutationObserver(
+            scheduleUpdate
+        );
+
         observer.observe(document.body, {
             childList: true,
             subtree: true,
             characterData: true,
             attributes: true,
-            attributeFilter: ['textContent', 'innerText']
+            attributeFilter: [
+                'textContent',
+                'innerText'
+            ]
         });
 
-        // Noch hÃ¤ufigere Interval-PrÃ¼fung fÃ¼r Angular-Rendering
-        window.setInterval(applyWuAdjustments, 1000);
+        window.setInterval(
+            applyWuAdjustments,
+            1000
+        );
     }
 
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initialize, { once: true });
+        document.addEventListener(
+            'DOMContentLoaded',
+            initialize,
+            { once: true }
+        );
     } else {
         initialize();
     }
