@@ -1,208 +1,183 @@
 (function () {
     'use strict';
 
-    let updatePending = false;
+    const styleId = 'wu-calendar-console-test';
 
-    function normalizedText(element) {
-        return (element.textContent || '')
-            .replace(/\u00a0/g, '')
-            .replace(/\s+/g, '')
-            .trim()
-            .toLowerCase();
+    document.getElementById(styleId)?.remove();
+
+    if (window.wuConsoleObserver) {
+        window.wuConsoleObserver.disconnect();
     }
 
-    function isWeekend(text) {
-        return [
-            'so', 'so.', 'sonntag', 'sun', 'sunday',
-            'sa', 'sa.', 'samstag', 'sat', 'saturday'
-        ].includes(text);
+    if (window.wuConsoleInterval) {
+        window.clearInterval(window.wuConsoleInterval);
     }
 
-    function isWeekday(text) {
-        return [
-            'mo', 'mo.', 'montag',
-            'di', 'di.', 'dienstag',
-            'mi', 'mi.', 'mittwoch',
-            'do', 'do.', 'donnerstag',
-            'fr', 'fr.', 'freitag'
-        ].includes(text);
-    }
+    const style = document.createElement('style');
+    style.id = styleId;
 
-    /* „Space" → „Raum" */
-    function changeSpaceLabel() {
-        // Bezeichnung in der Kalenderzeile ändern
-        document.querySelectorAll('.originCellContent').forEach(function (element) {
-            const text = (element.textContent || '').trim();
+    style.textContent = `
+        /* Ursprüngliche Beschriftung „Space“ ausblenden */
+        span.originCellContent {
+            font-size: 0 !important;
+        }
 
-            if (text.toLowerCase() === 'space') {
-                element.textContent = 'Raum';
-            }
-        });
+        /* „Raum“ anzeigen */
+        span.originCellContent::after {
+            content: "Raum" !important;
+            display: inline-block !important;
+            font-family: Verdana, Geneva, sans-serif !important;
+            font-size: 16px !important;
+            font-weight: 700 !important;
+            font-style: normal !important;
+            line-height: 1.2 !important;
+            letter-spacing: normal !important;
+            text-transform: none !important;
+            color: #000000 !important;
+            opacity: 1 !important;
+            -webkit-text-fill-color: #000000 !important;
+        }
 
-        // Weitere einzelne Textelemente berücksichtigen
-        document.querySelectorAll('span, div, label, p').forEach(function (element) {
-            if (element.children.length > 0) {
-                return;
-            }
+        /* Uhrzeiten */
+        .wu-calendar-time {
+            font-family: Verdana, Geneva, sans-serif !important;
+            font-size: 16px !important;
+            font-weight: 700 !important;
+            font-style: normal !important;
+            line-height: 1.2 !important;
+            letter-spacing: normal !important;
+            color: #000000 !important;
+            opacity: 1 !important;
+            -webkit-text-fill-color: #000000 !important;
+        }
 
-            const text = (element.textContent || '').trim();
+        /* Deutsches Kalenderdatum */
+        .wu-calendar-date {
+            font-family: Verdana, Geneva, sans-serif !important;
+        }
+    `;
 
-            if (text.toLowerCase() === 'space') {
-                element.textContent = 'Raum';
-            }
-        });
+    document.head.appendChild(style);
 
-        // Barrierefreiheits- und Hinweisattribute anpassen
-        document.querySelectorAll(
-            '[aria-label], [title], [placeholder]'
-        ).forEach(function (element) {
-            ['aria-label', 'title', 'placeholder'].forEach(function (attribute) {
-                const value = element.getAttribute(attribute);
+    const germanMonths = {
+        january: 'Jänner',
+        february: 'Februar',
+        march: 'März',
+        april: 'April',
+        may: 'Mai',
+        june: 'Juni',
+        july: 'Juli',
+        august: 'August',
+        september: 'September',
+        october: 'Oktober',
+        november: 'November',
+        december: 'Dezember'
+    };
 
-                if (value && /\bspace\b/i.test(value)) {
-                    element.setAttribute(
-                        attribute,
-                        value.replace(/\bspace\b/gi, 'Raum')
-                    );
-                }
-            });
-        });
-    }
+    function convertTime(text) {
+        return text.replace(
+            /\b(1[0-2]|0?[1-9])(?::([0-5]\d))?\s*(AM|PM)\b/gi,
+            function (_, hourValue, minuteValue, period) {
+                let hour = Number(hourValue);
+                const minutes = minuteValue || '00';
 
-    /* Zeit AM/PM → 24h Format */
-    function changeCalendarTimeFormat() {
-        // Suche alle Elemente die Zeit enthalten könnten
-        document.querySelectorAll('span, div, td, th, p, label, button').forEach(function (element) {
-            if (element.children.length === 0 && element.textContent) {
-                const text = element.textContent.trim();
-                
-                // Regex für AM/PM Format: "8 AM", "8AM", "8:00 AM", etc.
-                const match = text.match(/^(\d{1,2})\s*(?::(\d{2}))?\s*(AM|PM|am|pm)$/i);
-                
-                if (match) {
-                    let hour = parseInt(match[1], 10);
-                    const minutes = (match[2] || '00').trim();
-                    const ampm = match[3].toUpperCase();
-
-                    if (ampm === 'AM') {
-                        if (hour === 12) hour = 0;
-                    } else {
-                        if (hour !== 12) hour += 12;
+                if (period.toUpperCase() === 'AM') {
+                    if (hour === 12) {
+                        hour = 0;
                     }
-
-                    const newTime = String(hour).padStart(2, '0') + ':' + minutes;
-                    element.textContent = newTime;
+                } else if (hour !== 12) {
+                    hour += 12;
                 }
+
+                return String(hour).padStart(2, '0') + ':' + minutes;
             }
-        });
+        );
     }
 
-    function changeDateLabel() {
-        document.querySelectorAll(
-            'label[for="searchDatePicker"] mat-label, ' +
-            'label[for="searchDatePicker"], ' +
-            '#searchDatePicker mat-label'
-        ).forEach(function (label) {
-            const text = (label.textContent || '').replace(/\s+/g, ' ').trim();
-
-            if (text === 'Daten' || text === 'Date' || text === 'Datum') {
-                label.textContent = 'Datum';
+    function convertDate(text) {
+        return text.replace(
+            /^([^,]+),\s*(January|February|March|April|May|June|July|August|September|October|November|December)\s+(\d{1,2}),\s*(\d{4})$/i,
+            function (_, weekday, month, day, year) {
+                return (
+                    weekday +
+                    ', ' +
+                    day +
+                    '. ' +
+                    germanMonths[month.toLowerCase()] +
+                    ' ' +
+                    year
+                );
             }
-        });
+        );
     }
 
-    function findWeekdayGroups() {
-        const groups = document.querySelectorAll(
-            'mat-button-toggle-group, ' +
-            '.mat-button-toggle-group, ' +
-            '.usi-dayOfWeekButtons, ' +
-            '[role="group"]'
+    function applyWuFixes() {
+        const walker = document.createTreeWalker(
+            document.body,
+            NodeFilter.SHOW_TEXT
         );
 
-        return Array.from(groups).filter(function (group) {
-            const controls = group.querySelectorAll(
-                'mat-button-toggle, ' +
-                '.mat-button-toggle, ' +
-                '.mat-mdc-button-toggle, ' +
-                '[role="radio"]'
-            );
-            let recognizedDays = 0;
+        const textNodes = [];
+        let node;
 
-            controls.forEach(function (control) {
-                const text = normalizedText(control);
-                if (isWeekday(text) || isWeekend(text)) {
-                    recognizedDays += 1;
-                }
-            });
+        while ((node = walker.nextNode())) {
+            textNodes.push(node);
+        }
 
-            return recognizedDays >= 5;
-        });
-    }
+        textNodes.forEach(function (textNode) {
+            const parent = textNode.parentElement;
+            const originalText = textNode.nodeValue || '';
+            const trimmedText = originalText.trim();
 
-    function markWeekendButtons() {
-        findWeekdayGroups().forEach(function (group) {
-            group.classList.add('wu-weekday-group');
-
-            const toggles = Array.from(group.querySelectorAll(
-                'mat-button-toggle, ' +
-                '.mat-button-toggle, ' +
-                '.mat-mdc-button-toggle, ' +
-                '[role="radio"]'
-            ));
-
-            toggles.forEach(function (toggle) {
-                const value =
-                    toggle.getAttribute('value') ||
-                    toggle.getAttribute('ng-reflect-value');
-                const text = normalizedText(toggle);
-
-                if (value === '0' || value === '6' || isWeekend(text)) {
-                    toggle.classList.add('wu-hidden-weekend');
-                }
-            });
-        });
-    }
-
-    function markRepeatAndWeekdayArea() {
-        findWeekdayGroups().forEach(function (group) {
-            group.classList.add('wu-weekday-group');
-
-            if (group.parentElement) {
-                group.parentElement.classList.add('wu-repeat-weekday-native-row');
-            }
-        });
-
-        document.querySelectorAll(
-            'mat-label, label, .mdc-floating-label'
-        ).forEach(function (label) {
-            const text = (label.textContent || '').replace(/\s+/g, ' ').trim();
-
-            if (!text.startsWith('Wiederholt')) {
+            if (
+                !parent ||
+                !trimmedText ||
+                parent.closest('script, style, textarea, input')
+            ) {
                 return;
             }
 
-            const field =
-                label.closest('mat-form-field') ||
-                label.closest('.mat-mdc-form-field');
-
-            if (field) {
-                field.classList.add('wu-repeat-field');
-                if (field.parentElement) {
-                    field.parentElement.classList.add(
-                        'wu-repeat-weekday-native-row'
-                    );
-                }
+            /* AM/PM in 24-Stunden-Format umwandeln */
+            if (
+                /\b(1[0-2]|0?[1-9])(?::[0-5]\d)?\s*(AM|PM)\b/i
+                    .test(originalText)
+            ) {
+                textNode.nodeValue = convertTime(originalText);
+                parent.classList.add('wu-calendar-time');
             }
+
+            /* Bereits umgewandelte Kalenderzeiten ebenfalls markieren */
+            if (
+                /^(?:[01]\d|2[0-3]):[0-5]\d$/.test(trimmedText) &&
+                (
+                    parent.closest('.timeCellContent') ||
+                    parent.closest('[class*="time"]') ||
+                    parent.classList.contains('wu-calendar-time')
+                )
+            ) {
+                parent.classList.add('wu-calendar-time');
+            }
+
+            /* Englisches Datum deutsch formatieren */
+            const convertedDate = convertDate(trimmedText);
+
+            if (convertedDate !== trimmedText) {
+                textNode.nodeValue = convertedDate;
+                parent.classList.add('wu-calendar-date');
+            }
+        });
+
+        /* Mindesthöhe der Zeitspalten */
+        document.querySelectorAll('.wu-calendar-time').forEach(function (time) {
+            time.parentElement?.style.setProperty(
+                'min-height',
+                '25px',
+                'important'
+            );
         });
     }
 
-    function applyWuAdjustments() {
-        changeSpaceLabel();
-        changeCalendarTimeFormat();
-        changeDateLabel();
-        markWeekendButtons();
-        markRepeatAndWeekdayArea();
-    }
+    let updatePending = false;
 
     function scheduleUpdate() {
         if (updatePending) {
@@ -210,36 +185,29 @@
         }
 
         updatePending = true;
+
         window.requestAnimationFrame(function () {
             updatePending = false;
-            applyWuAdjustments();
+            applyWuFixes();
         });
     }
 
-    function initialize() {
-        applyWuAdjustments();
+    applyWuFixes();
 
-        // Häufigere Wiederholungen für bessere Coverage
-        [50, 100, 200, 500, 1000, 2000, 3000, 5000, 8000].forEach(function (delay) {
-            window.setTimeout(applyWuAdjustments, delay);
-        });
+    window.wuConsoleObserver = new MutationObserver(scheduleUpdate);
 
-        const observer = new MutationObserver(scheduleUpdate);
-        observer.observe(document.body, {
-            childList: true,
-            subtree: true,
-            characterData: true,
-            attributes: true,
-            attributeFilter: ['textContent', 'innerText']
-        });
+    window.wuConsoleObserver.observe(document.body, {
+        childList: true,
+        subtree: true,
+        characterData: true
+    });
 
-        // Noch häufigere Interval-Prüfung für Angular-Rendering
-        window.setInterval(applyWuAdjustments, 1000);
-    }
+    window.wuConsoleInterval = window.setInterval(
+        applyWuFixes,
+        1000
+    );
 
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initialize, { once: true });
-    } else {
-        initialize();
-    }
+    console.log(
+        'WU-Test aktiv: Raum, Uhrzeiten, Farbe und Mindesthöhe wurden angepasst.'
+    );
 })();
