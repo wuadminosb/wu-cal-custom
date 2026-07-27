@@ -950,3 +950,23 @@ mat-button-toggle:not(.wu-hidden-weekend) button,
         grid-row: 3 !important;
     }
 }
+
+/* Benutzer-Icon und Benutzername horizontal ausrichten */
+.usi-headerSection.right {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    width: auto !important;
+    min-width: max-content !important;
+    white-space: nowrap !important;
+}
+
+.usi-headerSection.right .usi-headerUserName {
+    display: inline-block !important;
+    width: auto !important;
+    min-width: max-content !important;
+    white-space: nowrap !important;
+    overflow: visible !important;
+    word-break: normal !important;
+}
