@@ -784,7 +784,6 @@
         markWeekendButtons();
         markRepeatAndWeekdayArea();
         markSeriesFormLayout();
-        showLoggedInUserName();
     }
 
     function scheduleUpdate() {
