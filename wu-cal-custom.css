@@ -3,17 +3,12 @@
    Hauptfarbe: #2d80a9
    ========================================================= */
 
-
-/* =========================================================
-   EINGABE- UND AUSWAHLFELDER
-   ========================================================= */
+/* EINGABE- UND AUSWAHLFELDER */
 
 .mat-mdc-text-field-wrapper,
 .mat-mdc-form-field-flex {
     border-radius: 0 !important;
 }
-
-/* Linker Rahmenteil */
 
 .mat-mdc-form-field .mdc-notched-outline__leading {
     border-top-color: #2d80a9 !important;
@@ -23,8 +18,6 @@
     border-radius: 0 !important;
 }
 
-/* Mittlerer Rahmenteil */
-
 .mat-mdc-form-field .mdc-notched-outline__notch {
     border-top-color: #2d80a9 !important;
     border-bottom-color: #2d80a9 !important;
@@ -32,8 +25,6 @@
     border-right: none !important;
     border-radius: 0 !important;
 }
-
-/* Rechter Rahmenteil */
 
 .mat-mdc-form-field .mdc-notched-outline__trailing {
     border-top-color: #2d80a9 !important;
@@ -43,8 +34,6 @@
     border-radius: 0 !important;
 }
 
-/* Zusätzliche Eingaberahmen entfernen */
-
 .mat-mdc-form-field input,
 .mat-mdc-form-field select {
     border: none !important;
@@ -52,10 +41,7 @@
     box-shadow: none !important;
 }
 
-
-/* =========================================================
-   FOKUSZUSTAND DER EINGABEFELDER
-   ========================================================= */
+/* FOKUSZUSTAND DER EINGABEFELDER */
 
 .mat-mdc-form-field.mat-focused
 .mdc-notched-outline__leading {
@@ -84,10 +70,7 @@
     border-radius: 0 !important;
 }
 
-
-/* =========================================================
-   REGISTERKARTEN
-   ========================================================= */
+/* REGISTERKARTEN */
 
 .mat-mdc-tab,
 .mat-tab-label {
@@ -151,10 +134,7 @@
     background-color: #ffffff !important;
 }
 
-
-/* =========================================================
-   WIEDERHOLT LINKS – MO BIS FR DIREKT DANEBEN
-   ========================================================= */
+/* WIEDERHOLT LINKS – MO BIS FR DIREKT DANEBEN */
 
 .wu-repeat-weekday-row,
 .wu-repeat-weekday-native-row {
@@ -164,8 +144,6 @@
     box-sizing: border-box !important;
     white-space: nowrap !important;
 }
-
-/* Feld „Wiederholt“ links */
 
 .wu-repeat-weekday-row .wu-repeat-field,
 .wu-repeat-weekday-native-row .wu-repeat-field,
@@ -177,8 +155,6 @@
     margin: 0 !important;
     vertical-align: middle !important;
 }
-
-/* Wochentage direkt rechts neben „Wiederholt“ */
 
 .usi-dayOfWeekButtons,
 .wu-repeat-weekday-row .wu-weekday-group,
@@ -200,26 +176,14 @@
     box-sizing: border-box !important;
 }
 
-
-/* =========================================================
-   SAMSTAG UND SONNTAG AUSBLENDEN
-   ========================================================= */
-
-/* Sonntag */
+/* SAMSTAG UND SONNTAG AUSBLENDEN */
 
 mat-button-toggle[value="0"],
-mat-button-toggle[ng-reflect-value="0"] {
-    display: none !important;
-}
-
-/* Samstag */
-
+mat-button-toggle[ng-reflect-value="0"],
 mat-button-toggle[value="6"],
 mat-button-toggle[ng-reflect-value="6"] {
     display: none !important;
 }
-
-/* Zusätzliche Absicherung über die JavaScript-Klasse */
 
 mat-button-toggle.wu-hidden-weekend,
 .mat-button-toggle.wu-hidden-weekend,
@@ -235,10 +199,7 @@ mat-button-toggle.wu-hidden-weekend,
     border: 0 !important;
 }
 
-
-/* =========================================================
-   MONTAG BIS FREITAG
-   ========================================================= */
+/* MONTAG BIS FREITAG */
 
 .usi-dayOfWeekButtons mat-button-toggle,
 .wu-repeat-weekday-row
@@ -290,8 +251,6 @@ mat-button-toggle button {
     text-align: center !important;
 }
 
-/* Ausgewählter Wochentag */
-
 .usi-dayOfWeekButtons
 .mat-button-toggle-checked,
 .usi-dayOfWeekButtons
@@ -313,8 +272,6 @@ mat-button-toggle button {
     border-color: #2d80a9 !important;
 }
 
-/* Text im ausgewählten Wochentag */
-
 .usi-dayOfWeekButtons
 .mat-button-toggle-checked
 .mat-button-toggle-label-content,
@@ -330,10 +287,7 @@ mat-button-toggle button {
     color: #ffffff !important;
 }
 
-
-/* =========================================================
-   NICHT BUCHBARE KALENDERBEREICHE
-   ========================================================= */
+/* NICHT BUCHBARE KALENDERBEREICHE */
 
 .chadmo .chadmo-merged-cell,
 .chadmo-merged-cell {
@@ -348,10 +302,7 @@ mat-button-toggle button {
     color: #ffffff !important;
 }
 
-
-/* =========================================================
-   KALENDERBREITE
-   ========================================================= */
+/* KALENDERBREITE */
 
 .usi-calendarSection,
 .usi-calendarParent,
@@ -381,10 +332,7 @@ app-calendar-day-view {
     overflow-x: auto !important;
 }
 
-
-/* =========================================================
-   RAUMSPALTE
-   ========================================================= */
+/* RAUMSPALTE */
 
 .chadmo .rowHeadLeftCss3,
 .rowHeadLeftCss3 {
@@ -407,10 +355,7 @@ app-calendar-day-view {
     text-overflow: ellipsis !important;
 }
 
-
-/* =========================================================
-   HINWEISBOX
-   ========================================================= */
+/* HINWEISBOX */
 
 .wu-info-box {
     width: 100%;
@@ -434,10 +379,7 @@ app-calendar-day-view {
     margin: 0;
 }
 
-
-/* =========================================================
-   MOBILE DARSTELLUNG
-   ========================================================= */
+/* MOBILE DARSTELLUNG */
 
 @media screen and (max-width: 768px) {
     .wu-repeat-weekday-row,
@@ -473,24 +415,12 @@ app-calendar-day-view {
     }
 }
 
-
-/* =========================================================
-   WOCHENENDE ENDGÜLTIG AUSBLENDEN
-   Muss am Ende der CSS-Datei stehen
-   ========================================================= */
-
-/* Sonntag – erster Button */
+/* WOCHENENDE ENDGÜLTIG AUSBLENDEN */
 
 .usi-dayOfWeekButtons mat-button-toggle:first-child,
 .wu-weekday-group mat-button-toggle:first-child,
-
-/* Samstag – letzter Button */
-
 .usi-dayOfWeekButtons mat-button-toggle:last-child,
 .wu-weekday-group mat-button-toggle:last-child,
-
-/* Absicherung über Werte und JavaScript-Klasse */
-
 .usi-dayOfWeekButtons mat-button-toggle[value="0"],
 .usi-dayOfWeekButtons mat-button-toggle[value="6"],
 .wu-weekday-group mat-button-toggle[value="0"],
@@ -533,8 +463,6 @@ button.usi-button.secondary {
     border-color: #2d80a9 !important;
 }
 
-/* WU-Rahmen auch bei Hover, Fokus und Auswahl beibehalten */
-
 .usi-orgSelectionContainer
 .usi-orgSelectOptions
 .usi-orgOpt:hover,
@@ -552,7 +480,7 @@ button.usi-button.secondary {
     outline: none !important;
 }
 
-/* Grauen Statuspunkt „nicht verfügbar“ in WU-Farbe darstellen */
+/* Statuspunkt „nicht verfügbar“ in WU-Farbe */
 
 span.usi-circle.unavailable,
 .usi-circle.unavailable {
@@ -560,7 +488,7 @@ span.usi-circle.unavailable,
     border-color: #3d80ab !important;
 }
 
-/* Bezeichnung „Space“ visuell durch „Raum“ ersetzen */
+/* „Space“ visuell durch „Raum“ ersetzen */
 
 span.originCellContent {
     font-size: 0 !important;
@@ -569,4 +497,404 @@ span.originCellContent {
 span.originCellContent::after {
     content: "Raum";
     font-size: 14px !important;
+}
+
+/* =========================================================
+   VERANSTALTUNGS-SERIE
+   ========================================================= */
+
+.wu-series-form {
+    --wu-series-standard-width: 160px;
+    --wu-series-roomtype-width: 240px;
+    --wu-series-gap: 20px;
+    --wu-series-total-width: 600px;
+}
+
+.wu-series-form .wu-series-repeat-row {
+    position: static !important;
+    display: flex !important;
+    flex-flow: row nowrap !important;
+    align-items: flex-start !important;
+    justify-content: flex-start !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    height: auto !important;
+    min-height: 35px !important;
+    margin: 0 0 20px !important;
+    padding: 0 !important;
+    gap: var(--wu-series-gap) !important;
+    transform: none !important;
+    box-sizing: border-box !important;
+    overflow: visible !important;
+}
+
+.wu-series-form .wu-series-repeat-field {
+    position: static !important;
+    flex: 0 0 275px !important;
+    width: 275px !important;
+    min-width: 275px !important;
+    max-width: 275px !important;
+    margin: 0 !important;
+    transform: none !important;
+    box-sizing: border-box !important;
+}
+
+.wu-series-form .wu-series-weekdays {
+    position: static !important;
+    display: inline-flex !important;
+    flex: 0 0 auto !important;
+    flex-flow: row nowrap !important;
+    align-items: flex-start !important;
+    align-self: flex-start !important;
+    width: auto !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    gap: 8px !important;
+    transform: none !important;
+    box-sizing: border-box !important;
+}
+
+/* Wochentage rechteckig, WU-blau und ohne Schatten */
+
+.wu-series-form
+.wu-series-weekdays
+mat-button-toggle:not(.wu-hidden-weekend),
+.wu-series-form
+.wu-series-weekdays
+.mat-button-toggle:not(.wu-hidden-weekend),
+.wu-series-form
+.wu-series-weekdays
+.mat-mdc-button-toggle:not(.wu-hidden-weekend) {
+    display: inline-flex !important;
+    flex: 0 0 48px !important;
+    width: 48px !important;
+    min-width: 48px !important;
+    max-width: 48px !important;
+    height: 35px !important;
+    margin: 0 !important;
+    color: #ffffff !important;
+    background: #2d80a9 !important;
+    border: 1px solid #2d80a9 !important;
+    border-radius: 0 !important;
+    outline: 0 !important;
+    box-shadow: none !important;
+    opacity: 1 !important;
+    overflow: hidden !important;
+}
+
+.wu-series-form
+.wu-series-weekdays
+mat-button-toggle:not(.wu-hidden-weekend) button,
+.wu-series-form
+.wu-series-weekdays
+.mat-button-toggle:not(.wu-hidden-weekend) button,
+.wu-series-form
+.wu-series-weekdays
+.mat-mdc-button-toggle:not(.wu-hidden-weekend) button {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 48px !important;
+    min-width: 48px !important;
+    height: 33px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    color: #ffffff !important;
+    background: #2d80a9 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    outline: 0 !important;
+    box-shadow: none !important;
+    font: 400 14px/20px Verdana, Arial, sans-serif !important;
+}
+
+.wu-series-form .wu-series-weekdays *,
+.wu-series-form .wu-series-weekdays *::before,
+.wu-series-form .wu-series-weekdays *::after {
+    border-radius: 0 !important;
+    box-shadow: none !important;
+}
+
+.wu-series-form
+.wu-series-weekdays
+.mat-button-toggle-label-content,
+.wu-series-form
+.wu-series-weekdays
+.mat-mdc-button-toggle-label-content {
+    padding: 0 !important;
+    color: #ffffff !important;
+    font: 400 14px/33px Verdana, Arial, sans-serif !important;
+    opacity: 1 !important;
+}
+
+.wu-series-form
+.wu-series-weekdays
+.mat-ripple-element,
+.wu-series-form
+.wu-series-weekdays
+.mat-mdc-button-persistent-ripple::before,
+.wu-series-form
+.wu-series-weekdays
+.mat-mdc-focus-indicator::before {
+    background: transparent !important;
+    border: 0 !important;
+    opacity: 0 !important;
+}
+
+/* Gebäude, Raumart und Suche */
+
+.wu-series-form .wu-series-options-group,
+.wu-series-form .wu-series-options-row {
+    border: 0 !important;
+    outline: 0 !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    background-image: none !important;
+}
+
+.wu-series-form .wu-series-options-group::before,
+.wu-series-form .wu-series-options-group::after,
+.wu-series-form .wu-series-options-row::before,
+.wu-series-form .wu-series-options-row::after {
+    content: none !important;
+    display: none !important;
+}
+
+.wu-series-form .wu-series-options-group {
+    position: static !important;
+    display: block !important;
+    width: var(--wu-series-total-width) !important;
+    min-width: var(--wu-series-total-width) !important;
+    max-width: none !important;
+    height: 35px !important;
+    min-height: 35px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    transform: none !important;
+    box-sizing: border-box !important;
+    overflow: visible !important;
+}
+
+.wu-series-form .wu-series-options-row {
+    position: static !important;
+    display: grid !important;
+    grid-template-columns:
+        var(--wu-series-standard-width)
+        var(--wu-series-roomtype-width)
+        var(--wu-series-standard-width) !important;
+    grid-template-rows: 35px !important;
+    column-gap: var(--wu-series-gap) !important;
+    row-gap: 0 !important;
+    align-items: start !important;
+    justify-items: stretch !important;
+    justify-content: start !important;
+    width: max-content !important;
+    min-width: 0 !important;
+    height: 35px !important;
+    min-height: 35px !important;
+    max-height: 35px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    transform: none !important;
+    box-sizing: border-box !important;
+    overflow: visible !important;
+}
+
+.wu-series-form
+.wu-series-options-row
+> .usi-moreOptionsSelect {
+    position: static !important;
+    display: block !important;
+    align-self: start !important;
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    height: 35px !important;
+    min-height: 35px !important;
+    max-height: 35px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    transform: none !important;
+    box-sizing: border-box !important;
+}
+
+.wu-series-form
+.wu-series-options-row
+> .usi-moreOptionsSelect:nth-of-type(1) {
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+}
+
+.wu-series-form
+.wu-series-options-row
+> .usi-moreOptionsSelect:nth-of-type(2) {
+    grid-column: 2 !important;
+    grid-row: 1 !important;
+}
+
+.wu-series-form .wu-series-building {
+    width: var(--wu-series-standard-width) !important;
+    min-width: var(--wu-series-standard-width) !important;
+    max-width: var(--wu-series-standard-width) !important;
+}
+
+.wu-series-form .wu-series-roomtype {
+    width: var(--wu-series-roomtype-width) !important;
+    min-width: var(--wu-series-roomtype-width) !important;
+    max-width: var(--wu-series-roomtype-width) !important;
+}
+
+.wu-series-form .wu-series-building,
+.wu-series-form .wu-series-roomtype,
+.wu-series-form button.wu-series-search {
+    position: static !important;
+    height: 35px !important;
+    min-height: 35px !important;
+    max-height: 35px !important;
+    margin: 0 !important;
+    transform: none !important;
+    box-sizing: border-box !important;
+}
+
+.wu-series-form button.wu-series-search {
+    grid-column: 3 !important;
+    grid-row: 1 !important;
+    align-self: start !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: var(--wu-series-standard-width) !important;
+    min-width: var(--wu-series-standard-width) !important;
+    max-width: var(--wu-series-standard-width) !important;
+    padding: 0 20px !important;
+    font: 600 14px/20px Verdana, Arial, sans-serif !important;
+}
+
+.wu-series-form
+.wu-series-building
+.mat-mdc-text-field-wrapper,
+.wu-series-form
+.wu-series-roomtype
+.mat-mdc-text-field-wrapper,
+.wu-series-form
+.wu-series-building
+.mat-mdc-form-field-flex,
+.wu-series-form
+.wu-series-roomtype
+.mat-mdc-form-field-flex,
+.wu-series-form
+.wu-series-building
+.mat-mdc-form-field-infix,
+.wu-series-form
+.wu-series-roomtype
+.mat-mdc-form-field-infix {
+    height: 35px !important;
+    min-height: 35px !important;
+    max-height: 35px !important;
+    box-sizing: border-box !important;
+}
+
+.wu-series-form
+.wu-series-building
+.mat-mdc-form-field-infix,
+.wu-series-form
+.wu-series-roomtype
+.mat-mdc-form-field-infix {
+    padding-top: 7px !important;
+    padding-bottom: 7px !important;
+}
+
+.wu-series-form
+.wu-series-building
+.mat-mdc-form-field-subscript-wrapper,
+.wu-series-form
+.wu-series-roomtype
+.mat-mdc-form-field-subscript-wrapper {
+    display: none !important;
+}
+
+/* Einheitliche Schrift */
+
+.wu-series-form input,
+.wu-series-form textarea,
+.wu-series-form select,
+.wu-series-form .mat-mdc-input-element,
+.wu-series-form .mat-input-element,
+.wu-series-form .mat-mdc-select,
+.wu-series-form .mat-mdc-select-value,
+.wu-series-form .mat-mdc-select-value-text,
+.wu-series-form .mat-mdc-select-placeholder,
+.wu-series-form .mat-select,
+.wu-series-form .mat-select-value,
+.wu-series-form .mat-select-value-text,
+.wu-series-form .mat-select-placeholder,
+.wu-series-form [role="combobox"],
+.wu-series-form label,
+.wu-series-form .mat-mdc-floating-label,
+.wu-series-form .mat-form-field-label,
+.wu-series-form .mdc-floating-label {
+    font-family: Verdana, Arial, sans-serif !important;
+    font-size: 14px !important;
+    font-weight: 400 !important;
+    letter-spacing: normal !important;
+    color: #333333 !important;
+    opacity: 1 !important;
+}
+
+.wu-series-form input::placeholder,
+.wu-series-form textarea::placeholder {
+    color: #333333 !important;
+    opacity: 1 !important;
+}
+
+/* MOBILE VERANSTALTUNGS-SERIE */
+
+@media screen and (max-width: 700px) {
+    .wu-series-form .wu-series-repeat-row {
+        flex-wrap: wrap !important;
+    }
+
+    .wu-series-form .wu-series-options-group,
+    .wu-series-form .wu-series-options-row {
+        width: 100% !important;
+        min-width: 0 !important;
+        max-width: none !important;
+        height: auto !important;
+        max-height: none !important;
+    }
+
+    .wu-series-form .wu-series-options-row {
+        grid-template-columns: 1fr !important;
+        grid-template-rows: repeat(3, 35px) !important;
+        row-gap: 12px !important;
+    }
+
+    .wu-series-form
+    .wu-series-options-row
+    > .usi-moreOptionsSelect,
+    .wu-series-form .wu-series-building,
+    .wu-series-form .wu-series-roomtype,
+    .wu-series-form button.wu-series-search {
+        grid-column: 1 !important;
+        width: 100% !important;
+        min-width: 0 !important;
+        max-width: none !important;
+    }
+
+    .wu-series-form
+    .wu-series-options-row
+    > .usi-moreOptionsSelect:nth-of-type(1) {
+        grid-row: 1 !important;
+    }
+
+    .wu-series-form
+    .wu-series-options-row
+    > .usi-moreOptionsSelect:nth-of-type(2) {
+        grid-row: 2 !important;
+    }
+
+    .wu-series-form button.wu-series-search {
+        grid-row: 3 !important;
+    }
 }
