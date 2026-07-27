@@ -626,6 +626,156 @@
         });
     }
 
+    /*
+     * Den von OSB bereitgestellten Namen neben dem Benutzer-Icon anzeigen.
+     * Der Benutzername wird dynamisch aus OSB übernommen.
+     */
+    function showLoggedInUserName() {
+        const controls = Array.from(document.querySelectorAll(
+            'header button, header a, header [role="button"], ' +
+            'nav button, nav a, nav [role="button"], ' +
+            'app-header button, app-header a, app-header [role="button"], ' +
+            '.usi-header button, .usi-header a, .usi-header [role="button"]'
+        ));
+
+        const genericLabels = [
+            'account',
+            'account circle',
+            'benutzer',
+            'benutzerkonto',
+            'user',
+            'user account',
+            'profil',
+            'profile',
+            'person',
+            'mein konto',
+            'my account',
+            'abmelden',
+            'logout',
+            'log out'
+        ];
+
+        function cleanName(value) {
+            let name = (value || '')
+                .replace(/\u00a0/g, ' ')
+                .replace(/\s+/g, ' ')
+                .trim();
+
+            name = name.replace(
+                /^(benutzer(?:konto)?|user(?:\s+account)?|account|profil|profile|person)\s*[:\-–]\s*/i,
+                ''
+            );
+
+            name = name.replace(
+                /\s*[:\-–]\s*(abmelden|logout|log out)$/i,
+                ''
+            ).trim();
+
+            if (
+                name.length < 2 ||
+                name.length > 100 ||
+                genericLabels.includes(name.toLowerCase())
+            ) {
+                return '';
+            }
+
+            return name;
+        }
+
+        const userControl = controls.filter(function (control) {
+            const rectangle = control.getBoundingClientRect();
+
+            const descriptor = [
+                control.getAttribute('aria-label'),
+                control.getAttribute('title'),
+                control.className
+            ].filter(Boolean).join(' ').toLowerCase();
+
+            const icon = control.querySelector(
+                'mat-icon, .mat-icon, svg, i, ' +
+                '[class*="person"], [class*="user"], [class*="account"]'
+            );
+
+            const iconDescriptor = icon
+                ? [
+                    icon.textContent,
+                    icon.getAttribute('aria-label'),
+                    icon.getAttribute('title'),
+                    icon.getAttribute('class')
+                ].filter(Boolean).join(' ').toLowerCase()
+                : '';
+
+            const combinedDescriptor =
+                descriptor + ' ' + iconDescriptor;
+
+            return (
+                rectangle.width > 0 &&
+                rectangle.height > 0 &&
+                rectangle.top < 150 &&
+                (
+                    combinedDescriptor.includes('user') ||
+                    combinedDescriptor.includes('benutzer') ||
+                    combinedDescriptor.includes('account') ||
+                    combinedDescriptor.includes('profil') ||
+                    combinedDescriptor.includes('person')
+                )
+            );
+        }).sort(function (first, second) {
+            return (
+                second.getBoundingClientRect().right -
+                first.getBoundingClientRect().right
+            );
+        })[0];
+
+        if (!userControl) {
+            return;
+        }
+
+        const existingName =
+            userControl.querySelector('.wu-header-user-name');
+
+        const sourceValues = [
+            userControl.getAttribute('aria-label'),
+            userControl.getAttribute('title'),
+            userControl.getAttribute('data-user-name'),
+            userControl.getAttribute('data-username')
+        ];
+
+        Array.from(
+            userControl.querySelectorAll('span, div, p')
+        ).filter(function (element) {
+            return !element.closest('mat-icon, .mat-icon');
+        }).forEach(function (element) {
+            sourceValues.push(element.textContent);
+        });
+
+        const userName = sourceValues
+            .map(cleanName)
+            .find(Boolean);
+
+        if (!userName) {
+            return;
+        }
+
+        userControl.classList.add('wu-header-user-control');
+
+        if (existingName) {
+            if (existingName.textContent !== userName) {
+                existingName.textContent = userName;
+            }
+
+            return;
+        }
+
+        const nameElement = document.createElement('span');
+
+        nameElement.className = 'wu-header-user-name';
+        nameElement.textContent = userName;
+        nameElement.setAttribute('aria-hidden', 'true');
+
+        userControl.appendChild(nameElement);
+    }
+
     function applyWuAdjustments() {
         changeSpaceLabel();
         changeCalendarTimeFormat();
@@ -634,6 +784,7 @@
         markWeekendButtons();
         markRepeatAndWeekdayArea();
         markSeriesFormLayout();
+        showLoggedInUserName();
     }
 
     function scheduleUpdate() {
