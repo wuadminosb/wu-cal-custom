@@ -970,3 +970,9 @@ mat-button-toggle:not(.wu-hidden-weekend) button,
     overflow: visible !important;
     word-break: normal !important;
 }
+
+/* Preis-Sortierungen im Dropdown ausblenden */
+mat-option[value="charge|Ascending"],
+mat-option[value="charge|Descending"] {
+    display: none !important;
+}
