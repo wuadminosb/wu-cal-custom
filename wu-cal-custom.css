@@ -36,6 +36,25 @@
     margin: 0 !important;
 }
 
+/* Header-Useranzeige immer horizontal */
+.usi-header .mat-menu-trigger,
+.usi-header [aria-label*="user" i],
+.usi-header [aria-label*="account" i],
+.usi-header [title*="user" i],
+.usi-header [title*="account" i] {
+    display: inline-flex !important;
+    align-items: center !important;
+    flex-direction: row !important;
+    white-space: nowrap !important;
+    gap: 8px !important;
+}
+
+.usi-header .mat-menu-trigger span,
+.usi-header .mat-menu-trigger div {
+    display: inline !important;
+    white-space: nowrap !important;
+}
+
 /* EINGABE- UND AUSWAHLFELDER */
 
 .mat-mdc-text-field-wrapper,
