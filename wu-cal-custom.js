@@ -546,10 +546,7 @@
             if (
                 !buildingField ||
                 !roomTypeField ||
-                !searchButton ||
-                !repeatField ||
-                !repeatRow ||
-                !weekdayGroup
+                !searchButton
             ) {
                 return;
             }
@@ -577,17 +574,19 @@
                 'wu-series-search'
             );
 
-            repeatRow.classList.add(
-                'wu-series-repeat-row'
-            );
+            if (repeatField && repeatRow && weekdayGroup) {
+                repeatRow.classList.add(
+                    'wu-series-repeat-row'
+                );
 
-            repeatField.classList.add(
-                'wu-series-repeat-field'
-            );
+                repeatField.classList.add(
+                    'wu-series-repeat-field'
+                );
 
-            weekdayGroup.classList.add(
-                'wu-series-weekdays'
-            );
+                weekdayGroup.classList.add(
+                    'wu-series-weekdays'
+                );
+            }
 
             const participantField =
                 findVisibleField(
