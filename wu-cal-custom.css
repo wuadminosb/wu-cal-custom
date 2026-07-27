@@ -3,51 +3,12 @@
    Hauptfarbe: #2d80a9
    ========================================================= */
 
-/* BENUTZERNAME NEBEN DEM PERSONEN-ICON */
-
-.wu-header-user-control {
-    display: inline-flex !important;
-    flex-direction: row !important;
-    align-items: center !important;
-    justify-content: center !important;
-    gap: 9px !important;
-    width: auto !important;
-    min-width: max-content !important;
-    padding-right: 14px !important;
-    padding-left: 14px !important;
-    white-space: nowrap !important;
-    box-sizing: border-box !important;
-}
-
-.wu-header-user-control .wu-header-user-name {
-    display: inline-block !important;
-    color: #ffffff !important;
-    font-family: Verdana, Arial, sans-serif !important;
-    font-size: 14px !important;
-    font-weight: 400 !important;
-    line-height: 1 !important;
-    white-space: nowrap !important;
-}
-
-.wu-header-user-control mat-icon,
-.wu-header-user-control .mat-icon,
-.wu-header-user-control svg,
-.wu-header-user-control i {
-    flex: 0 0 auto !important;
-    margin: 0 !important;
-}
-
-
-/* =========================================================
-   EINGABE- UND AUSWAHLFELDER
-   ========================================================= */
+/* EINGABE- UND AUSWAHLFELDER */
 
 .mat-mdc-text-field-wrapper,
 .mat-mdc-form-field-flex {
     border-radius: 0 !important;
 }
-
-/* Linker Rahmenteil */
 
 .mat-mdc-form-field .mdc-notched-outline__leading {
     border-top-color: #2d80a9 !important;
@@ -57,8 +18,6 @@
     border-radius: 0 !important;
 }
 
-/* Mittlerer Rahmenteil */
-
 .mat-mdc-form-field .mdc-notched-outline__notch {
     border-top-color: #2d80a9 !important;
     border-bottom-color: #2d80a9 !important;
@@ -66,8 +25,6 @@
     border-right: none !important;
     border-radius: 0 !important;
 }
-
-/* Rechter Rahmenteil */
 
 .mat-mdc-form-field .mdc-notched-outline__trailing {
     border-top-color: #2d80a9 !important;
@@ -77,8 +34,6 @@
     border-radius: 0 !important;
 }
 
-/* Zusätzliche Eingaberahmen entfernen */
-
 .mat-mdc-form-field input,
 .mat-mdc-form-field select {
     border: none !important;
@@ -86,10 +41,7 @@
     box-shadow: none !important;
 }
 
-
-/* =========================================================
-   FOKUSZUSTAND DER EINGABEFELDER
-   ========================================================= */
+/* FOKUSZUSTAND DER EINGABEFELDER */
 
 .mat-mdc-form-field.mat-focused
 .mdc-notched-outline__leading {
@@ -118,10 +70,7 @@
     border-radius: 0 !important;
 }
 
-
-/* =========================================================
-   REGISTERKARTEN
-   ========================================================= */
+/* REGISTERKARTEN */
 
 .mat-mdc-tab,
 .mat-tab-label {
@@ -185,10 +134,7 @@
     background-color: #ffffff !important;
 }
 
-
-/* =========================================================
-   WIEDERHOLT LINKS – MO BIS FR DIREKT DANEBEN
-   ========================================================= */
+/* WIEDERHOLT LINKS – MO BIS FR DIREKT DANEBEN */
 
 .wu-repeat-weekday-row,
 .wu-repeat-weekday-native-row {
@@ -198,8 +144,6 @@
     box-sizing: border-box !important;
     white-space: nowrap !important;
 }
-
-/* Feld „Wiederholt“ links */
 
 .wu-repeat-weekday-row .wu-repeat-field,
 .wu-repeat-weekday-native-row .wu-repeat-field,
@@ -211,8 +155,6 @@
     margin: 0 !important;
     vertical-align: middle !important;
 }
-
-/* Wochentage direkt rechts neben „Wiederholt“ */
 
 .usi-dayOfWeekButtons,
 .wu-repeat-weekday-row .wu-weekday-group,
@@ -234,26 +176,14 @@
     box-sizing: border-box !important;
 }
 
-
-/* =========================================================
-   SAMSTAG UND SONNTAG AUSBLENDEN
-   ========================================================= */
-
-/* Sonntag */
+/* SAMSTAG UND SONNTAG AUSBLENDEN */
 
 mat-button-toggle[value="0"],
-mat-button-toggle[ng-reflect-value="0"] {
-    display: none !important;
-}
-
-/* Samstag */
-
+mat-button-toggle[ng-reflect-value="0"],
 mat-button-toggle[value="6"],
 mat-button-toggle[ng-reflect-value="6"] {
     display: none !important;
 }
-
-/* Zusätzliche Absicherung über die JavaScript-Klasse */
 
 mat-button-toggle.wu-hidden-weekend,
 .mat-button-toggle.wu-hidden-weekend,
@@ -269,10 +199,7 @@ mat-button-toggle.wu-hidden-weekend,
     border: 0 !important;
 }
 
-
-/* =========================================================
-   MONTAG BIS FREITAG
-   ========================================================= */
+/* MONTAG BIS FREITAG */
 
 .usi-dayOfWeekButtons mat-button-toggle,
 .wu-repeat-weekday-row
@@ -324,8 +251,6 @@ mat-button-toggle button {
     text-align: center !important;
 }
 
-/* Ausgewählter Wochentag */
-
 .usi-dayOfWeekButtons
 .mat-button-toggle-checked,
 .usi-dayOfWeekButtons
@@ -347,8 +272,6 @@ mat-button-toggle button {
     border-color: #2d80a9 !important;
 }
 
-/* Text im ausgewählten Wochentag */
-
 .usi-dayOfWeekButtons
 .mat-button-toggle-checked
 .mat-button-toggle-label-content,
@@ -364,10 +287,7 @@ mat-button-toggle button {
     color: #ffffff !important;
 }
 
-
-/* =========================================================
-   NICHT BUCHBARE KALENDERBEREICHE
-   ========================================================= */
+/* NICHT BUCHBARE KALENDERBEREICHE */
 
 .chadmo .chadmo-merged-cell,
 .chadmo-merged-cell {
@@ -382,10 +302,7 @@ mat-button-toggle button {
     color: #ffffff !important;
 }
 
-
-/* =========================================================
-   KALENDERBREITE
-   ========================================================= */
+/* KALENDERBREITE */
 
 .usi-calendarSection,
 .usi-calendarParent,
@@ -415,10 +332,7 @@ app-calendar-day-view {
     overflow-x: auto !important;
 }
 
-
-/* =========================================================
-   RAUMSPALTE
-   ========================================================= */
+/* RAUMSPALTE */
 
 .chadmo .rowHeadLeftCss3,
 .rowHeadLeftCss3 {
@@ -441,10 +355,7 @@ app-calendar-day-view {
     text-overflow: ellipsis !important;
 }
 
-
-/* =========================================================
-   HINWEISBOX
-   ========================================================= */
+/* HINWEISBOX */
 
 .wu-info-box {
     width: 100%;
@@ -468,10 +379,7 @@ app-calendar-day-view {
     margin: 0;
 }
 
-
-/* =========================================================
-   MOBILE DARSTELLUNG
-   ========================================================= */
+/* MOBILE DARSTELLUNG */
 
 @media screen and (max-width: 768px) {
     .wu-repeat-weekday-row,
@@ -507,23 +415,12 @@ app-calendar-day-view {
     }
 }
 
-
-/* =========================================================
-   WOCHENENDE ENDGÜLTIG AUSBLENDEN
-   ========================================================= */
-
-/* Sonntag – erster Button */
+/* WOCHENENDE ENDGÜLTIG AUSBLENDEN */
 
 .usi-dayOfWeekButtons mat-button-toggle:first-child,
 .wu-weekday-group mat-button-toggle:first-child,
-
-/* Samstag – letzter Button */
-
 .usi-dayOfWeekButtons mat-button-toggle:last-child,
 .wu-weekday-group mat-button-toggle:last-child,
-
-/* Absicherung über Werte und JavaScript-Klasse */
-
 .usi-dayOfWeekButtons mat-button-toggle[value="0"],
 .usi-dayOfWeekButtons mat-button-toggle[value="6"],
 .wu-weekday-group mat-button-toggle[value="0"],
@@ -566,8 +463,6 @@ button.usi-button.secondary {
     border-color: #2d80a9 !important;
 }
 
-/* WU-Rahmen auch bei Hover, Fokus und Auswahl beibehalten */
-
 .usi-orgSelectionContainer
 .usi-orgSelectOptions
 .usi-orgOpt:hover,
@@ -593,7 +488,7 @@ span.usi-circle.unavailable,
     border-color: #3d80ab !important;
 }
 
-/* Bezeichnung „Space“ visuell durch „Raum“ ersetzen */
+/* „Space“ visuell durch „Raum“ ersetzen */
 
 span.originCellContent {
     font-size: 0 !important;
@@ -603,7 +498,6 @@ span.originCellContent::after {
     content: "Raum";
     font-size: 14px !important;
 }
-
 
 /* =========================================================
    VERANSTALTUNGS-SERIE
@@ -747,7 +641,6 @@ mat-button-toggle:not(.wu-hidden-weekend) button,
     border: 0 !important;
     opacity: 0 !important;
 }
-
 
 /* Gebäude, Raumart und Suche */
 
@@ -921,7 +814,6 @@ mat-button-toggle:not(.wu-hidden-weekend) button,
     display: none !important;
 }
 
-
 /* Einheitliche Schrift */
 
 .wu-series-form input,
@@ -955,7 +847,6 @@ mat-button-toggle:not(.wu-hidden-weekend) button,
     color: #333333 !important;
     opacity: 1 !important;
 }
-
 
 /* MOBILE VERANSTALTUNGS-SERIE */
 
