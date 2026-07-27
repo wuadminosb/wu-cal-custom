@@ -555,6 +555,7 @@
             }
 
             seriesForm.classList.add('wu-series-form');
+
             optionsRow.classList.add(
                 'wu-series-options-row'
             );
@@ -626,6 +627,112 @@
         });
     }
 
+    /*
+     * Benutzername im schwarzen Kopfbereich direkt neben dem
+     * Personen-Icon anzeigen. Die Ergänzung bleibt auch nach einem
+     * erneuten Angular-Rendering erhalten.
+     */
+    function showUserNameBesideIcon() {
+        if (document.querySelector('.wu-header-user-name')) {
+            return;
+        }
+
+        const iconSelectors = [
+            'mat-icon',
+            '.mat-icon',
+            'svg',
+            'i',
+            '[class*="person"]',
+            '[class*="user"]',
+            '[class*="account"]'
+        ].join(', ');
+
+        const candidates = Array.from(
+            document.querySelectorAll(
+                'header button, header a, header [role="button"], ' +
+                'nav button, nav a, nav [role="button"], ' +
+                'app-header button, app-header a, ' +
+                '.usi-header button, .usi-header a'
+            )
+        ).filter(isVisible).filter(function (element) {
+            const rectangle =
+                element.getBoundingClientRect();
+
+            const descriptor = normalizeText([
+                element.textContent,
+                element.getAttribute('aria-label'),
+                element.getAttribute('title'),
+                element.className
+            ].filter(Boolean).join(' '));
+
+            const hasPersonDescription =
+                descriptor.includes('person') ||
+                descriptor.includes('benutzer') ||
+                descriptor.includes('user') ||
+                descriptor.includes('account') ||
+                descriptor.includes('profil') ||
+                descriptor.includes('manuel') ||
+                descriptor.includes('toth');
+
+            return (
+                rectangle.top < 150 &&
+                element.querySelector(iconSelectors) &&
+                hasPersonDescription
+            );
+        });
+
+        const userControl = candidates.sort(
+            function (first, second) {
+                return (
+                    second.getBoundingClientRect().right -
+                    first.getBoundingClientRect().right
+                );
+            }
+        )[0];
+
+        if (!userControl) {
+            return;
+        }
+
+        userControl.classList.add(
+            'wu-header-user-control'
+        );
+
+        const existingName = Array.from(
+            userControl.querySelectorAll('span, div, p')
+        ).filter(function (element) {
+            const text = normalizeText(
+                element.textContent
+            );
+
+            return (
+                text.includes('manuel') &&
+                text.includes('toth')
+            );
+        }).sort(function (first, second) {
+            return (
+                (first.textContent || '').length -
+                (second.textContent || '').length
+            );
+        })[0];
+
+        if (existingName) {
+            existingName.classList.add(
+                'wu-header-user-name'
+            );
+
+            return;
+        }
+
+        const name = document.createElement('span');
+
+        name.className = 'wu-header-user-name';
+        name.textContent = 'Manuel Toth';
+        name.setAttribute('aria-hidden', 'true');
+
+        userControl.appendChild(name);
+    }
+
     function applyWuAdjustments() {
         changeSpaceLabel();
         changeCalendarTimeFormat();
@@ -634,6 +741,7 @@
         markWeekendButtons();
         markRepeatAndWeekdayArea();
         markSeriesFormLayout();
+        showUserNameBesideIcon();
     }
 
     function scheduleUpdate() {
