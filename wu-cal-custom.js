@@ -481,12 +481,22 @@
                     seriesForm.textContent
                 );
 
-                if (
+                const isSingleEventForm =
+                    formText.includes('datum') &&
+                    formText.includes('startzeit') &&
+                    formText.includes('endzeit');
+
+                const isMultiDayOrSeriesForm =
                     formText.includes('startdatum') &&
-                    formText.includes('enddatum') &&
-                    formText.includes('wiederholt') &&
+                    formText.includes('enddatum');
+
+                if (
                     formText.includes('gebäude') &&
-                    formText.includes('raumart')
+                    formText.includes('raumart') &&
+                    (
+                        isSingleEventForm ||
+                        isMultiDayOrSeriesForm
+                    )
                 ) {
                     break;
                 }
@@ -552,6 +562,7 @@
             }
 
             seriesForm.classList.add('wu-series-form');
+
             optionsRow.classList.add(
                 'wu-series-options-row'
             );
@@ -574,6 +585,11 @@
                 'wu-series-search'
             );
 
+            /*
+             * Diese Elemente sind nur bei einer Veranstaltungsserie
+             * vorhanden. Die Formatierung der allgemeinen Suchfelder
+             * darf davon nicht abhängen.
+             */
             if (repeatField && repeatRow && weekdayGroup) {
                 repeatRow.classList.add(
                     'wu-series-repeat-row'
