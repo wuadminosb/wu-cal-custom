@@ -28,6 +28,55 @@
         ].includes(text);
     }
 
+    function normalizeText(value) {
+        return String(value || '')
+            .replace(/\s+/g, ' ')
+            .trim()
+            .toLowerCase();
+    }
+
+    function isVisible(element) {
+        if (!element) {
+            return false;
+        }
+
+        const rectangle = element.getBoundingClientRect();
+        const style = window.getComputedStyle(element);
+
+        return (
+            rectangle.width > 0 &&
+            rectangle.height > 0 &&
+            style.display !== 'none' &&
+            style.visibility !== 'hidden'
+        );
+    }
+
+    function findVisibleField(container, label) {
+        const normalizedLabel = normalizeText(label);
+
+        return Array.from(
+            container.querySelectorAll(
+                'mat-form-field, ' +
+                '.mat-mdc-form-field, ' +
+                '.mat-form-field'
+            )
+        ).filter(isVisible).find(function (field) {
+            const control = field.querySelector(
+                'input, select, textarea, [role="combobox"]'
+            );
+
+            const searchText = normalizeText([
+                field.textContent,
+                control?.getAttribute('placeholder'),
+                control?.getAttribute('aria-label'),
+                control?.getAttribute('name'),
+                control?.getAttribute('id')
+            ].filter(Boolean).join(' '));
+
+            return searchText.includes(normalizedLabel);
+        });
+    }
+
     /* Space → Raum */
     function changeSpaceLabel() {
         const walker = document.createTreeWalker(
@@ -399,6 +448,184 @@
         });
     }
 
+    /*
+     * Veranstaltungs-Serie dauerhaft für das CSS kennzeichnen.
+     * Die Funktion darf beliebig oft durch den MutationObserver
+     * aufgerufen werden.
+     */
+    function markSeriesFormLayout() {
+        const optionsRows = Array.from(
+            document.querySelectorAll('.moreSearchOptions')
+        ).filter(isVisible);
+
+        optionsRows.forEach(function (optionsRow) {
+            const optionsText = normalizeText(
+                optionsRow.textContent
+            );
+
+            if (
+                !optionsText.includes('gebäude') ||
+                !optionsText.includes('raumart') ||
+                !optionsText.includes('suche')
+            ) {
+                return;
+            }
+
+            let seriesForm = optionsRow.parentElement;
+
+            while (
+                seriesForm &&
+                seriesForm !== document.body
+            ) {
+                const formText = normalizeText(
+                    seriesForm.textContent
+                );
+
+                if (
+                    formText.includes('startdatum') &&
+                    formText.includes('enddatum') &&
+                    formText.includes('wiederholt') &&
+                    formText.includes('gebäude') &&
+                    formText.includes('raumart')
+                ) {
+                    break;
+                }
+
+                seriesForm = seriesForm.parentElement;
+            }
+
+            if (!seriesForm || seriesForm === document.body) {
+                return;
+            }
+
+            const optionsGroup =
+                optionsRow.closest(
+                    '.usi-moreSearchOptionsGroup'
+                ) ||
+                optionsRow.parentElement;
+
+            const buildingField =
+                findVisibleField(optionsRow, 'Gebäude');
+
+            const roomTypeField =
+                findVisibleField(optionsRow, 'Raumart');
+
+            const searchButton = Array.from(
+                optionsRow.querySelectorAll('button')
+            ).filter(isVisible).find(function (button) {
+                return normalizeText(
+                    button.textContent
+                ) === 'suche';
+            });
+
+            const repeatField = Array.from(
+                seriesForm.querySelectorAll(
+                    '.usi-repeatsSelect, ' +
+                    'mat-form-field, ' +
+                    '.mat-mdc-form-field, ' +
+                    '.mat-form-field'
+                )
+            ).filter(isVisible).find(function (field) {
+                return normalizeText(
+                    field.textContent
+                ).includes('wiederholt');
+            });
+
+            const repeatRow =
+                repeatField?.closest(
+                    '.usi-recurringSelects'
+                ) ||
+                repeatField?.parentElement;
+
+            const weekdayGroup = Array.from(
+                seriesForm.querySelectorAll(
+                    '.usi-dayOfWeekButtons'
+                )
+            ).find(isVisible);
+
+            if (
+                !buildingField ||
+                !roomTypeField ||
+                !searchButton ||
+                !repeatField ||
+                !repeatRow ||
+                !weekdayGroup
+            ) {
+                return;
+            }
+
+            seriesForm.classList.add('wu-series-form');
+            optionsRow.classList.add(
+                'wu-series-options-row'
+            );
+
+            if (optionsGroup !== seriesForm) {
+                optionsGroup.classList.add(
+                    'wu-series-options-group'
+                );
+            }
+
+            buildingField.classList.add(
+                'wu-series-building'
+            );
+
+            roomTypeField.classList.add(
+                'wu-series-roomtype'
+            );
+
+            searchButton.classList.add(
+                'wu-series-search'
+            );
+
+            repeatRow.classList.add(
+                'wu-series-repeat-row'
+            );
+
+            repeatField.classList.add(
+                'wu-series-repeat-field'
+            );
+
+            weekdayGroup.classList.add(
+                'wu-series-weekdays'
+            );
+
+            const participantField =
+                findVisibleField(
+                    seriesForm,
+                    'Teilnehmerzahl'
+                );
+
+            let standardWidth = participantField
+                ? Math.round(
+                    participantField
+                        .getBoundingClientRect()
+                        .width
+                )
+                : 160;
+
+            if (
+                standardWidth < 100 ||
+                standardWidth > 300
+            ) {
+                standardWidth = 160;
+            }
+
+            seriesForm.style.setProperty(
+                '--wu-series-standard-width',
+                standardWidth + 'px'
+            );
+
+            seriesForm.style.setProperty(
+                '--wu-series-total-width',
+                (
+                    standardWidth * 2 +
+                    240 +
+                    20 * 2
+                ) + 'px'
+            );
+        });
+    }
+
     function applyWuAdjustments() {
         changeSpaceLabel();
         changeCalendarTimeFormat();
@@ -406,6 +633,7 @@
         formatRoomHeaders();
         markWeekendButtons();
         markRepeatAndWeekdayArea();
+        markSeriesFormLayout();
     }
 
     function scheduleUpdate() {
