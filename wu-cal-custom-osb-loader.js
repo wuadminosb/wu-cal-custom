@@ -1,19 +1,15 @@
 (function () {
     'use strict';
 
-    const currentScript = document.currentScript;
-
-    if (!currentScript || !currentScript.src) {
-        console.error('[WU OSB] Loader-URL konnte nicht ermittelt werden.');
-        return;
-    }
-
-    const baseUrl = new URL('.', currentScript.src);
+    const CDN_BASE =
+        'https://cdn.jsdelivr.net/gh/wuadminosb/wu-cal-custom@' +
+        'ff55352c5714b5787f67d2feedb262b0034b286b/';
 
     function loadScript(fileName, attributes) {
         return new Promise(function (resolve, reject) {
             const script = document.createElement('script');
-            script.src = new URL(fileName, baseUrl).href;
+
+            script.src = CDN_BASE + fileName;
             script.async = false;
 
             Object.entries(attributes || {}).forEach(function (entry) {
@@ -21,8 +17,14 @@
             });
 
             script.onload = resolve;
+
             script.onerror = function () {
-                reject(new Error('Datei konnte nicht geladen werden: ' + script.src));
+                reject(
+                    new Error(
+                        'Datei konnte nicht geladen werden: ' +
+                        script.src
+                    )
+                );
             };
 
             document.head.appendChild(script);
@@ -36,6 +38,9 @@
             return loadScript('wu-cal-custom-osb.js');
         })
         .catch(function (error) {
-            console.error('[WU OSB] JavaScript-Loader fehlgeschlagen.', error);
+            console.error(
+                '[WU OSB] JavaScript-Loader fehlgeschlagen.',
+                error
+            );
         });
 })();
