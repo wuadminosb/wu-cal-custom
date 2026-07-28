@@ -641,6 +641,995 @@
         });
     }
 
+    function ensureStyleTag(styleId, cssText) {
+        let style = document.getElementById(styleId);
+
+        if (!style) {
+            style = document.createElement('style');
+            style.id = styleId;
+            style.textContent = cssText;
+            document.head.appendChild(style);
+            return;
+        }
+
+        if (style.textContent !== cssText) {
+            style.textContent = cssText;
+        }
+    }
+
+    function escapeRegExp(value) {
+        return String(value || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }
+
+    function isSitzungssaalOnePage() {
+        const scope = document.querySelector('app-space-details') || document.body;
+
+        if (!scope) {
+            return false;
+        }
+
+        const text = normalizeText(scope.textContent);
+
+        const hasName = text.includes('sitzungssaal 1');
+        const hasNumber = /\btc\.?4\.?09\b/.test(text) || /\btc4\.09\b/.test(text);
+
+        return hasName || hasNumber;
+    }
+
+    function getSpaceDetailsRow() {
+        const root = document.querySelector('app-space-details');
+
+        if (!root) {
+            return null;
+        }
+
+        const rows = Array.from(root.querySelectorAll('.usi-row')).filter(isVisible);
+
+        return rows.find(function (row) {
+            return !!(
+                row.querySelector('.usi-op-imageViewerContainer') &&
+                row.querySelector('.usi-spaceDetails')
+            );
+        }) || null;
+    }
+
+    function buildTechnicalDetailsData() {
+        return [
+            {
+                title: 'Hybride Veranstaltungen',
+                content: `
+                    <p>
+                        Der Sitzungssaal 1 ist für hybride Veranstaltungen
+                        ausgestattet. Dafür muss eines der vorgesehenen
+                        Hybrid-Settings gebucht werden.
+                    </p>
+                    <p>
+                        Eine 140-Zoll-Videowall und drei zusätzliche Monitore
+                        sorgen für eine gute Sicht im gesamten Raum.
+                    </p>
+                    <p>
+                        Zwei Deckenmikrofon-Arrays und vier Kameras erkennen
+                        die aktive Sprecherposition und wählen automatisch
+                        die passende Kamera aus.
+                    </p>
+                    <p>
+                        Der integrierte PC wird über das Touchpanel gestartet.
+                        Eigene Geräte können am Rednerpult angeschlossen werden.
+                    </p>
+                `
+            },
+            {
+                title: 'Videowall',
+                content: `
+                    <dl>
+                        <div>
+                            <dt>Anzahl und Größe</dt>
+                            <dd>1 Videowall mit 140 Zoll</dd>
+                        </div>
+                        <div>
+                            <dt>Bildformat</dt>
+                            <dd>16:9</dd>
+                        </div>
+                        <div>
+                            <dt>Standardauflösung</dt>
+                            <dd>1920 × 1080 Pixel</dd>
+                        </div>
+                    </dl>
+                `
+            },
+            {
+                title: 'PC',
+                content: `
+                    <dl>
+                        <div>
+                            <dt>Vortragenden-PC</dt>
+                            <dd>Lenovo M910Q</dd>
+                        </div>
+                        <div>
+                            <dt>Bedienung</dt>
+                            <dd>
+                                Bluetooth-Tastatur mit integriertem Trackpad
+                            </dd>
+                        </div>
+                    </dl>
+                `
+            },
+            {
+                title: 'Lautsprecher',
+                content: `
+                    <dl>
+                        <div>
+                            <dt>Ausstattung</dt>
+                            <dd>2 fest installierte Lautsprecher</dd>
+                        </div>
+                        <div>
+                            <dt>Modell</dt>
+                            <dd>JBL CBT 50LA-1WH</dd>
+                        </div>
+                    </dl>
+                `
+            },
+            {
+                title: 'Mikrofone',
+                content: `
+                    <dl>
+                        <div>
+                            <dt>Funkmikrofone</dt>
+                            <dd>Bis zu 4 gleichzeitig verwendbar</dd>
+                        </div>
+                        <div>
+                            <dt>Varianten</dt>
+                            <dd>
+                                Taschen- und Handsender können flexibel
+                                kombiniert werden.
+                            </dd>
+                        </div>
+                        <div>
+                            <dt>Modelle</dt>
+                            <dd>Sennheiser SKM 300 und SK 300</dd>
+                        </div>
+                    </dl>
+                `
+            },
+            {
+                title: 'Rednerpult',
+                content: `
+                    <dl>
+                        <div>
+                            <dt>Ausführung</dt>
+                            <dd>Fest installiertes Rednerpult</dd>
+                        </div>
+                        <div>
+                            <dt>Anschlüsse</dt>
+                            <dd>1 HDMI-Anschluss und 1 USB-Anschluss</dd>
+                        </div>
+                    </dl>
+                `
+            },
+            {
+                title: 'Raumsteuerung',
+                content: `
+                    <dl>
+                        <div>
+                            <dt>Steuerung</dt>
+                            <dd>
+                                AMX-Touchpanel am Medientechnikrack oder
+                                mobile Steuerung über ein iPad Mini
+                            </dd>
+                        </div>
+                        <div>
+                            <dt>Funktionen</dt>
+                            <dd>
+                                Licht, Projektion und externe Geräte
+                            </dd>
+                        </div>
+                    </dl>
+                `
+            },
+            {
+                title: 'Wireless Presenter',
+                subtitle: 'Leihequipment am Service Desk TC',
+                content: `
+                    <p>
+                        Presenter zum Weiterschalten von Folien inklusive
+                        Laserpointer. Dadurch muss die vortragende Person
+                        nicht unmittelbar am Rednerpult stehen.
+                    </p>
+                `
+            },
+            {
+                title: 'Kabel und Adapter',
+                subtitle: 'Leihequipment am Service Desk TC',
+                content: `
+                    <p>
+                        Folgende Multimedia-Kabel und Adapter können auf
+                        Anfrage bereitgestellt werden:
+                    </p>
+                    <ul>
+                        <li>HDMI-Kabel</li>
+                        <li>DisplayPort-zu-HDMI-Adapter</li>
+                        <li>Mini-DisplayPort-zu-HDMI-Adapter</li>
+                    </ul>
+                `
+            }
+        ];
+    }
+
+    function buildSettingsData() {
+        const base =
+            'https://www.wu.ac.at/fileadmin/wu/h/structure/' +
+            'servicecenters/procurement/veranstaltungsmanagement/' +
+            'Fotos/Sitzungssaal1/';
+
+        return [
+            {
+                title: 'Settings Standard',
+                items: [
+                    {
+                        title: '80 Theater',
+                        image:
+                            'https://www.wu.ac.at/fileadmin/wu/_processed_/2/5/' +
+                            'csm_Theater_80_0b93dd4d90.png',
+                        pdf: base + 'Theater_80.pdf'
+                    },
+                    {
+                        title: '36 Klassenzimmer',
+                        image:
+                            'https://www.wu.ac.at/fileadmin/wu/_processed_/5/9/' +
+                            'csm_Klassenzimmer_36_Pax_9b0d51bb46.png',
+                        pdf: base + 'Klassenzimmer_36_Pax.pdf'
+                    },
+                    {
+                        title: '30 Sitzgruppe',
+                        subtitle: '5 Gruppen mit je 6 Sesseln',
+                        image:
+                            'https://www.wu.ac.at/fileadmin/wu/_processed_/7/6/' +
+                            'csm_Sitzgruppe_5er_je_6_Sessel_30_e7b74c6739.png',
+                        pdf: base + 'Sitzgruppe_5er_je_6_Sessel_30.pdf'
+                    },
+                    {
+                        title: '32 U-Form',
+                        image:
+                            'https://www.wu.ac.at/fileadmin/wu/_processed_/f/8/' +
+                            'csm_U_Form_32_1b6268d730.png',
+                        pdf: base + 'U_Form_32.pdf'
+                    },
+                    {
+                        title: '40 Konferenzbestuhlung',
+                        image:
+                            'https://www.wu.ac.at/fileadmin/wu/_processed_/d/2/' +
+                            'csm_AD_-_SS_1_-_Konferenzbestuhlung_40_Pax_-' +
+                            '_Setting1_c07398dac4.png',
+                        pdf:
+                            base +
+                            'AD_-_SS_1_-_Konferenzbestuhlung_40_Pax_-' +
+                            '_Setting1.pdf'
+                    },
+                    {
+                        title: '54 Konferenzbestuhlung',
+                        image:
+                            'https://www.wu.ac.at/fileadmin/wu/_processed_/0/4/' +
+                            'csm_AD_-_SS_1_-_Konferenzbestuhlung_54_Pax_-' +
+                            '_Setting_2_b85cac5eae.png',
+                        pdf:
+                            base +
+                            'AD_-_SS_1_-_Konferenzbestuhlung_54_Pax_-' +
+                            '_Setting_2.pdf'
+                    },
+                    {
+                        title: '45 Sesselkreis',
+                        image:
+                            'https://www.wu.ac.at/fileadmin/wu/_processed_/5/c/' +
+                            'csm_Sesselkreis_45_Pax_8c58e40503.png',
+                        pdf: base + 'Sesselkreis_45_Pax.pdf'
+                    }
+                ]
+            },
+            {
+                title: 'Settings Hybrid',
+                items: [
+                    {
+                        title: '80 Theater Hybrid',
+                        image:
+                            'https://www.wu.ac.at/fileadmin/wu/_processed_/e/e/' +
+                            'csm_AD_-_SS_1_-Theaterbestuhlung_hybrid_80_Pax_' +
+                            '6b8385557b.png',
+                        pdf:
+                            base +
+                            'AD_-_SS_1_-Theaterbestuhlung_hybrid_80_Pax.pdf'
+                    },
+                    {
+                        title: '32 U-Form Hybrid',
+                        image:
+                            'https://www.wu.ac.at/fileadmin/wu/_processed_/5/f/' +
+                            'csm_AD_-_SS_1_-U-Form_hybrid_32_Pax_-_Setting_1_' +
+                            'd53ebd403c.png',
+                        pdf:
+                            base +
+                            'AD_-_SS_1_-U-Form_hybrid_32_Pax_-_Setting_1.pdf'
+                    },
+                    {
+                        title: '42 U-Form Hybrid',
+                        image:
+                            'https://www.wu.ac.at/fileadmin/wu/_processed_/2/9/' +
+                            'csm_AD_-_SS_1_-_U_Form_hybrid__42_Pax_-' +
+                            '_Setting_2__574f546f49.png',
+                        pdf:
+                            base +
+                            'AD_-_SS_1_-_U_Form_hybrid__42_Pax_-' +
+                            '_Setting_2_.pdf'
+                    },
+                    {
+                        title: '40 Konferenzbestuhlung Hybrid',
+                        image:
+                            'https://www.wu.ac.at/fileadmin/wu/_processed_/c/2/' +
+                            'csm_AD_-_SS_1_-_Konferenzbestuhlung_hybrid_' +
+                            '40_Pax_-_Setting_1_fa03f4df60.png',
+                        pdf:
+                            base +
+                            'AD_-_SS_1_-_Konferenzbestuhlung_hybrid_' +
+                            '40_Pax_-_Setting_1.pdf'
+                    },
+                    {
+                        title: '54 Konferenzbestuhlung Hybrid',
+                        image:
+                            'https://www.wu.ac.at/fileadmin/wu/_processed_/1/c/' +
+                            'csm_AD_-_SS_1_-_Konferenzbestuhlung_hybrid_' +
+                            '54_Pax_-_Setting_2_bc6df6da69.png',
+                        pdf:
+                            base +
+                            'AD_-_SS_1_-_Konferenzbestuhlung_hybrid_' +
+                            '54_Pax_-_Setting_2.pdf'
+                    }
+                ]
+            }
+        ];
+    }
+
+    function applySitzungssaalOneLayout() {
+        const styleId = 'wu-sitzungssaal1-layout-style';
+
+        const css = `
+            .wu-room-details-row {
+                display: flex !important;
+                flex-flow: row nowrap !important;
+                align-items: flex-start !important;
+                gap: 24px !important;
+                width: 100% !important;
+            }
+
+            .wu-room-details-row > .wu-room-gallery {
+                flex: 1 1 auto !important;
+                width: calc(100% - 454px) !important;
+                min-width: 0 !important;
+                max-width: calc(100% - 454px) !important;
+            }
+
+            .wu-room-details-row > .wu-room-sidebar {
+                position: static !important;
+                display: block !important;
+                flex: 0 0 430px !important;
+                width: 430px !important;
+                min-width: 430px !important;
+                max-width: 430px !important;
+                margin: 0 !important;
+                transform: none !important;
+            }
+
+            .wu-room-sidebar .usi-addSpaceDesktop {
+                width: 100% !important;
+                margin: 0 0 16px !important;
+            }
+
+            .wu-room-sidebar .usi-spaceDetailsContainer {
+                width: 100% !important;
+                min-width: 0 !important;
+                max-width: 100% !important;
+                margin: 0 !important;
+            }
+
+            .wu-room-sidebar .usi-detailsInfo {
+                display: block !important;
+                width: 100% !important;
+            }
+
+            .wu-room-sidebar .usi-detailsLine {
+                display: flex !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                align-items: flex-start !important;
+                border: 0 !important;
+            }
+
+            @media (max-width: 950px) {
+                .wu-room-details-row {
+                    flex-wrap: wrap !important;
+                }
+
+                .wu-room-details-row > .wu-room-gallery,
+                .wu-room-details-row > .wu-room-sidebar {
+                    flex: 0 0 100% !important;
+                    width: 100% !important;
+                    min-width: 0 !important;
+                    max-width: 100% !important;
+                }
+            }
+        `;
+
+        ensureStyleTag(styleId, css);
+
+        const row = getSpaceDetailsRow();
+
+        if (!row) {
+            return;
+        }
+
+        const gallery = row.querySelector('.usi-op-imageViewerContainer');
+        const sidebar = row.querySelector('.usi-spaceDetails');
+
+        if (!gallery || !sidebar) {
+            return;
+        }
+
+        row.classList.add('wu-room-details-row');
+        gallery.classList.add('wu-room-gallery');
+        sidebar.classList.add('wu-room-sidebar');
+    }
+
+    function renderTechnicalDetailsSection() {
+        const existing = document.getElementById('wu-technical-details-section');
+
+        if (existing) {
+            return existing;
+        }
+
+        const section = document.createElement('section');
+        section.id = 'wu-technical-details-section';
+
+        const heading = document.createElement('h2');
+        heading.textContent = 'Technische Details';
+        section.appendChild(heading);
+
+        const details = buildTechnicalDetailsData();
+
+        let currentSubtitle = '';
+
+        details.forEach(function (item) {
+            if (item.subtitle && item.subtitle !== currentSubtitle) {
+                const subtitle = document.createElement('h3');
+                subtitle.className = 'wu-technical-subtitle';
+                subtitle.textContent = item.subtitle;
+                section.appendChild(subtitle);
+                currentSubtitle = item.subtitle;
+            }
+
+            const tile = document.createElement('details');
+            tile.className = 'wu-technical-tile';
+
+            const summary = document.createElement('summary');
+
+            const title = document.createElement('span');
+            title.textContent = item.title;
+
+            const icon = document.createElement('span');
+            icon.className = 'wu-technical-icon';
+            icon.setAttribute('aria-hidden', 'true');
+            icon.textContent = '+';
+
+            summary.append(title, icon);
+
+            const content = document.createElement('div');
+            content.className = 'wu-technical-content';
+            content.innerHTML = item.content;
+
+            tile.append(summary, content);
+            section.appendChild(tile);
+
+            tile.addEventListener('toggle', function () {
+                icon.textContent = tile.open ? '−' : '+';
+            });
+        });
+
+        return section;
+    }
+
+    function applyTechnicalDetails() {
+        const styleId = 'wu-technical-details-style';
+
+        const css = `
+            #wu-technical-details-section {
+                --wu-blue: #0b80a7;
+                --wu-blue-dark: #075f7d;
+                --wu-text: #262626;
+                --wu-muted: #666666;
+                --wu-border: #d2d2d2;
+                --wu-light: #f4f4f4;
+
+                width: 100%;
+                max-width: 1100px;
+                margin: 45px auto;
+                padding: 0;
+                color: var(--wu-text);
+                font-family: Verdana, Arial, sans-serif;
+            }
+
+            #wu-technical-details-section,
+            #wu-technical-details-section * {
+                box-sizing: border-box;
+            }
+
+            #wu-technical-details-section > h2 {
+                margin: 0 0 20px;
+                padding: 0 0 12px;
+                border-bottom: 4px solid var(--wu-blue);
+                color: var(--wu-text);
+                font-size: 27px;
+                font-weight: 700;
+                line-height: 1.25;
+            }
+
+            #wu-technical-details-section .wu-technical-subtitle {
+                margin: 34px 0 14px;
+                padding: 0 0 9px;
+                border-bottom: 3px solid var(--wu-blue-dark);
+                color: var(--wu-text);
+                font-size: 17px;
+                font-weight: 700;
+            }
+
+            #wu-technical-details-section .wu-technical-tile {
+                margin: 0 0 8px;
+                border: 1px solid var(--wu-border);
+                border-radius: 0;
+                background: #ffffff;
+            }
+
+            #wu-technical-details-section
+            .wu-technical-tile
+            > summary {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 20px;
+                min-height: 62px;
+                padding: 16px 20px;
+                color: var(--wu-text);
+                background: var(--wu-light);
+                cursor: pointer;
+                list-style: none;
+                font-size: 17px;
+                font-weight: 700;
+                line-height: 1.4;
+                user-select: none;
+            }
+
+            #wu-technical-details-section
+            .wu-technical-tile
+            > summary::-webkit-details-marker {
+                display: none;
+            }
+
+            #wu-technical-details-section
+            .wu-technical-tile
+            > summary:hover {
+                color: #ffffff;
+                background: var(--wu-blue);
+            }
+
+            #wu-technical-details-section
+            .wu-technical-tile[open]
+            > summary {
+                color: #ffffff;
+                background: var(--wu-blue);
+            }
+
+            #wu-technical-details-section .wu-technical-icon {
+                display: inline-flex;
+                flex: 0 0 32px;
+                align-items: center;
+                justify-content: center;
+                width: 32px;
+                height: 32px;
+                border: 2px solid currentColor;
+                border-radius: 50%;
+                font-size: 22px;
+                font-weight: 400;
+                line-height: 1;
+            }
+
+            #wu-technical-details-section .wu-technical-content {
+                padding: 22px 24px 25px;
+                border-top: 4px solid var(--wu-blue-dark);
+                background: #ffffff;
+            }
+
+            #wu-technical-details-section .wu-technical-content p {
+                margin: 0 0 14px;
+                color: var(--wu-text);
+                font-size: 15px;
+                line-height: 1.65;
+            }
+
+            #wu-technical-details-section
+            .wu-technical-content
+            p:last-child {
+                margin-bottom: 0;
+            }
+
+            #wu-technical-details-section .wu-technical-content dl {
+                margin: 0;
+            }
+
+            #wu-technical-details-section .wu-technical-content dl div {
+                display: grid;
+                grid-template-columns: minmax(170px, 32%) 1fr;
+                gap: 22px;
+                padding: 13px 0;
+                border-bottom: 1px solid var(--wu-border);
+            }
+
+            #wu-technical-details-section
+            .wu-technical-content
+            dl div:last-child {
+                border-bottom: 0;
+            }
+
+            #wu-technical-details-section .wu-technical-content dt {
+                color: var(--wu-muted);
+                font-size: 14px;
+                font-weight: 700;
+                line-height: 1.5;
+            }
+
+            #wu-technical-details-section .wu-technical-content dd {
+                margin: 0;
+                color: var(--wu-text);
+                font-size: 15px;
+                line-height: 1.5;
+            }
+
+            #wu-technical-details-section .wu-technical-content ul {
+                margin: 12px 0 0;
+                padding-left: 22px;
+            }
+
+            #wu-technical-details-section .wu-technical-content li {
+                margin: 6px 0;
+                color: var(--wu-text);
+                font-size: 15px;
+                line-height: 1.5;
+            }
+
+            @media (max-width: 650px) {
+                #wu-technical-details-section {
+                    margin: 30px auto;
+                }
+
+                #wu-technical-details-section
+                .wu-technical-tile
+                > summary {
+                    padding: 14px 15px;
+                    font-size: 15px;
+                }
+
+                #wu-technical-details-section
+                .wu-technical-content {
+                    padding: 18px 16px 20px;
+                }
+
+                #wu-technical-details-section
+                .wu-technical-content
+                dl div {
+                    grid-template-columns: 1fr;
+                    gap: 4px;
+                }
+            }
+        `;
+
+        ensureStyleTag(styleId, css);
+
+        const row = getSpaceDetailsRow();
+
+        if (!row) {
+            return;
+        }
+
+        const section = renderTechnicalDetailsSection();
+
+        if (section.parentElement !== row.parentElement) {
+            row.insertAdjacentElement('afterend', section);
+        }
+    }
+
+    function renderSettingsSection() {
+        const existing = document.getElementById('wu-settings-section');
+
+        if (existing) {
+            return existing;
+        }
+
+        const section = document.createElement('section');
+        section.id = 'wu-settings-section';
+
+        const groups = buildSettingsData();
+
+        groups.forEach(function (group) {
+            const heading = document.createElement('h2');
+            heading.textContent = group.title;
+
+            const grid = document.createElement('div');
+            grid.className = 'wu-settings-grid';
+
+            group.items.forEach(function (item) {
+                const card = document.createElement('article');
+                card.className = 'wu-setting-card';
+
+                const imageLink = document.createElement('a');
+                imageLink.href = item.pdf;
+                imageLink.target = '_blank';
+                imageLink.rel = 'noopener noreferrer';
+                imageLink.className = 'wu-setting-image';
+
+                const image = document.createElement('img');
+                image.src = item.image;
+                image.alt = 'Stellplan ' + item.title;
+                image.loading = 'lazy';
+
+                const content = document.createElement('div');
+                content.className = 'wu-setting-content';
+
+                const title = document.createElement('h3');
+                title.textContent = item.title;
+
+                content.appendChild(title);
+
+                if (item.subtitle) {
+                    const subtitle = document.createElement('p');
+                    subtitle.textContent = item.subtitle;
+                    content.appendChild(subtitle);
+                }
+
+                const download = document.createElement('a');
+                download.href = item.pdf;
+                download.target = '_blank';
+                download.rel = 'noopener noreferrer';
+                download.className = 'wu-setting-download';
+                download.innerHTML = '<span aria-hidden="true">↓</span>PDF öffnen';
+
+                imageLink.appendChild(image);
+                content.appendChild(download);
+                card.append(imageLink, content);
+                grid.appendChild(card);
+            });
+
+            section.append(heading, grid);
+        });
+
+        return section;
+    }
+
+    function applySettingsSection() {
+        const styleId = 'wu-settings-style';
+
+        const css = `
+            #wu-settings-section {
+                --wu-blue: #0b80a7;
+                --wu-blue-dark: #075f7d;
+                --wu-text: #262626;
+                --wu-muted: #666666;
+                --wu-border: #d2d2d2;
+
+                grid-column: 1 / -1 !important;
+                clear: both !important;
+                float: none !important;
+                display: block !important;
+                width: 100% !important;
+                max-width: none !important;
+                margin: 45px 0 0 !important;
+                padding: 0 !important;
+                font-family: Verdana, Arial, sans-serif;
+            }
+
+            #wu-settings-section,
+            #wu-settings-section * {
+                box-sizing: border-box;
+            }
+
+            #wu-settings-section > h2 {
+                margin: 42px 0 20px;
+                padding: 0 0 12px;
+                border-bottom: 4px solid var(--wu-blue);
+                color: var(--wu-text);
+                font-size: 27px;
+                font-weight: 700;
+                line-height: 1.25;
+            }
+
+            #wu-settings-section > h2:first-child {
+                margin-top: 0;
+            }
+
+            #wu-settings-section .wu-settings-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, 198px);
+                gap: 24px;
+                justify-content: start;
+            }
+
+            #wu-settings-section .wu-setting-card {
+                display: flex;
+                flex-direction: column;
+                width: 198px;
+                height: 257px;
+                min-width: 0;
+                border: 1px solid var(--wu-border);
+                background: #ffffff;
+                transition:
+                    box-shadow 160ms ease,
+                    transform 160ms ease;
+            }
+
+            #wu-settings-section .wu-setting-card:hover {
+                box-shadow: 0 7px 20px rgba(0, 0, 0, 0.14);
+                transform: translateY(-2px);
+            }
+
+            #wu-settings-section .wu-setting-image {
+                display: block;
+                position: relative;
+                overflow: hidden;
+                flex: 0 0 132px;
+                width: 196px;
+                height: 132px;
+                border-bottom: 5px solid var(--wu-blue-dark);
+                background: #f3f3f3;
+            }
+
+            #wu-settings-section .wu-setting-image img {
+                display: block;
+                width: 100% !important;
+                height: 100% !important;
+                object-fit: contain !important;
+                padding: 8px;
+                background: #ffffff;
+                transition: transform 180ms ease;
+            }
+
+            #wu-settings-section
+            .wu-setting-card:hover
+            .wu-setting-image img {
+                transform: scale(1.025);
+            }
+
+            #wu-settings-section .wu-setting-content {
+                display: flex;
+                flex: 1;
+                flex-direction: column;
+                align-items: flex-start;
+                min-height: 0;
+                padding: 12px;
+            }
+
+            #wu-settings-section .wu-setting-content h3 {
+                margin: 0 0 7px !important;
+                color: var(--wu-text) !important;
+                font-size: 14px !important;
+                font-weight: 700 !important;
+                line-height: 1.4 !important;
+            }
+
+            #wu-settings-section .wu-setting-content p {
+                margin: 0 0 15px !important;
+                color: var(--wu-muted) !important;
+                font-size: 13px !important;
+                line-height: 1.5 !important;
+            }
+
+            #wu-settings-section .wu-setting-download {
+                display: inline-flex;
+                align-items: center;
+                gap: 9px;
+                margin-top: auto;
+                padding: 8px 11px;
+                color: #ffffff !important;
+                background: var(--wu-blue);
+                text-decoration: none !important;
+                font-size: 12px;
+                font-weight: 700;
+            }
+
+            #wu-settings-section .wu-setting-download:hover {
+                background: var(--wu-blue-dark);
+            }
+
+            #wu-settings-section .wu-setting-download span {
+                font-size: 19px;
+                line-height: 1;
+            }
+
+            @media (max-width: 900px) {
+                #wu-settings-section .wu-settings-grid {
+                    grid-template-columns: repeat(auto-fill, 198px);
+                }
+            }
+
+            @media (max-width: 600px) {
+                #wu-settings-section .wu-settings-grid {
+                    grid-template-columns: repeat(auto-fill, 198px);
+                }
+
+                #wu-settings-section > h2 {
+                    font-size: 23px;
+                }
+            }
+        `;
+
+        ensureStyleTag(styleId, css);
+
+        const technicalSection = document.getElementById('wu-technical-details-section');
+
+        if (!technicalSection) {
+            return;
+        }
+
+        const section = renderSettingsSection();
+
+        if (section.parentElement !== technicalSection.parentElement) {
+            technicalSection.insertAdjacentElement('afterend', section);
+            return;
+        }
+
+        if (section.previousElementSibling !== technicalSection) {
+            technicalSection.insertAdjacentElement('afterend', section);
+        }
+    }
+
+    function cleanupSitzungssaalOneEnhancements() {
+        [
+            'wu-sitzungssaal1-layout-style',
+            'wu-technical-details-style',
+            'wu-settings-style'
+        ].forEach(function (id) {
+            document.getElementById(id)?.remove();
+        });
+
+        [
+            'wu-technical-details-section',
+            'wu-settings-section'
+        ].forEach(function (id) {
+            document.getElementById(id)?.remove();
+        });
+
+        document.querySelectorAll('.wu-room-gallery').forEach(function (element) {
+            element.classList.remove('wu-room-gallery');
+        });
+
+        document.querySelectorAll('.wu-room-sidebar').forEach(function (element) {
+            element.classList.remove('wu-room-sidebar');
+        });
+
+        document.querySelectorAll('.wu-room-details-row').forEach(function (element) {
+            element.classList.remove('wu-room-details-row');
+        });
+    }
+
+    function applySitzungssaalOneEnhancements() {
+        if (!isSitzungssaalOnePage()) {
+            cleanupSitzungssaalOneEnhancements();
+            return;
+        }
+
+        const row = getSpaceDetailsRow();
+
+        if (!row) {
+            return;
+        }
+
+        applySitzungssaalOneLayout();
+        applyTechnicalDetails();
+        applySettingsSection();
+    }
+
     /*
      * Den von OSB bereitgestellten Namen neben dem Benutzer-Icon anzeigen.
      * Der Benutzername wird dynamisch aus OSB übernommen.
@@ -799,6 +1788,7 @@
         markWeekendButtons();
         markRepeatAndWeekdayArea();
         markSeriesFormLayout();
+        applySitzungssaalOneEnhancements();
     }
 
     function scheduleUpdate() {
