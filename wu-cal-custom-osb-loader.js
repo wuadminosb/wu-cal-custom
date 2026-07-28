@@ -1,15 +1,31 @@
 (function () {
     'use strict';
 
-    const CDN_BASE =
-        'https://cdn.jsdelivr.net/gh/wuadminosb/wu-cal-custom@' +
-        'ff55352c5714b5787f67d2feedb262b0034b286b/';
+    const BASE_URL =
+        'https://cdn.jsdelivr.net/gh/wuadminosb/' +
+        'wu-cal-custom@3985978a99a25dcbee7f5eaa3775b18a7d481eaa/' +
+        'wu-cal-custom.js';
 
-    function loadScript(fileName, attributes) {
+    const SLIDER_URL =
+        'https://cdn.jsdelivr.net/gh/wuadminosb/' +
+        'wu-cal-custom@main/wu-cal-custom-slider.js' +
+        '?v=20260728-1';
+
+    function loadScript(url, attributes) {
         return new Promise(function (resolve, reject) {
-            const script = document.createElement('script');
+            const existing = Array.from(
+                document.querySelectorAll('script[src]')
+            ).find(function (script) {
+                return script.src === url;
+            });
 
-            script.src = CDN_BASE + fileName;
+            if (existing) {
+                resolve();
+                return;
+            }
+
+            const script = document.createElement('script');
+            script.src = url;
             script.async = false;
 
             Object.entries(attributes || {}).forEach(function (entry) {
@@ -17,7 +33,6 @@
             });
 
             script.onload = resolve;
-
             script.onerror = function () {
                 reject(
                     new Error(
@@ -31,11 +46,11 @@
         });
     }
 
-    loadScript('wu-cal-custom.js', {
+    loadScript(BASE_URL, {
         'data-wu-cal-custom-base': 'true'
     })
         .then(function () {
-            return loadScript('wu-cal-custom-osb.js');
+            return loadScript(SLIDER_URL);
         })
         .catch(function (error) {
             console.error(
