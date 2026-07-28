@@ -11,6 +11,11 @@
         'wu-cal-custom@main/wu-cal-custom-slider.js' +
         '?v=20260728-1';
 
+    const ACCOUNT_CHOICE_URL =
+        'https://cdn.jsdelivr.net/gh/wuadminosb/' +
+        'wu-cal-custom@main/wu-cal-custom-account-choice.js' +
+        '?v=20260728-1';
+
     function loadScript(url, attributes) {
         return new Promise(function (resolve, reject) {
             const existing = Array.from(
@@ -51,6 +56,9 @@
     })
         .then(function () {
             return loadScript(SLIDER_URL);
+        })
+        .then(function () {
+            return loadScript(ACCOUNT_CHOICE_URL);
         })
         .catch(function (error) {
             console.error(
