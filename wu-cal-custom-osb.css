@@ -44,3 +44,190 @@ app-header::after,
     border: 0 !important;
     box-shadow: none !important;
 }
+
+/*
+ * Schwarze obere Leiste: 40 px hoch.
+ * Kundenkonto links, Kontaktlink rechts; beide vertikal zentriert.
+ */
+app-header .usi-headerTop.usi-headerTopBar.wu-header-top-custom {
+    display: flex !important;
+    align-items: center !important;
+    width: 100% !important;
+    height: 40px !important;
+    min-height: 40px !important;
+    max-height: 40px !important;
+    margin: 0 !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    box-sizing: border-box !important;
+}
+
+app-header .usi-headerTop.usi-headerTopBar.wu-header-top-custom
+> .content-wrapper {
+    display: flex !important;
+    flex-flow: row nowrap !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    width: 100% !important;
+    height: 40px !important;
+    min-height: 40px !important;
+    max-height: 40px !important;
+    margin: 0 !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    box-sizing: border-box !important;
+}
+
+app-header .usi-headerTop.usi-headerTopBar.wu-header-top-custom
+> .content-wrapper > .usi-headerSection.right {
+    order: 1 !important;
+    display: flex !important;
+    flex: 0 0 auto !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    width: auto !important;
+    height: 40px !important;
+    min-height: 40px !important;
+    max-height: 40px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-sizing: border-box !important;
+}
+
+app-header .usi-headerTop.usi-headerTopBar.wu-header-top-custom
+> .content-wrapper > .usi-headerSection.left {
+    order: 2 !important;
+    display: flex !important;
+    flex: 0 0 auto !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    width: auto !important;
+    height: 40px !important;
+    min-height: 40px !important;
+    max-height: 40px !important;
+    margin: 0 0 0 18px !important;
+    padding: 0 !important;
+    box-sizing: border-box !important;
+}
+
+app-header .usi-headerTop.usi-headerTopBar.wu-header-top-custom
+.usi-headerSection,
+app-header .usi-headerTop.usi-headerTopBar.wu-header-top-custom
+.nav-item,
+app-header .usi-headerTop.usi-headerTopBar.wu-header-top-custom
+.usi-headerModule,
+app-header .usi-headerTop.usi-headerTopBar.wu-header-top-custom
+.usi-main.usi-inlineItems,
+app-header .usi-headerTop.usi-headerTopBar.wu-header-top-custom
+app-contactlink,
+app-header .usi-headerTop.usi-headerTopBar.wu-header-top-custom
+.usi-contactLink {
+    display: flex !important;
+    align-items: center !important;
+    height: 40px !important;
+    min-height: 40px !important;
+    max-height: 40px !important;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+    box-sizing: border-box !important;
+}
+
+app-header .usi-headerTop.usi-headerTopBar.wu-header-top-custom
+#accountdropdown,
+app-header .usi-headerTop.usi-headerTopBar.wu-header-top-custom
+.usi-contactIcon {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    height: 40px !important;
+    min-height: 40px !important;
+    max-height: 40px !important;
+    margin: 0 !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    line-height: normal !important;
+    box-sizing: border-box !important;
+}
+
+app-header .usi-headerTop.usi-headerTopBar.wu-header-top-custom
+#accountdropdown {
+    gap: 8px !important;
+}
+
+app-header .usi-headerTop.usi-headerTopBar.wu-header-top-custom
+.usi-contactIcon {
+    gap: 7px !important;
+}
+
+app-header .usi-headerTop.usi-headerTopBar.wu-header-top-custom
+#accountdropdown .ng-fa-icon,
+app-header .usi-headerTop.usi-headerTopBar.wu-header-top-custom
+.usi-contactIcon .ng-fa-icon {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin: 0 !important;
+    line-height: 1 !important;
+}
+
+/* Menüpunkt „Verwalten“ vollständig entfernen. */
+.wu-hidden-manage-menu-item {
+    display: none !important;
+    visibility: hidden !important;
+    width: 0 !important;
+    min-width: 0 !important;
+    max-width: 0 !important;
+    height: 0 !important;
+    min-height: 0 !important;
+    max-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    pointer-events: none !important;
+}
+
+/* Benutzerkonto: gleicher farbiger Hover-Effekt wie der Kontaktlink. */
+app-header #accountdropdown.wu-account-contact-hover {
+    cursor: pointer !important;
+    transition:
+        color 150ms ease,
+        text-decoration-color 150ms ease !important;
+}
+
+app-header #accountdropdown.wu-account-contact-hover:hover,
+app-header #accountdropdown.wu-account-contact-hover:focus-visible,
+app-header #accountdropdown.wu-account-contact-hover:hover
+.usi-headerUserName,
+app-header #accountdropdown.wu-account-contact-hover:focus-visible
+.usi-headerUserName {
+    color: #2d80a9 !important;
+    background-color: transparent !important;
+    text-decoration: underline !important;
+    text-decoration-color: #2d80a9 !important;
+    text-underline-offset: 2px !important;
+}
+
+app-header #accountdropdown.wu-account-contact-hover:hover .ng-fa-icon,
+app-header #accountdropdown.wu-account-contact-hover:focus-visible .ng-fa-icon,
+app-header #accountdropdown.wu-account-contact-hover:hover svg,
+app-header #accountdropdown.wu-account-contact-hover:focus-visible svg,
+app-header #accountdropdown.wu-account-contact-hover:hover svg path,
+app-header #accountdropdown.wu-account-contact-hover:focus-visible svg path {
+    color: #2d80a9 !important;
+    fill: currentColor !important;
+}
+
+@media (max-width: 767px) {
+    app-header .usi-headerTop.usi-headerTopBar.wu-header-top-custom
+    > .content-wrapper {
+        justify-content: space-between !important;
+    }
+
+    app-header .usi-headerTop.usi-headerTopBar.wu-header-top-custom
+    > .content-wrapper > .usi-headerSection.left,
+    app-header .usi-headerTop.usi-headerTopBar.wu-header-top-custom
+    > .content-wrapper > .usi-headerSection.right {
+        order: initial !important;
+        margin-left: 0 !important;
+    }
+}
