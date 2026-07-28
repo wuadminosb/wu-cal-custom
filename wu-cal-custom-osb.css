@@ -1,0 +1,11 @@
+@import url("./wu-cal-custom.css");
+
+/*
+ * Sitzungssaal 1: native Momentus-Bereiche ausblenden.
+ * Die Klasse .wu-room-details-row wird nur auf der
+ * von wu-cal-custom.js erkannten Sitzungssaal-1-Seite gesetzt.
+ */
+app-space-details:has(.wu-room-details-row) .usi-spaceFeatures,
+app-space-details:has(.wu-room-details-row) .usi-spaceSetups {
+    display: none !important;
+}
