@@ -9,3 +9,38 @@ app-space-details:has(.wu-room-details-row) .usi-spaceFeatures,
 app-space-details:has(.wu-room-details-row) .usi-spaceSetups {
     display: none !important;
 }
+
+/*
+ * Globalen grauen Rahmen und Schatten des OSB-Headers entfernen.
+ */
+app-header,
+.usi-header,
+.usi-headerBottom,
+.usi-headerBottomBar,
+.usi-headerWrapper,
+.usi-headerSection,
+.usi-headerSectionContainer,
+mat-toolbar.usi-header,
+.mat-toolbar.usi-header {
+    border: 0 !important;
+    border-top: 0 !important;
+    border-right: 0 !important;
+    border-bottom: 0 !important;
+    border-left: 0 !important;
+    outline: 0 !important;
+    box-shadow: none !important;
+}
+
+app-header::before,
+app-header::after,
+.usi-header::before,
+.usi-header::after,
+.usi-headerBottom::before,
+.usi-headerBottom::after,
+.usi-headerBottomBar::before,
+.usi-headerBottomBar::after {
+    content: none !important;
+    display: none !important;
+    border: 0 !important;
+    box-shadow: none !important;
+}
