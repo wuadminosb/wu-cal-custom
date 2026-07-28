@@ -661,17 +661,36 @@
         return String(value || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     }
 
-    function isSitzungssaalOnePage() {
-        const scope = document.querySelector('app-space-details') || document.body;
+    function getOriginalSpaceDetailsText() {
+        const root = document.querySelector('app-space-details');
 
-        if (!scope) {
+        if (!root) {
+            return '';
+        }
+
+        const title = root.querySelector(
+            '.usi-spaceDetailsTopRow .usi-detailsTitle, ' +
+            '.usi-detailsTitle'
+        );
+
+        if (!title) {
+            return '';
+        }
+
+        return normalizeText(title.textContent);
+    }
+
+    function isSitzungssaalOnePage() {
+        const text = getOriginalSpaceDetailsText();
+
+        if (!text) {
             return false;
         }
 
-        const text = normalizeText(scope.textContent);
-
-        const hasName = text.includes('sitzungssaal 1');
-        const hasNumber = /\btc\.?4\.?09\b/.test(text) || /\btc4\.09\b/.test(text);
+        const hasName =
+            /\bsitzungssaal\s*(?:1|i|eins)\b/i.test(text);
+        const hasNumber =
+            /\bad\s*\.?\s*0\s*\.?\s*114\b/.test(text);
 
         return hasName || hasNumber;
     }
@@ -855,6 +874,46 @@
         ];
     }
 
+    function buildOfficialRoomDetailsData() {
+        return [
+            {
+                label: 'Raumnummer',
+                value: 'AD.0.114',
+                keys: ['raumnummer', 'raum nummer', 'room number']
+            },
+            {
+                label: 'Maximale Kapazität',
+                value: '80 Personen bei Theaterbestuhlung',
+                keys: [
+                    'maximale kapazität',
+                    'max. kapazität',
+                    'max capacity',
+                    'maximum capacity'
+                ]
+            },
+            {
+                label: 'Bestuhlung',
+                value: 'flexibel',
+                keys: ['bestuhlung', 'room setup', 'seating']
+            },
+            {
+                label: 'Catering',
+                value: 'kaltes Catering möglich',
+                keys: ['catering', 'catering type']
+            },
+            {
+                label: 'Fläche',
+                value: '148 m²',
+                keys: ['fläche', 'area']
+            },
+            {
+                label: 'Bühne',
+                value: 'keine Bühne',
+                keys: ['bühne', 'stage']
+            }
+        ];
+    }
+
     function buildSettingsData() {
         const base =
             'https://www.wu.ac.at/fileadmin/wu/h/structure/' +
@@ -881,7 +940,6 @@
                     },
                     {
                         title: '30 Sitzgruppe',
-                        subtitle: '5 Gruppen mit je 6 Sesseln',
                         image:
                             'https://www.wu.ac.at/fileadmin/wu/_processed_/7/6/' +
                             'csm_Sitzgruppe_5er_je_6_Sessel_30_e7b74c6739.png',
@@ -996,6 +1054,11 @@
                 align-items: flex-start !important;
                 gap: 24px !important;
                 width: 100% !important;
+                height: auto !important;
+                min-height: 0 !important;
+                max-height: none !important;
+                overflow: visible !important;
+                box-sizing: border-box !important;
             }
 
             .wu-room-details-row > .wu-room-gallery {
@@ -1003,6 +1066,7 @@
                 width: calc(100% - 454px) !important;
                 min-width: 0 !important;
                 max-width: calc(100% - 454px) !important;
+                box-sizing: border-box !important;
             }
 
             .wu-room-details-row > .wu-room-sidebar {
@@ -1012,33 +1076,122 @@
                 width: 430px !important;
                 min-width: 430px !important;
                 max-width: 430px !important;
+                height: auto !important;
+                min-height: 0 !important;
+                max-height: none !important;
                 margin: 0 !important;
+                overflow: visible !important;
                 transform: none !important;
+                contain: none !important;
+                box-sizing: border-box !important;
             }
 
             .wu-room-sidebar .usi-addSpaceDesktop {
                 width: 100% !important;
                 margin: 0 0 16px !important;
+                box-sizing: border-box !important;
             }
 
             .wu-room-sidebar .usi-spaceDetailsContainer {
+                display: flex !important;
+                flex-direction: column !important;
                 width: 100% !important;
                 min-width: 0 !important;
                 max-width: 100% !important;
+                height: auto !important;
+                min-height: 0 !important;
+                max-height: none !important;
                 margin: 0 !important;
+                padding-bottom: 12px !important;
+                overflow: visible !important;
+                contain: none !important;
+                box-sizing: border-box !important;
             }
 
             .wu-room-sidebar .usi-detailsInfo {
                 display: block !important;
+                flex: 0 0 auto !important;
                 width: 100% !important;
+                min-width: 0 !important;
+                max-width: 100% !important;
+                height: auto !important;
+                min-height: 0 !important;
+                max-height: none !important;
+                margin: 0 !important;
+                overflow: visible !important;
+                contain: none !important;
+                box-sizing: border-box !important;
             }
 
-            .wu-room-sidebar .usi-detailsLine {
+            .wu-room-sidebar .usi-detailsLine,
+            .wu-room-sidebar .wu-official-detail-row {
                 display: flex !important;
-                width: 100% !important;
-                max-width: 100% !important;
                 align-items: flex-start !important;
+                gap: 16px !important;
+                width: 100% !important;
+                height: auto !important;
+                min-height: 0 !important;
+                max-height: none !important;
+                padding: 9px 0 !important;
                 border: 0 !important;
+                border-bottom: 1px solid #d2d2d2 !important;
+                overflow: visible !important;
+                box-sizing: border-box !important;
+            }
+
+            .wu-room-sidebar .usi-detailsLine > .label,
+            .wu-room-sidebar .wu-official-detail-row dt {
+                flex: 0 0 42% !important;
+                min-width: 0 !important;
+                max-width: 42% !important;
+                margin: 0 !important;
+                color: #666666 !important;
+                font-size: 12px !important;
+                font-weight: 700 !important;
+                line-height: 1.45 !important;
+                white-space: normal !important;
+                overflow-wrap: normal !important;
+                word-break: normal !important;
+                hyphens: none !important;
+                box-sizing: border-box !important;
+            }
+
+            .wu-room-sidebar .usi-detailsLine > .usi-detail,
+            .wu-room-sidebar .wu-official-detail-row dd {
+                flex: 1 1 auto !important;
+                width: auto !important;
+                min-width: 0 !important;
+                max-width: none !important;
+                margin: 0 !important;
+                color: #262626 !important;
+                font-family: inherit !important;
+                font-size: 12px !important;
+                font-weight: 400 !important;
+                line-height: 1.45 !important;
+                letter-spacing: normal !important;
+                text-align: left !important;
+                white-space: nowrap !important;
+                overflow-wrap: normal !important;
+                word-break: normal !important;
+                hyphens: none !important;
+                overflow: visible !important;
+                box-sizing: border-box !important;
+            }
+
+            .wu-room-sidebar #wu-official-room-details {
+                display: block !important;
+                flex: 0 0 auto !important;
+                width: 100% !important;
+                min-width: 0 !important;
+                max-width: 100% !important;
+                height: auto !important;
+                min-height: 0 !important;
+                max-height: none !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                overflow: visible !important;
+                contain: none !important;
+                box-sizing: border-box !important;
             }
 
             @media (max-width: 950px) {
@@ -1074,6 +1227,68 @@
         row.classList.add('wu-room-details-row');
         gallery.classList.add('wu-room-gallery');
         sidebar.classList.add('wu-room-sidebar');
+    }
+
+    function applyOfficialRoomDetails() {
+        const row = getSpaceDetailsRow();
+
+        if (!row) {
+            return;
+        }
+
+        const sidebar = row.querySelector('.usi-spaceDetails');
+        const detailsContainer = sidebar?.querySelector('.usi-detailsInfo') ||
+            sidebar?.querySelector('.usi-spaceDetailsContainer');
+
+        if (!detailsContainer) {
+            return;
+        }
+
+        const existing = document.getElementById('wu-official-room-details');
+
+        if (existing?.parentElement === detailsContainer) {
+            return;
+        }
+
+        existing?.remove();
+
+        const originalLines = Array.from(
+            detailsContainer.querySelectorAll('.usi-detailsLine')
+        ).map(function (line) {
+            return normalizeText(line.textContent);
+        });
+
+        const details = buildOfficialRoomDetailsData().filter(function (item) {
+            return !originalLines.some(function (line) {
+                return item.keys.some(function (key) {
+                    return line.startsWith(key);
+                });
+            });
+        });
+
+        if (!details.length) {
+            return;
+        }
+
+        const list = document.createElement('dl');
+        list.id = 'wu-official-room-details';
+        list.setAttribute('aria-label', 'Ergänzende Eckdaten');
+
+        details.forEach(function (item) {
+            const detailRow = document.createElement('div');
+            detailRow.className = 'wu-official-detail-row';
+
+            const label = document.createElement('dt');
+            label.textContent = item.label;
+
+            const value = document.createElement('dd');
+            value.textContent = item.value;
+
+            detailRow.append(label, value);
+            list.appendChild(detailRow);
+        });
+
+        detailsContainer.appendChild(list);
     }
 
     function renderTechnicalDetailsSection() {
@@ -1145,10 +1360,15 @@
                 --wu-border: #d2d2d2;
                 --wu-light: #f4f4f4;
 
-                width: 100%;
-                max-width: 1100px;
-                margin: 45px auto;
-                padding: 0;
+                grid-column: 1 / -1 !important;
+                clear: both !important;
+                float: none !important;
+                display: block !important;
+                width: 100% !important;
+                min-width: 0 !important;
+                max-width: none !important;
+                margin: 45px 0 0 !important;
+                padding: 0 !important;
                 color: var(--wu-text);
                 font-family: Verdana, Arial, sans-serif;
             }
@@ -1302,7 +1522,7 @@
 
             @media (max-width: 650px) {
                 #wu-technical-details-section {
-                    margin: 30px auto;
+                    margin: 30px 0 0 !important;
                 }
 
                 #wu-technical-details-section
@@ -1383,12 +1603,6 @@
 
                 content.appendChild(title);
 
-                if (item.subtitle) {
-                    const subtitle = document.createElement('p');
-                    subtitle.textContent = item.subtitle;
-                    content.appendChild(subtitle);
-                }
-
                 const download = document.createElement('a');
                 download.href = item.pdf;
                 download.target = '_blank';
@@ -1449,21 +1663,37 @@
                 margin-top: 0;
             }
 
+            /*
+             * Standard und Hybrid verwenden dasselbe Sieben-Spalten-Raster.
+             * Dadurch bleiben alle Karten gleich groß.
+             */
             #wu-settings-section .wu-settings-grid {
-                display: grid;
-                grid-template-columns: repeat(auto-fill, 198px);
-                gap: 24px;
-                justify-content: start;
+                display: grid !important;
+                grid-template-columns:
+                    repeat(7, minmax(0, 1fr)) !important;
+                grid-auto-flow: row !important;
+                grid-auto-rows: 220px !important;
+                gap: 12px !important;
+                justify-content: stretch !important;
+                align-items: stretch !important;
+                width: 100% !important;
+                min-width: 0 !important;
+                max-width: none !important;
             }
 
             #wu-settings-section .wu-setting-card {
-                display: flex;
-                flex-direction: column;
-                width: 198px;
-                height: 257px;
-                min-width: 0;
+                display: flex !important;
+                flex-direction: column !important;
+                width: 100% !important;
+                min-width: 0 !important;
+                max-width: none !important;
+                height: 220px !important;
+                min-height: 220px !important;
+                max-height: 220px !important;
+                margin: 0 !important;
                 border: 1px solid var(--wu-border);
                 background: #ffffff;
+                text-align: center !important;
                 transition:
                     box-shadow 160ms ease,
                     transform 160ms ease;
@@ -1475,22 +1705,29 @@
             }
 
             #wu-settings-section .wu-setting-image {
-                display: block;
+                display: flex !important;
                 position: relative;
                 overflow: hidden;
-                flex: 0 0 132px;
-                width: 196px;
-                height: 132px;
+                flex: 0 0 105px !important;
+                align-items: center !important;
+                justify-content: center !important;
+                width: 100% !important;
+                min-width: 0 !important;
+                max-width: 100% !important;
+                height: 105px !important;
+                margin: 0 !important;
                 border-bottom: 5px solid var(--wu-blue-dark);
                 background: #f3f3f3;
             }
 
             #wu-settings-section .wu-setting-image img {
-                display: block;
+                display: block !important;
                 width: 100% !important;
                 height: 100% !important;
+                margin: 0 auto !important;
+                padding: 6px !important;
                 object-fit: contain !important;
-                padding: 8px;
+                object-position: center center !important;
                 background: #ffffff;
                 transition: transform 180ms ease;
             }
@@ -1502,40 +1739,56 @@
             }
 
             #wu-settings-section .wu-setting-content {
-                display: flex;
-                flex: 1;
-                flex-direction: column;
-                align-items: flex-start;
-                min-height: 0;
-                padding: 12px;
+                display: flex !important;
+                flex: 1 1 auto !important;
+                flex-direction: column !important;
+                align-items: center !important;
+                justify-content: flex-start !important;
+                width: 100% !important;
+                min-width: 0 !important;
+                min-height: 0 !important;
+                padding: 9px 8px !important;
+                text-align: center !important;
             }
 
             #wu-settings-section .wu-setting-content h3 {
-                margin: 0 0 7px !important;
+                width: 100% !important;
+                margin: 0 auto 7px !important;
                 color: var(--wu-text) !important;
-                font-size: 14px !important;
+                font-size: 12px !important;
                 font-weight: 700 !important;
-                line-height: 1.4 !important;
+                line-height: 1.3 !important;
+                text-align: center !important;
+                overflow-wrap: normal !important;
+                word-break: normal !important;
+                hyphens: auto !important;
             }
 
             #wu-settings-section .wu-setting-content p {
-                margin: 0 0 15px !important;
+                width: 100% !important;
+                margin: 0 auto 8px !important;
                 color: var(--wu-muted) !important;
-                font-size: 13px !important;
-                line-height: 1.5 !important;
+                font-size: 11px !important;
+                line-height: 1.35 !important;
+                text-align: center !important;
             }
 
             #wu-settings-section .wu-setting-download {
-                display: inline-flex;
-                align-items: center;
-                gap: 9px;
-                margin-top: auto;
-                padding: 8px 11px;
+                display: inline-flex !important;
+                align-items: center !important;
+                align-self: center !important;
+                justify-content: center !important;
+                gap: 5px !important;
+                margin: auto auto 0 !important;
+                padding: 6px 7px !important;
                 color: #ffffff !important;
                 background: var(--wu-blue);
                 text-decoration: none !important;
-                font-size: 12px;
+                font-size: 10px !important;
                 font-weight: 700;
+                line-height: 1.2 !important;
+                text-align: center !important;
+                white-space: nowrap !important;
             }
 
             #wu-settings-section .wu-setting-download:hover {
@@ -1543,21 +1796,31 @@
             }
 
             #wu-settings-section .wu-setting-download span {
-                font-size: 19px;
+                font-size: 15px !important;
                 line-height: 1;
             }
 
-            @media (max-width: 900px) {
+            @media (max-width: 1050px) {
                 #wu-settings-section .wu-settings-grid {
-                    grid-template-columns: repeat(auto-fill, 198px);
+                    grid-template-columns:
+                        repeat(4, minmax(0, 1fr)) !important;
+                }
+            }
+
+            @media (max-width: 700px) {
+                #wu-settings-section .wu-settings-grid {
+                    grid-template-columns:
+                        repeat(2, minmax(0, 1fr)) !important;
+                }
+            }
+
+            @media (max-width: 430px) {
+                #wu-settings-section .wu-settings-grid {
+                    grid-template-columns: 1fr !important;
                 }
             }
 
             @media (max-width: 600px) {
-                #wu-settings-section .wu-settings-grid {
-                    grid-template-columns: repeat(auto-fill, 198px);
-                }
-
                 #wu-settings-section > h2 {
                     font-size: 23px;
                 }
@@ -1594,6 +1857,7 @@
         });
 
         [
+            'wu-official-room-details',
             'wu-technical-details-section',
             'wu-settings-section'
         ].forEach(function (id) {
@@ -1626,6 +1890,7 @@
         }
 
         applySitzungssaalOneLayout();
+        applyOfficialRoomDetails();
         applyTechnicalDetails();
         applySettingsSection();
     }
