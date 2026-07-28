@@ -16,6 +16,11 @@
         'wu-cal-custom@main/wu-cal-custom-account-choice.js' +
         '?v=20260728-1';
 
+    const CALENDAR_TABS_URL =
+        'https://cdn.jsdelivr.net/gh/wuadminosb/' +
+        'wu-cal-custom@main/wu-cal-custom-calendar-tabs.js' +
+        '?v=20260728-1';
+
     function loadScript(url, attributes) {
         return new Promise(function (resolve, reject) {
             const existing = Array.from(
@@ -59,6 +64,9 @@
         })
         .then(function () {
             return loadScript(ACCOUNT_CHOICE_URL);
+        })
+        .then(function () {
+            return loadScript(CALENDAR_TABS_URL);
         })
         .catch(function (error) {
             console.error(
