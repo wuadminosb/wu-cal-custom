@@ -26,6 +26,29 @@
         'wu-cal-custom@main/wu-cal-custom-header.js' +
         '?v=20260728-1';
 
+    function applyRequiredMarkerStyles() {
+        const styleId = 'wu-required-marker-red';
+
+        if (document.getElementById(styleId)) {
+            return;
+      }
+
+        const style = document.createElement('style');
+        style.id = styleId;
+        style.textContent = [
+            'app-dynamic-form .mat-mdc-form-field-required-marker,',
+            'app-dynamic-form .mat-mdc-form-field-required-marker::after,',
+            'app-dynamic-form .mdc-floating-label--required,',
+            'app-dynamic-form .mdc-floating-label--required::after {',
+            '    color: #d32f2f !important;',
+            '}'
+        ].join('\n');
+
+        document.head.appendChild(style);
+    }
+
+    applyRequiredMarkerStyles();
+
     function loadScript(url, attributes) {
         return new Promise(function (resolve, reject) {
             const existing = Array.from(
