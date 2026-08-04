@@ -56,7 +56,7 @@
 
     const HIDE_COURSE_OPTION_URL =
         'https://cdn.jsdelivr.net/gh/wuadminosb/' +
-        'wu-cal-custom@c0484089ab1d6f4b9954a1274e0bb869d35eef02/' +
+        'wu-cal-custom@97cfa5a65a6c50f8389cc9b61fe7e18cfc7643c2/' +
         'wu-cal-custom-hide-course-option.js';
 
     function applyRequiredMarkerStyles() {
