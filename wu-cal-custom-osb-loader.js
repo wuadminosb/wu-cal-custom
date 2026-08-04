@@ -26,6 +26,11 @@
         'wu-cal-custom@main/wu-cal-custom-header.js' +
         '?v=20260728-1';
 
+    const CONDITIONAL_REQUIRED_URL =
+        'https://cdn.jsdelivr.net/gh/wuadminosb/' +
+        'wu-cal-custom@5627a31f83375b897a2aac6deeaf74e02330a2cf/' +
+        'wu-cal-custom-conditional-required.js';
+
     function applyRequiredMarkerStyles() {
         const styleId = 'wu-required-marker-red';
 
@@ -98,6 +103,9 @@
         })
         .then(function () {
             return loadScript(HEADER_CUSTOM_URL);
+        })
+        .then(function () {
+            return loadScript(CONDITIONAL_REQUIRED_URL);
         })
         .catch(function (error) {
             console.error(
