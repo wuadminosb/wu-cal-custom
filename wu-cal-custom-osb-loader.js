@@ -54,6 +54,11 @@
         'wu-cal-custom@' + DIALOG_AND_LEGEND_COMMIT + '/' +
         'wu-cal-custom-required-legend.js';
 
+    const HIDE_COURSE_OPTION_URL =
+        'https://cdn.jsdelivr.net/gh/wuadminosb/' +
+        'wu-cal-custom@c0484089ab1d6f4b9954a1274e0bb869d35eef02/' +
+        'wu-cal-custom-hide-course-option.js';
+
     function applyRequiredMarkerStyles() {
         const styleId = 'wu-required-marker-red';
 
@@ -141,6 +146,9 @@
         })
         .then(function () {
             return loadScript(REQUIRED_LEGEND_URL);
+        })
+        .then(function () {
+            return loadScript(HIDE_COURSE_OPTION_URL);
         })
         .catch(function (error) {
             console.error(
