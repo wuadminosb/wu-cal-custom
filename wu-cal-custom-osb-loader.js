@@ -26,19 +26,22 @@
         'wu-cal-custom@main/wu-cal-custom-header.js' +
         '?v=20260728-1';
 
+    const CONDITIONAL_COMMIT =
+        '267cacb45c7b83531f4725554f05f118bb9642d0';
+
     const CONDITIONAL_REQUIRED_URL =
         'https://cdn.jsdelivr.net/gh/wuadminosb/' +
-        'wwu-cal-custom@5627a31f83375b897a2aac6deeaf74e02330a2cf/' +
+        'wu-cal-custom@' + CONDITIONAL_COMMIT + '/' +
         'wu-cal-custom-conditional-required.js';
 
     const HIDE_REQUIRED_NOTE_URL =
         'https://cdn.jsdelivr.net/gh/wuadminosb/' +
-        'wu-cal-custom@a18bd20662efa7174e82ae8e2d2967c010f31828/' +
+        'wu-cal-custom@' + CONDITIONAL_COMMIT + '/' +
         'wu-cal-custom-hide-required-note.js';
 
     const CONDITIONAL_BUTTON_GUARD_URL =
         'https://cdn.jsdelivr.net/gh/wuadminosb/' +
-        'wu-cal-custom@a18bd20662efa7174e82ae8e2d2967c010f31828/' +
+        'wu-cal-custom@' + CONDITIONAL_COMMIT + '/' +
         'wu-cal-custom-conditional-button-guard.js';
 
     function applyRequiredMarkerStyles() {
