@@ -28,15 +28,25 @@
 
     const CONDITIONAL_REQUIRED_URL =
         'https://cdn.jsdelivr.net/gh/wuadminosb/' +
-        'wu-cal-custom@5627a31f83375b897a2aac6deeaf74e02330a2cf/' +
+        'wwu-cal-custom@5627a31f83375b897a2aac6deeaf74e02330a2cf/' +
         'wu-cal-custom-conditional-required.js';
+
+    const HIDE_REQUIRED_NOTE_URL =
+        'https://cdn.jsdelivr.net/gh/wuadminosb/' +
+        'wu-cal-custom@a18bd20662efa7174e82ae8e2d2967c010f31828/' +
+        'wu-cal-custom-hide-required-note.js';
+
+    const CONDITIONAL_BUTTON_GUARD_URL =
+        'https://cdn.jsdelivr.net/gh/wuadminosb/' +
+        'wu-cal-custom@a18bd20662efa7174e82ae8e2d2967c010f31828/' +
+        'wu-cal-custom-conditional-button-guard.js';
 
     function applyRequiredMarkerStyles() {
         const styleId = 'wu-required-marker-red';
 
         if (document.getElementById(styleId)) {
             return;
-      }
+        }
 
         const style = document.createElement('style');
         style.id = styleId;
@@ -106,6 +116,12 @@
         })
         .then(function () {
             return loadScript(CONDITIONAL_REQUIRED_URL);
+        })
+        .then(function () {
+            return loadScript(HIDE_REQUIRED_NOTE_URL);
+        })
+        .then(function () {
+            return loadScript(CONDITIONAL_BUTTON_GUARD_URL);
         })
         .catch(function (error) {
             console.error(
