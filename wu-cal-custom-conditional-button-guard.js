@@ -1,198 +1,321 @@
 (() => {
     'use strict';
 
+    window.__wuConditionalButtonGuardCleanup?.();
+
     const STYLE_ID = 'wu-conditional-button-guard-style';
+    const DISABLED_CLASS = 'wu-conditional-overview-disabled';
     const BUTTON_TEXT = 'Zur übersicht gehen';
 
     const rules = [
         {
             source: 'Erheben Sie Teilnahmegebühren?',
             target: 'Wenn ja, in welcher Höhe?',
-            required: value => normalize(value) === 'ja'
+            required(value) {
+                return normalize(value) === 'ja';
+            }
         },
         {
             source: 'Handelt es sich um eine Kooperationsveranstaltung?',
             target: 'Wenn ja, bitte den /die Kooperationspartner*in angeben',
-            required: value => normalize(value).startsWith('ja')
+            required(value) {
+                return normalize(value).startsWith('ja');
+            }
         }
     ];
 
-    let observer = null;
-    let scheduled = false;
-    let currentButton = null;
-    let originalButtonState = null;
-
-    function normalize(value) {
-        return String(value || '')
+    const normalize = value =>
+        String(value || '')
             .replace(/\u00a0/g, ' ')
             .replace(/\s+/g, ' ')
             .trim()
             .toLocaleLowerCase('de');
-    }
 
-    function findField(root, labelText) {
-        return Array.from(
-            root.querySelectorAll('mat-form-field')
-        ).find(field =>
-            normalize(field.querySelector('mat-label')?.textContent) ===
-            normalize(labelText)
-        );
-    }
+    const findField = (root, labelText) =>
+        Array.from(root.querySelectorAll('mat-form-field')).find(field => {
+            const label = field.querySelector('mat-label');
+            return normalize(label?.textContent) === normalize(labelText);
+        });
 
-    function getSelectedValue(field) {
-        return field?.querySelector(
+    const getSelectedValue = field =>
+        field?.querySelector(
             '.mat-mdc-select-value-text, .mat-mdc-select-min-line'
         )?.textContent?.trim() || '';
-    }
 
-    function getInput(field) {
-        return field?.querySelector(
+    const getInput = field =>
+        field?.querySelector(
             'input:not([hidden]), textarea:not([hidden])'
         );
-    }
 
-    function findButton() {
-        return Array.from(
+    const findButton = () =>
+        Array.from(
             document.querySelectorAll('button, a, [role="button"]')
-        ).find(element =>
-            normalize(element.textContent) === normalize(BUTTON_TEXT)
+        ).find(
+            element =>
+                normalize(element.textContent) === normalize(BUTTON_TEXT)
         );
-    }
 
-    function addStyles() {
-        if (document.getElementById(STYLE_ID)) return;
-        const style = document.createElement('style');
-        style.id = STYLE_ID;
-        style.textContent = [
-            '.wu-conditional-overview-disabled {',
-            '    opacity: 0.55 !important;',
-            '    cursor: not-allowed !important;',
-            '}'
-        ].join('\n');
-        document.head.appendChild(style);
-    }
+    const style = document.createElement('style');
+    style.id = STYLE_ID;
+    style.textContent = `
+        .${DISABLED_CLASS} {
+            opacity: 0.55 !important;
+            cursor: not-allowed !important;
+            pointer-events: none !important;
+        }
+    `;
+    document.head.appendChild(style);
 
-    function getInvalidRules() {
+    const managedButtons = new Set();
+    const originalStates = new WeakMap();
+
+    let observer = null;
+    let intervalId = null;
+    let framePending = false;
+    let currentButton = null;
+
+    const getInvalidRules = () => {
         const root = document.querySelector('app-dynamic-form');
-        if (!root) return [];
-
-        return rules.map(rule => {
-            const sourceField = findField(root, rule.source);
-            const targetField = findField(root, rule.target);
-            const input = getInput(targetField);
-            const mustFill = rule.required(getSelectedValue(sourceField));
-            return {
-                rule,
-                input,
-                invalid: Boolean(
-                    mustFill && input && input.value.trim() === ''
-                )
-            };
-        }).filter(entry => entry.invalid);
-    }
-
-    function restoreButton() {
-        if (!currentButton || !originalButtonState) return;
-        if ('disabled' in currentButton) {
-            currentButton.disabled = originalButtonState.disabled;
+        if (!root) {
+            return [];
         }
-        if (originalButtonState.ariaDisabled === null) {
-            currentButton.removeAttribute('aria-disabled');
-        } else {
-            currentButton.setAttribute('aria-disabled', originalButtonState.ariaDisabled);
-        }
-        if (originalButtonState.tabindex === null) {
-            currentButton.removeAttribute('tabindex');
-        } else {
-            currentButton.setAttribute('tabindex', originalButtonState.tabindex);
-        }
-        currentButton.classList.remove('wu-conditional-overview-disabled');
-    }
 
-    function rememberButton(button) {
-        if (button === currentButton) return;
-        restoreButton();
-        currentButton = button;
-        originalButtonState = button ? {
-            disabled: 'disabled' in button ? button.disabled : false,
-            ariaDisabled: button.getAttribute('aria-disabled'),
-            tabindex: button.getAttribute('tabindex')
-        } : null;
-    }
+        return rules
+            .map(rule => {
+                const sourceField = findField(root, rule.source);
+                const targetField = findField(root, rule.target);
+                const input = getInput(targetField);
+                const selectedValue = getSelectedValue(sourceField);
 
-    function update() {
-        const button = findButton();
-        rememberButton(button);
-        if (!button) return;
+                /*
+                 * Die Auswahl kann von Angular Material etwas später
+                 * in den sichtbaren DOM-Wert geschrieben werden.
+                 * Das bereits gesetzte required/aria-required dient
+                 * daher zus�tzlich als verlässliches Signal.
+                 */
+                const mustFill =
+                    rule.required(selectedValue) ||
+                    input?.required === true ||
+                    input?.getAttribute('aria-required') === 'true';
 
-        const invalid = getInvalidRules().length > 0;
-        if ('disabled' in button) button.disabled = invalid;
-        button.setAttribute('aria-disabled', String(invalid));
-        button.classList.toggle('wu-conditional-overview-disabled', invalid);
-        if (!invalid && !('disabled' in button)) {
-            if (originalButtonState?.tabindex === null) button.removeAttribute('tabindex');
-            else button.setAttribute('tabindex', originalButtonState.tabindex);
-        } else if (invalid && !('disabled' in button)) {
-            button.setAttribute('tabindex', '-1');
-        }
-    }
+                return {
+                    rule,
+                    input,
+                    invalid:
+                        Boolean(mustFill) &&
+                        Boolean(input) &&
+                        input.value.trim() === ''
+                };
+            })
+            .filter(entry => entry.invalid);
+    };
 
-    function scheduleUpdate() {
-        if (scheduled) return;
-        scheduled = true;
-        requestAnimationFrame(() => {
-            scheduled = false;
-            update();
-        });
-    }
-
-    function handleClick(event) {
-        const button = event.target.closest('button, a, [role="button"]');
-        if (!button || normalize(button.textContent) !== normalize(BUTTON_TEXT)) {
-            scheduleUpdate();
+    const restoreButton = button => {
+        const original = originalStates.get(button);
+        if (!original) {
             return;
         }
 
-        const invalidRules = getInvalidRules();
-        if (!invalidRules.length) return;
+        if ('disabled' in button) {
+            button.disabled = original.disabled;
+        }
 
-        event.preventDefault();
-        event.stopImmediatePropagation();
-        invalidRules[0].input?.focus();
-        invalidRules[0].input?.reportValidity();
-        console.warn(
-            '[WU OSB] "Zur übersicht gehen" wurde verhindert: ' +
-            'Ein bedingtes Pflichtfeld ist leer.'
-        );
-    }
+        if (original.ariaDisabled === null) {
+            button.removeAttribute('aria-disabled');
+        } else {
+            button.setAttribute(
+                'aria-disabled',
+                original.ariaDisabled
+            );
+        }
 
-    function start() {
-        addStyles();
-        update();
-        observer = new MutationObserver(scheduleUpdate);
-        observer.observe(document.body, {
-            childList: true,
-            subtree: true,
-            characterData: true
+        if (original.tabindex === null) {
+            button.removeAttribute('tabindex');
+        } else {
+            button.setAttribute('tabindex', original.tabindex);
+        }
+
+        button.classList.remove(DISABLED_CLASS);
+        originalStates.delete(button);
+        managedButtons.delete(button);
+    };
+
+    const setButtonState = (button, invalid) => {
+        if (invalid) {
+            if (!originalStates.has(button)) {
+                originalStates.set(button, {
+                    disabled:
+                        'disabled' in button
+                            ? button.disabled
+                            : false,
+                    ariaDisabled:
+                        button.getAttribute('aria-disabled'),
+                    tabindex:
+                        button.getAttribute('tabindex')
+                });
+                managedButtons.add(button);
+            }
+
+            if ('disabled' in button) {
+                button.disabled = true;
+            }
+
+            button.setAttribute('aria-disabled', 'true');
+            button.setAttribute('tabindex', '-1');
+            button.classList.add(DISABLED_CLASS);
+            return;
+        }
+
+        restoreButton(button);
+    };
+
+    const update = () => {
+        const button = findButton();
+
+        if (currentButton && currentButton !== button) {
+            restoreButton(currentButton);
+        }
+
+        currentButton = button;
+
+        if (!button) {
+            return;
+        }
+
+        setButtonState(button, getInvalidRules().length > 0);
+    };
+
+    const scheduleUpdate = () => {
+        if (framePending) {
+            return;
+        }
+
+        framePending = true;
+        requestAnimationFrame(() => {
+            framePending = false;
+            update();
         });
-        document.addEventListener('input', scheduleUpdate, true);
-        document.addEventListener('change', scheduleUpdate, true);
-        document.addEventListener('click', handleClick, true);
-    }
+    };
 
-    function stop() {
+    /*
+     * Nach einer Auswahl wird mehrfach geprüft, weil Angular Material
+     * den sichtbaren Wert asynchron aktualisiert.
+     */
+    const scheduleUpdateBurst = () => {
+        scheduleUpdate();
+
+        [0, 50, 150, 300, 500].forEach(delay => {
+            window.setTimeout(update, delay);
+        });
+    };
+
+    const handleClick = event => {
+        const target =
+            event.target instanceof Element ? event.target : null;
+
+        if (!target) {
+            return;
+        }
+
+        const button = target.closest(
+            'button, a, [role="button"]'
+        );
+
+        if (
+            button &&
+            normalize(button.textContent) === normalize(BUTTON_TEXT)
+        ) {
+            const invalidRules = getInvalidRules();
+
+            if (!invalidRules.length) {
+                return;
+            }
+
+            event.preventDefault();
+            event.stopImmediatePropagation();
+
+            const firstInput = invalidRules[0].input;
+            firstInput?.focus();
+            firstInput?.reportValidity();
+            setButtonState(button, true);
+
+            console.warn(
+                '[WU OSB] „Zur übersicht gehen“ wurde verhindert: ' +
+                'Ein bedingtes Pflichtfeld ist leer.'
+            );
+            return;
+        }
+
+        if (
+            target.closest(
+                'mat-option, [role="option"], mat-select, .mat-mdc-select-panel'
+            )
+        ) {
+            scheduleUpdateBurst();
+        }
+    };
+
+    const handleKeydown = event => {
+        if (event.key !== 'Enter' && event.key !== ' ') {
+            return;
+        }
+
+        const target =
+            event.target instanceof Element ? event.target : null;
+
+        if (
+            target?.closest(
+                'mat-option, [role="option"], mat-select'
+            )
+        ) {
+            scheduleUpdateBurst();
+        }
+    };
+
+    const handleFormChange = () => {
+        scheduleUpdateBurst();
+    };
+
+    observer = new MutationObserver(scheduleUpdate);
+    observer.observe(document.body, {
+        childList: true,
+        subtree: true,
+        characterData: true
+    });
+
+    document.addEventListener('input', handleFormChange, true);
+    document.addEventListener('change', handleFormChange, true);
+    document.addEventListener('click', handleClick, true);
+    document.addEventListener('keydown', handleKeydown, true);
+
+    /*
+     * Sicherheitsprüfung für Angular-Zustandswechsel, die weder ein
+     * natives change-Event noch eine passende Textmutation auslösen.
+     */
+    intervalId = window.setInterval(update, 250);
+
+    window.__wuConditionalButtonGuardCleanup = () => {
         observer?.disconnect();
-        observer = null;
-        document.removeEventListener('input', scheduleUpdate, true);
-        document.removeEventListener('change', scheduleUpdate, true);
+        window.clearInterval(intervalId);
+
+        document.removeEventListener('input', handleFormChange, true);
+        document.removeEventListener('change', handleFormChange, true);
         document.removeEventListener('click', handleClick, true);
-        restoreButton();
-        document.getElementById(STYLE_ID)?.remove();
-    }
+        document.removeEventListener('keydown', handleKeydown, true);
 
-    window.__wuConditionalButtonGuardCleanup?.();
-    window.__wuConditionalButtonGuardCleanup = stop;
+        Array.from(managedButtons).forEach(restoreButton);
 
-    if (document.body) start();
-    else document.addEventListener('DOMContentLoaded', start, { once: true });
+        document.getElementById(STILE_ID)?.remove();
+        delete window.__wuConditionalButtonGuardCleanup;
+
+        console.info(
+            '[WU OSB] Korrigierte Button-Sperre wurde entfernt.'
+        );
+    };
+
+    scheduleUpdateBurst();
+
+    console.info(
+        '[WU OSB] Korrigierte Button-Sperre ist aktiv.'
+    );
 })();
