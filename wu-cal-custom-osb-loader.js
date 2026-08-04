@@ -28,7 +28,7 @@
 
     const CONDITIONAL_REQUIRED_URL =
         'https://cdn.jsdelivr.net/gh/wuadminosb/' +
-        'wwu-cal-custom@5627a31f83375b897a2aac6deeaf74e02330a2cf/' +
+        'wu-cal-custom@5627a31f83375b897a2aac6deeaf74e02330a2cf/' +
         'wu-cal-custom-conditional-required.js';
 
     const HIDE_REQUIRED_NOTE_URL =
@@ -40,6 +40,19 @@
         'https://cdn.jsdelivr.net/gh/wuadminosb/' +
         'wu-cal-custom@a18bd20662efa7174e82ae8e2d2967c010f31828/' +
         'wu-cal-custom-conditional-button-guard.js';
+
+    const DIALOG_AND_LEGEND_COMMIT =
+        'cc420196cc0ab78ff0aae3ac3a0bf823ebb8e3d8';
+
+    const TERMS_LINKS_URL =
+        'https://cdn.jsdelivr.net/gh/wuadminosb/' +
+        'wu-cal-custom@' + DIALOG_AND_LEGEND_COMMIT + '/' +
+        'wu-cal-custom-terms-links.js';
+
+    const REQUIRED_LEGEND_URL =
+        'https://cdn.jsdelivr.net/gh/wuadminosb/' +
+        'wu-cal-custom@' + DIALOG_AND_LEGEND_COMMIT + '/' +
+        'wu-cal-custom-required-legend.js';
 
     function applyRequiredMarkerStyles() {
         const styleId = 'wu-required-marker-red';
@@ -122,6 +135,12 @@
         })
         .then(function () {
             return loadScript(CONDITIONAL_BUTTON_GUARD_URL);
+        })
+        .then(function () {
+            return loadScript(TERMS_LINKS_URL);
+        })
+        .then(function () {
+            return loadScript(REQUIRED_LEGEND_URL);
         })
         .catch(function (error) {
             console.error(
