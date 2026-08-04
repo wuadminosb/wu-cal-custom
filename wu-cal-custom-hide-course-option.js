@@ -3,7 +3,7 @@
 
     window.__wuHideCourseOptionCleanup?.();
 
-    const TARGET_TEXT = 'Lehreranstaltung';
+    const TARGET_TEXT = 'Lehrrerveranstaltung';
     const HIDDEN_CLASS = 'wu-hidden-course-option';
     const STYLE_ID = 'wu-hidden-course-option-style';
 
@@ -76,7 +76,7 @@
         });
 
         hiddenElements.clear();
-        document.getElementById(STYLE_ID)?.remove();
+        document.getElementById(STILE_ID)?.remove();
         delete window.__wuHideCourseOptionCleanup;
     };
 })();
