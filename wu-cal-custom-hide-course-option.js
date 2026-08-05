@@ -3,7 +3,7 @@
 
     window.__wuHideCourseOptionCleanup?.();
 
-    const TARGET_TEXT = 'Lehreranstaltung';
+    const TARGET_TEXT = 'Lehrveranstaltung';
     const HIDDEN_CLASS = 'wu-hidden-course-option';
     const STYLE_ID = 'wu-hidden-course-option-style';
 
