@@ -4,11 +4,8 @@
     let updatePending = false;
 
     function normalizedText(element) {
-        return (element.textContent || '')
-            .replace(/\u00a0/g, '')
-            .replace(/\s+/g, '')
-            .trim()
-            .toLowerCase();
+        return normalizeText(element.textContent)
+            .replace(/\s/g, '');
     }
 
     function isWeekend(text) {
@@ -140,42 +137,52 @@
 
     /* AM/PM → 24-Stunden-Format */
     function changeCalendarTimeFormat() {
-        document.querySelectorAll(
-            'span, div, td, th, p, label, button'
-        ).forEach(function (element) {
-            if (
-                element.children.length !== 0 ||
-                !element.textContent
-            ) {
-                return;
-            }
+        const roots = document.querySelectorAll(
+            '.chadmo, app-availability-calendar, app-calendar-day-view'
+        );
 
-            const text = element.textContent.trim();
+        const scope = roots.length
+            ? roots
+            : [document];
 
-            const match = text.match(
-                /^(\d{1,2})\s*(?::(\d{2}))?\s*(AM|PM)$/i
-            );
-
-            if (!match) {
-                return;
-            }
-
-            let hour = parseInt(match[1], 10);
-            const minutes = match[2] || '00';
-            const period = match[3].toUpperCase();
-
-            if (period === 'AM') {
-                if (hour === 12) {
-                    hour = 0;
+        Array.from(scope).forEach(function (root) {
+            root.querySelectorAll(
+                'span, div, td, th, p, label, button'
+            ).forEach(function (element) {
+                if (
+                    element.children.length !== 0 ||
+                    !element.textContent
+                ) {
+                    return;
                 }
-            } else if (hour !== 12) {
-                hour += 12;
-            }
 
-            element.textContent =
-                String(hour).padStart(2, '0') +
-                ':' +
-                minutes;
+                const text = element.textContent.trim();
+
+                const match = text.match(
+                    /^(\d{1,2})\s*(?::(\d{2}))?\s*(AM|PM)$/i
+                );
+
+                if (!match) {
+                    return;
+                }
+
+                let hour = parseInt(match[1], 10);
+                const minutes = match[2] || '00';
+                const period = match[3].toUpperCase();
+
+                if (period === 'AM') {
+                    if (hour === 12) {
+                        hour = 0;
+                    }
+                } else if (hour !== 12) {
+                    hour += 12;
+                }
+
+                element.textContent =
+                    String(hour).padStart(2, '0') +
+                    ':' +
+                    minutes;
+            });
         });
     }
 
@@ -205,19 +212,39 @@
      * Bereits formatierte Räume werden erneut ausgerichtet.
      */
     function formatRoomHeaders() {
+        ensureStyleTag('wu-room-header-style', [
+            '.headerCell.wu-room-header-cell {',
+            '    display: flex !important;',
+            '    flex-direction: column !important;',
+            '    justify-content: center !important;',
+            '    align-items: center !important;',
+            '    text-align: center !important;',
+            '    box-sizing: border-box !important;',
+            '}',
+            '.headerCell.wu-room-header-cell .rowHeaderContent {',
+            '    width: 100% !important;',
+            '    text-align: center !important;',
+            '    white-space: normal !important;',
+            '    line-height: 14px !important;',
+            '    font-size: 12px !important;',
+            '    padding: 0 2px !important;',
+            '    box-sizing: border-box !important;',
+            '}',
+            '.headerCell.wu-room-header-cell .wu-room-number {',
+            '    font-weight: normal !important;',
+            '}',
+            '.headerCell.wu-room-header-cell .wu-room-name {',
+            '    font-weight: 700 !important;',
+            '}'
+        ].join('\n'));
+
         const roomPattern =
             /^\s*([A-ZÄÖÜ][A-ZÄÖÜ0-9-]*(?:\.[A-ZÄÖÜ0-9-]+)+)\s+(.+?)\s*$/i;
 
         document.querySelectorAll(
             '.headerCell .rowHeaderContent'
         ).forEach(function (element) {
-            let numberElement =
-                element.querySelector('.wu-room-number');
-
-            let nameElement =
-                element.querySelector('.wu-room-name');
-
-            if (!numberElement || !nameElement) {
+            if (!element.querySelector('.wu-room-number')) {
                 const originalText =
                     (element.textContent || '').trim();
 
@@ -227,15 +254,11 @@
                     return;
                 }
 
-                numberElement =
-                    document.createElement('span');
-
+                const numberElement = document.createElement('span');
                 numberElement.className = 'wu-room-number';
                 numberElement.textContent = match[1];
 
-                nameElement =
-                    document.createElement('span');
-
+                const nameElement = document.createElement('span');
                 nameElement.className = 'wu-room-name';
                 nameElement.textContent = match[2];
 
@@ -246,102 +269,11 @@
                 );
             }
 
-            element.style.setProperty(
-                'width',
-                '100%',
-                'important'
-            );
+            const headerCell = element.closest('.headerCell');
 
-            element.style.setProperty(
-                'text-align',
-                'center',
-                'important'
-            );
-
-            element.style.setProperty(
-                'white-space',
-                'normal',
-                'important'
-            );
-
-            element.style.setProperty(
-                'line-height',
-                '14px',
-                'important'
-            );
-
-            element.style.setProperty(
-                'font-size',
-                '12px',
-                'important'
-            );
-
-            element.style.setProperty(
-                'padding',
-                '0 2px',
-                'important'
-            );
-
-            element.style.setProperty(
-                'box-sizing',
-                'border-box',
-                'important'
-            );
-
-            numberElement.style.setProperty(
-                'font-weight',
-                'normal',
-                'important'
-            );
-
-            nameElement.style.setProperty(
-                'font-weight',
-                '700',
-                'important'
-            );
-
-            const headerCell =
-                element.closest('.headerCell');
-
-            if (!headerCell) {
-                return;
+            if (headerCell) {
+                headerCell.classList.add('wu-room-header-cell');
             }
-
-            headerCell.style.setProperty(
-                'display',
-                'flex',
-                'important'
-            );
-
-            headerCell.style.setProperty(
-                'flex-direction',
-                'column',
-                'important'
-            );
-
-            headerCell.style.setProperty(
-                'justify-content',
-                'center',
-                'important'
-            );
-
-            headerCell.style.setProperty(
-                'align-items',
-                'center',
-                'important'
-            );
-
-            headerCell.style.setProperty(
-                'text-align',
-                'center',
-                'important'
-            );
-
-            headerCell.style.setProperty(
-                'box-sizing',
-                'border-box',
-                'important'
-            );
         });
     }
 
@@ -379,16 +311,20 @@
         findWeekdayGroups().forEach(function (group) {
             group.classList.add('wu-weekday-group');
 
-            const toggles = Array.from(
+            if (group.parentElement) {
+                group.parentElement.classList.add(
+                    'wu-repeat-weekday-native-row'
+                );
+            }
+
+            Array.from(
                 group.querySelectorAll(
                     'mat-button-toggle, ' +
                     '.mat-button-toggle, ' +
                     '.mat-mdc-button-toggle, ' +
                     '[role="radio"]'
                 )
-            );
-
-            toggles.forEach(function (toggle) {
+            ).forEach(function (toggle) {
                 const value =
                     toggle.getAttribute('value') ||
                     toggle.getAttribute('ng-reflect-value');
@@ -409,16 +345,6 @@
     }
 
     function markRepeatAndWeekdayArea() {
-        findWeekdayGroups().forEach(function (group) {
-            group.classList.add('wu-weekday-group');
-
-            if (group.parentElement) {
-                group.parentElement.classList.add(
-                    'wu-repeat-weekday-native-row'
-                );
-            }
-        });
-
         document.querySelectorAll(
             'mat-label, label, .mdc-floating-label'
         ).forEach(function (label) {
@@ -2103,11 +2029,6 @@
                 'innerText'
             ]
         });
-
-        window.setInterval(
-            applyWuAdjustments,
-            1000
-        );
     }
 
     if (document.readyState === 'loading') {

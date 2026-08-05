@@ -426,7 +426,7 @@
     loadBaseScript()
         .catch(function (error) {
             console.error(
-                '[WU OSB] Basissk'2ipt konnte nicht geladen werden.',
+                '[WU OSB] Basisskript konnte nicht geladen werden.',
                 error
             );
         })
