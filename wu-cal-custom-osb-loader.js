@@ -1,63 +1,20 @@
 (function () {
     'use strict';
 
-    const BASE_URL =
-        'https://cdn.jsdelivr.net/gh/wuadminosb/' +
-        'wu-cal-custom@3985978a99a25dcbee7f5eaa3775b18a7d481eaa/' +
-        'wu-cal-custom.js';
+    const MAIN_BRANCH = 'main';
+    const CDN_BASE = 'https://cdn.jsdelivr.net/gh/wuadminosb/wu-cal-custom@' + MAIN_BRANCH + '/';
 
-    const SLIDER_URL =
-        'https://cdn.jsdelivr.net/gh/wuadminosb/' +
-        'wu-cal-custom@main/wu-cal-custom-slider.js' +
-        '?v=20260728-1';
-
-    const ACCOUNT_CHOICE_URL =
-        'https://cdn.jsdelivr.net/gh/wuadminosb/' +
-        'wu-cal-custom@main/wu-cal-custom-account-choice.js' +
-        '?v=20260728-1';
-
-    const CALENDAR_TABS_URL =
-        'https://cdn.jsdelivr.net/gh/wuadminosb/' +
-        'wu-cal-custom@main/wu-cal-custom-calendar-tabs.js' +
-        '?v=20260728-1';
-
-    const HEADER_CUSTOM_URL =
-        'https://cdn.jsdelivr.net/gh/wuadminosb/' +
-        'wu-cal-custom@main/wu-cal-custom-header.js' +
-        '?v=20260728-1';
-
-    const CONDITIONAL_REQUIRED_URL =
-        'https://cdn.jsdelivr.net/gh/wuadminosb/' +
-        'wu-cal-custom@5627a31f83375b897a2aac6deeaf74e02330a2cf/' +
-        'wu-cal-custom-conditional-required.js';
-
-    const HIDE_REQUIRED_NOTE_URL =
-        'https://cdn.jsdelivr.net/gh/wuadminosb/' +
-        'wu-cal-custom@a18bd20662efa7174e82ae8e2d2967c010f31828/' +
-        'wu-cal-custom-hide-required-note.js';
-
-    const CONDITIONAL_BUTTON_GUARD_URL =
-        'https://cdn.jsdelivr.net/gh/wuadminosb/' +
-        'wu-cal-custom@a18bd20662efa7174e82ae8e2d2967c010f31828/' +
-        'wu-cal-custom-conditional-button-guard.js';
-
-    const DIALOG_AND_LEGEND_COMMIT =
-        'cc420196cc0ab78ff0aae3ac3a0bf823ebb8e3d8';
-
-    const TERMS_LINKS_URL =
-        'https://cdn.jsdelivr.net/gh/wuadminosb/' +
-        'wu-cal-custom@' + DIALOG_AND_LEGEND_COMMIT + '/' +
-        'wu-cal-custom-terms-links.js';
-
-    const REQUIRED_LEGEND_URL =
-        'https://cdn.jsdelivr.net/gh/wuadminosb/' +
-        'wu-cal-custom@' + DIALOG_AND_LEGEND_COMMIT + '/' +
-        'wu-cal-custom-required-legend.js';
-
-    const HIDE_COURSE_OPTION_URL =
-        'https://cdn.jsdelivr.net/gh/wuadminosb/' +
-        'wu-cal-custom@c0484089ab1d6f4b9954a1274e0bb869d35eef02/' +
-        'wu-cal-custom-hide-course-option.js';
+    const BASE_URL = CDN_BASE + 'wu-cal-custom.js';
+    const SLIDER_URL = CDN_BASE + 'wu-cal-custom-slider.js?v=20260805-1';
+    const ACCOUNT_CHOICE_URL = CDN_BASE + 'wu-cal-custom-account-choice.js?v=20260805-1';
+    const CALENDAR_TABS_URL = CDN_BASE + 'wu-cal-custom-calendar-tabs.js?v=20260805-1';
+    const HEADER_CUSTOM_URL = CDN_BASE + 'wu-cal-custom-header.js?v=20260805-1';
+    const CONDITIONAL_REQUIRED_URL = CDN_BASE + 'wu-cal-custom-conditional-required.js';
+    const HIDE_REQUIRED_NOTE_URL = CDN_BASE + 'wu-cal-custom-hide-required-note.js';
+    const CONDITIONAL_BUTTON_GUARD_URL = CDN_BASE + 'wu-cal-custom-conditional-button-guard.js';
+    const TERMS_LINKS_URL = CDN_BASE + 'wu-cal-custom-terms-links.js';
+    const REQUIRED_LEGEND_URL = CDN_BASE + 'wu-cal-custom-required-legend.js';
+    const HIDE_COURSE_OPTION_URL = CDN_BASE + 'wu-cal-custom-hide-course-option.js';
 
     function applyRequiredMarkerStyles() {
         const styleId = 'wu-required-marker-red';
