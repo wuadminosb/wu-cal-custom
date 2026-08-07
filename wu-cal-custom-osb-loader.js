@@ -15,6 +15,9 @@
     const TERMS_LINKS_URL = CDN_BASE + 'wu-cal-custom-terms-links.js';
     const REQUIRED_LEGEND_URL = CDN_BASE + 'wu-cal-custom-required-legend.js';
     const HIDE_COURSE_OPTION_URL = CDN_BASE + 'wu-cal-custom-hide-course-option.js';
+    const CALENDAR_DEFAULT_VIEW_URL = CDN_BASE + 'wu-cal-custom-calendar-default-view.js?v=20260807-1';
+    const CALENDAR_NAV_URL = CDN_BASE + 'wu-cal-custom-calendar-nav.js?v=20260807-1';
+    const CALENDAR_SELECTION_URL = CDN_BASE + 'wu-cal-custom-calendar-selection.js?v=20260807-1';
 
     function applyRequiredMarkerStyles() {
         const styleId = 'wu-required-marker-red';
@@ -106,6 +109,15 @@
         })
         .then(function () {
             return loadScript(HIDE_COURSE_OPTION_URL);
+        })
+        .then(function () {
+            return loadScript(CALENDAR_DEFAULT_VIEW_URL);
+        })
+        .then(function () {
+            return loadScript(CALENDAR_NAV_URL);
+        })
+        .then(function () {
+            return loadScript(CALENDAR_SELECTION_URL);
         })
         .catch(function (error) {
             console.error(
