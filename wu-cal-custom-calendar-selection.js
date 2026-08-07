@@ -587,6 +587,21 @@
             if (!isFreeCell(cell)) {
                 /* Gebuchte oder nicht-verfügbare Zellen bereinigen */
                 cell.classList.remove(FREE_CLASS, SELECTED_CLASS);
+
+                /*
+                 * Wenn die Zelle noch in selections ist (z.B. wurde
+                 * sie nachträglich gebucht), Eintrag entfernen und
+                 * Panel aktualisieren.
+                 */
+                const staleIndex = selections.findIndex(function (e) {
+                    return e.cell === cell;
+                });
+
+                if (staleIndex >= 0) {
+                    selections.splice(staleIndex, 1);
+                    refreshPanel();
+                }
+
                 return;
             }
 

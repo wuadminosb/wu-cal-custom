@@ -158,8 +158,8 @@
          * heute ist, gilt das Datum als Vergangenheit.
          */
         const MONTHS = {
-            januar: 0, february: 0, jan: 0,
-            februar: 1, february2: 1, feb: 1,
+            januar: 0, jan: 0,
+            februar: 1, february: 1, feb: 1,
             'märz': 2, march: 2, mar: 2,
             april: 3, apr: 3,
             mai: 4, may: 4,
