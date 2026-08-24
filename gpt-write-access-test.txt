@@ -1,0 +1,4 @@
+GitHub write-access test for OSB GPT
+Date: 2026-08-24
+Purpose: verify branch/file/PR write operations.
+No production code changed.
