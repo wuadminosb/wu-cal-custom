@@ -6,6 +6,7 @@
 
     const BASE_URL = CDN_BASE + 'wu-cal-custom.js';
     const SLIDER_URL = CDN_BASE + 'wu-cal-custom-slider.js?v=20260805-1';
+    const ROOM_DETAILS_URL = CDN_BASE + 'wu-cal-custom-room-details.js?v=20260826-1';
     const ACCOUNT_CHOICE_URL = CDN_BASE + 'wu-cal-custom-account-choice.js?v=20260805-1';
     const CALENDAR_TABS_URL = CDN_BASE + 'wu-cal-custom-calendar-tabs.js?v=20260805-1';
     const HEADER_CUSTOM_URL = CDN_BASE + 'wu-cal-custom-header.js?v=20260805-1';
@@ -79,6 +80,9 @@
     })
         .then(function () {
             return loadScript(SLIDER_URL);
+        })
+        .then(function () {
+            return loadScript(ROOM_DETAILS_URL);
         })
         .then(function () {
             return loadScript(ACCOUNT_CHOICE_URL);
