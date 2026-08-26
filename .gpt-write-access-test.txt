@@ -1,0 +1,2 @@
+GPT write-access test
+Created 2026-08-26 by OSB GitHub Experte on test branch only.
