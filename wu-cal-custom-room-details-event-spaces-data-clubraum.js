@@ -1,0 +1,58 @@
+(() => {
+  'use strict';
+
+  const commonReservable = [
+      ['Wireless Presenter',
+        '<p>Logitech Spotlight Plus zum Weiterschalten von Folien inklusive virtuellem Laserpointer.</p>',
+        'Buchbare / reservierbare Technik']
+    ];
+
+  const room = {
+        key: 'LC.2.400',
+        name: 'Clubraum',
+        match: ['lc.2.400', 'clubraum'],
+        details: [
+          ['Raumnummer', 'LC.2.400'],
+          ['Bestuhlung', 'flexibel'],
+          ['Catering', 'kalt & warm'],
+          ['Fläche', '246 m²'],
+          ['Bühne', 'keine Bühne']
+        ],
+        tech: [
+          ['Projektion',
+            '<dl><div><dt>Projektor</dt><dd>NEC PA 550W, kurze Raumseite, max. 1280 × 800</dd></div><div><dt>TV-Screens</dt><dd>Samsung 40 Zoll MD40B und Sharp 80 Zoll Aquos Quattron, max. 1900 × 1080</dd></div></dl>'],
+          ['Lautsprecher',
+            '<dl><div><dt>Kurze Raumseite</dt><dd>2× JBL CBT50LA-1</dd></div><div><dt>Lange Raumseite</dt><dd>2× JBL CONTROL CONTRACTOR 28</dd></div></dl>'],
+          ['Rednerpult',
+            '<p>Nicht höhenverstellbares, geschlossenes Holzmodell; keine Technik verbaut.</p>'],
+          ['Raumsteuerung',
+            '<dl><div><dt>Fix</dt><dd>AMX Modero S700 Touchpanel</dd></div><div><dt>Mobil</dt><dd>iPad mini</dd></div></dl>'],
+          ['Mikrofone',
+            '<dl><div><dt>Funkstrecken</dt><dd>Maximal 4 gleichzeitig</dd></div><div><dt>Modelle</dt><dd>Sennheiser SKM 300 und SK 300</dd></div><div><dt>Varianten</dt><dd>Taschensender und Handsender variabel kombinierbar</dd></div></dl>'],
+          ...commonReservable,
+          ['Notebook',
+            '<p>Vorinstalliert: Microsoft Office, Microsoft Teams, Zoom, Firefox, Edge und Acrobat Reader.</p>'],
+          ['Tonsumme für Mitschnitt',
+            '<p>Tonsumme per XLR-Ausgang zur Aufzeichnung.</p>']
+        ],
+        settings: [
+          ['110 Theater Standard',
+           'https://www.wu.ac.at/fileadmin/wu/_processed_/8/1/csm_Theater_110_Pax_Standard_b921236b82.png',
+           'https://www.wu.ac.at/fileadmin/wu/h/structure/servicecenters/procurement/veranstaltungsmanagement/Fotos/Clubraum/Theater_110_Pax_Standard.pdf'],
+          ['64 Theater + 10 Stehtische',
+           'https://www.wu.ac.at/fileadmin/wu/_processed_/3/d/csm_Theater_64_10_Stehtische__174b8b1e5d.png',
+           'https://www.wu.ac.at/fileadmin/wu/h/structure/servicecenters/procurement/veranstaltungsmanagement/Fotos/Clubraum/Theater_64_10_Stehtische_.pdf'],
+          ['Stehbuffet 20 Stehtische + 10 Tische',
+           'https://www.wu.ac.at/fileadmin/wu/_processed_/f/7/csm_Stehbuffet_20_Stehtische_10_Tische_120x60_f98164af4a.png',
+           'https://www.wu.ac.at/fileadmin/wu/h/structure/servicecenters/procurement/veranstaltungsmanagement/Fotos/Clubraum/Stehbuffet_20_Stehtische_10_Tische_120x60.pdf'],
+          ['56 Sitzgruppen 7er je 8 Sessel',
+           'https://www.wu.ac.at/fileadmin/wu/_processed_/8/7/csm_Sitzgruppen_7er_je_8_Sessel_56_0e86acaaff.png',
+           'https://www.wu.ac.at/fileadmin/wu/h/structure/servicecenters/procurement/veranstaltungsmanagement/Fotos/Clubraum/Sitzgruppen_7er_je_8_Sessel_56.pdf']
+        ]
+      };
+
+  const existing = window.wuEventSpaceRooms || [];
+  window.wuEventSpaceRooms = existing
+    .filter(item => item.key !== room.key)
+    .concat(room);
+})();
