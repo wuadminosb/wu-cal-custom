@@ -1,0 +1,31 @@
+name: Purge jsDelivr cache
+
+on:
+  push:
+    branches:
+      - main
+      - fix/jsdelivr-cache-purge
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  purge-jsdelivr:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Purge loader and room-details cache
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          urls=(
+            "https://purge.jsdelivr.net/gh/${GITHUB_REPOSITORY}@main/wu-cal-custom-osb-loader.js"
+            "https://purge.jsdelivr.net/gh/${GITHUB_REPOSITORY}@main/wu-cal-custom-room-details.js?v=20260826-1"
+          )
+
+          for url in "${urls[@]}"; do
+            echo "Purging: ${url}"
+            curl --fail --silent --show-error --location "${url}"
+            echo
+          done
