@@ -6,6 +6,7 @@ on:
       - main
       - fix/jsdelivr-cache-purge
       - feature/sitzungssaele-3-6-room-details
+      - feature/eventraeume-room-details
   workflow_dispatch:
 
 permissions:
@@ -24,6 +25,12 @@ jobs:
             "https://purge.jsdelivr.net/gh/${GITHUB_REPOSITORY}@main/wu-cal-custom-osb-loader.js"
             "https://purge.jsdelivr.net/gh/${GITHUB_REPOSITORY}@main/wu-cal-custom-room-details.js?v=20260826-1"
             "https://purge.jsdelivr.net/gh/${GITHUB_REPOSITORY}@main/wu-cal-custom-room-details-3-6.js?v=20260826-1"
+            "https://purge.jsdelivr.net/gh/${GITHUB_REPOSITORY}@main/wu-cal-custom-room-details-event-spaces-loader.js?v=20260826-1"
+            "https://purge.jsdelivr.net/gh/${GITHUB_REPOSITORY}@main/wu-cal-custom-room-details-event-spaces-data-lc-core.js?v=20260826-1"
+            "https://purge.jsdelivr.net/gh/${GITHUB_REPOSITORY}@main/wu-cal-custom-room-details-event-spaces-data-lc-extra.js?v=20260826-1"
+            "https://purge.jsdelivr.net/gh/${GITHUB_REPOSITORY}@main/wu-cal-custom-room-details-event-spaces-data-ea.js?v=20260826-1"
+            "https://purge.jsdelivr.net/gh/${GITHUB_REPOSITORY}@main/wu-cal-custom-room-details-event-spaces-data-tc.js?v=20260826-1"
+            "https://purge.jsdelivr.net/gh/${GITHUB_REPOSITORY}@main/wu-cal-custom-room-details-event-spaces.js?v=20260826-1"
           )
 
           for url in "${urls[@]}"; do
