@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - fix/jsdelivr-cache-purge
+      - feature/sitzungssaele-3-6-room-details
   workflow_dispatch:
 
 permissions:
@@ -22,6 +23,7 @@ jobs:
           urls=(
             "https://purge.jsdelivr.net/gh/${GITHUB_REPOSITORY}@main/wu-cal-custom-osb-loader.js"
             "https://purge.jsdelivr.net/gh/${GITHUB_REPOSITORY}@main/wu-cal-custom-room-details.js?v=20260826-1"
+            "https://purge.jsdelivr.net/gh/${GITHUB_REPOSITORY}@main/wu-cal-custom-room-details-3-6.js?v=20260826-1"
           )
 
           for url in "${urls[@]}"; do
