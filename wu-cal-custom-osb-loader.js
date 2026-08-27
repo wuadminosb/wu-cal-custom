@@ -94,6 +94,15 @@
         });
     }
 
+    function loadOptionalScript(url) {
+        return loadScript(url).catch(function (error) {
+            console.error(
+                '[WU OSB] Optionales Modul konnte nicht geladen werden.',
+                error
+            );
+        });
+    }
+
     loadScript(BASE_URL, {
         'data-wu-cal-custom-base': 'true'
     })
@@ -107,28 +116,28 @@
             return loadScript(ROOM_DETAILS_3_6_URL);
         })
         .then(function () {
-            return loadScript(EVENT_DATA_FESTSAAL_1_URL);
+            return loadOptionalScript(EVENT_DATA_FESTSAAL_1_URL);
         })
         .then(function () {
-            return loadScript(EVENT_DATA_FESTSAAL_2_URL);
+            return loadOptionalScript(EVENT_DATA_FESTSAAL_2_URL);
         })
         .then(function () {
-            return loadScript(EVENT_DATA_GALERIE_URL);
+            return loadOptionalScript(EVENT_DATA_GALERIE_URL);
         })
         .then(function () {
-            return loadScript(EVENT_DATA_CLUBRAUM_URL);
+            return loadOptionalScript(EVENT_DATA_CLUBRAUM_URL);
         })
         .then(function () {
-            return loadScript(EVENT_DATA_SKY_LOUNGE_URL);
+            return loadOptionalScript(EVENT_DATA_SKY_LOUNGE_URL);
         })
         .then(function () {
-            return loadScript(EVENT_DATA_FOYER_URL);
+            return loadOptionalScript(EVENT_DATA_FOYER_URL);
         })
         .then(function () {
-            return loadScript(EVENT_DATA_TC_HALL_URL);
+            return loadOptionalScript(EVENT_DATA_TC_HALL_URL);
         })
         .then(function () {
-            return loadScript(EVENT_DETAILS_URL);
+            return loadOptionalScript(EVENT_DETAILS_URL);
         })
         .then(function () {
             return loadScript(ACCOUNT_CHOICE_URL);
