@@ -22,7 +22,13 @@
           '<dl><div><dt>Funkmikrofon</dt><dd>Maximal 1 gleichzeitig</dd></div><div><dt>Modelle</dt><dd>Sennheiser SKM 300 und SK 300</dd></div><div><dt>Hinweis</dt><dd>Taschensender mit Headset und Handsender nicht kombinierbar</dd></div></dl>'],
         ['PC',
           '<dl><div><dt>Vortragenden-PC</dt><dd>Dell OptiPlex 7000</dd></div><div><dt>Anschlüsse</dt><dd>1× HDMI, 1× USB, 1× LAN</dd></div><div><dt>Software</dt><dd>Microsoft Office, Microsoft Teams, Zoom, Firefox, Edge, Acrobat Reader</dd></div></dl>'],
-        ...commonReservable
+        ['Wireless Presenter',
+          '<p>Logitech Spotlight Plus zum Weiterschalten von Folien inklusive virtuellem Laserpointer.</p>',
+          'Buchbare / reservierbare Technik'],
+        ['Notebook',
+          '<p>Vorinstalliert: Microsoft Office, Microsoft Teams, Zoom, Firefox, Edge und Acrobat Reader.</p>'],
+        ['Tonsumme für Mitschnitt',
+          '<p>Tonsumme per XLR-Ausgang zur Aufzeichnung.</p>']
       ],
       settings: [
         ['30 Theater',
