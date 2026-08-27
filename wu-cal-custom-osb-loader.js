@@ -3,11 +3,29 @@
 
     const MAIN_BRANCH = 'main';
     const CDN_BASE = 'https://cdn.jsdelivr.net/gh/wuadminosb/wu-cal-custom@' + MAIN_BRANCH + '/';
+
     const BASE_URL = CDN_BASE + 'wu-cal-custom.js';
     const SLIDER_URL = CDN_BASE + 'wu-cal-custom-slider.js?v=20260805-1';
     const ROOM_DETAILS_URL = CDN_BASE + 'wu-cal-custom-room-details.js?v=20260826-1';
     const ROOM_DETAILS_3_6_URL = CDN_BASE + 'wu-cal-custom-room-details-3-6.js?v=20260826-1';
-    const EVENT_SPACE_DETAILS_URL = CDN_BASE + 'wu-cal-custom-room-details-event-spaces-loader.js?v=20260826-1';
+
+    const EVENT_DATA_FESTSAAL_1_URL =
+        CDN_BASE + 'wu-cal-custom-room-details-event-spaces-data-festsaal-1.js?v=20260826-2';
+    const EVENT_DATA_FESTSAAL_2_URL =
+        CDN_BASE + 'wu-cal-custom-room-details-event-spaces-data-festsaal-2.js?v=20260826-2';
+    const EVENT_DATA_GALERIE_URL =
+        CDN_BASE + 'wu-cal-custom-room-details-event-spaces-data-galerie.js?v=20260826-2';
+    const EVENT_DATA_CLUBRAUM_URL =
+        CDN_BASE + 'wu-cal-custom-room-details-event-spaces-data-clubraum.js?v=20260826-2';
+    const EVENT_DATA_SKY_LOUNGE_URL =
+        CDN_BASE + 'wu-cal-custom-room-details-event-spaces-data-sky-lounge.js?v=20260826-2';
+    const EVENT_DATA_FOYER_URL =
+        CDN_BASE + 'wu-cal-custom-room-details-event-spaces-data-foyer.js?v=20260826-2';
+    const EVENT_DATA_TC_HALL_URL =
+        CDN_BASE + 'wu-cal-custom-room-details-event-spaces-data-tc-hall.js?v=20260826-2';
+    const EVENT_DETAILS_URL =
+        CDN_BASE + 'wu-cal-custom-room-details-event-spaces.js?v=20260826-2';
+
     const ACCOUNT_CHOICE_URL = CDN_BASE + 'wu-cal-custom-account-choice.js?v=20260805-1';
     const CALENDAR_TABS_URL = CDN_BASE + 'wu-cal-custom-calendar-tabs.js?v=20260805-1';
     const HEADER_CUSTOM_URL = CDN_BASE + 'wu-cal-custom-header.js?v=20260805-1';
@@ -89,7 +107,28 @@
             return loadScript(ROOM_DETAILS_3_6_URL);
         })
         .then(function () {
-            return loadScript(EVENT_SPACE_DETAILS_URL);
+            return loadScript(EVENT_DATA_FESTSAAL_1_URL);
+        })
+        .then(function () {
+            return loadScript(EVENT_DATA_FESTSAAL_2_URL);
+        })
+        .then(function () {
+            return loadScript(EVENT_DATA_GALERIE_URL);
+        })
+        .then(function () {
+            return loadScript(EVENT_DATA_CLUBRAUM_URL);
+        })
+        .then(function () {
+            return loadScript(EVENT_DATA_SKY_LOUNGE_URL);
+        })
+        .then(function () {
+            return loadScript(EVENT_DATA_FOYER_URL);
+        })
+        .then(function () {
+            return loadScript(EVENT_DATA_TC_HALL_URL);
+        })
+        .then(function () {
+            return loadScript(EVENT_DETAILS_URL);
         })
         .then(function () {
             return loadScript(ACCOUNT_CHOICE_URL);
