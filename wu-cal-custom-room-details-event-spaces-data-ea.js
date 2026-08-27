@@ -5,7 +5,7 @@
 {
       key: 'EA.6.022',
       name: 'WU Sky Lounge',
-      match: ['ea.6.020', 'ea.6.022', 'wu sky lounge'],
+      match: ['ea.6.022', 'wu sky lounge'],
       details: [
         ['Raumnummer', 'EA.6.022'],
         ['Bestuhlung', 'flexibel'],

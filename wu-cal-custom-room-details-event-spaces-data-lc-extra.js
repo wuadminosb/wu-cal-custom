@@ -83,7 +83,7 @@
          'https://www.wu.ac.at/fileadmin/wu/h/structure/servicecenters/procurement/veranstaltungsmanagement/Fotos/Clubraum/Theater_64_10_Stehtische_.pdf'],
         ['Stehbuffet 20 Stehtische + 10 Tische',
          'https://www.wu.ac.at/fileadmin/wu/_processed_/f/7/csm_Stehbuffet_20_Stehtische_10_Tische_120x60_f98164af4a.png',
-         'https://www.wu.ac.at/fileadmin/wu/h/structure/servicecenters/procurement/veranstaltungsmanagement/Fotos/Clubraum/Stehbuffet_20_Stehtische_10_Tische_120x60.pdg'],
+         'https://www.wu.ac.at/fileadmin/wu/h/structure/servicecenters/procurement/veranstaltungsmanagement/Fotos/Clubraum/Stehbuffet_20_Stehtische_10_Tische_120x60.pdf'],
         ['56 Sitzgruppen 7er je 8 Sessel',
          'https://www.wu.ac.at/fileadmin/wu/_processed_/8/7/csm_Sitzgruppen_7er_je_8_Sessel_56_0e86acaaff.png',
          'https://www.wu.ac.at/fileadmin/wu/h/structure/servicecenters/procurement/veranstaltungsmanagement/Fotos/Clubraum/Sitzgruppen_7er_je_8_Sessel_56.pdf']

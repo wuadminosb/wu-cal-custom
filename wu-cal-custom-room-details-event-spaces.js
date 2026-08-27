@@ -87,8 +87,14 @@
 
     const official = document.createElement('dl');
     official.id = 'wu-evt-official';
+    const existingDetails = [...info.querySelectorAll('.usi-detailsLine')]
+      .map(element => norm(element.textContent));
 
     room.details.forEach(([label, value]) => {
+      if (existingDetails.some(text => text.startsWith(norm(label)))) {
+        return;
+      }
+
       const item = document.createElement('div');
       item.className = 'wu-evt-detail';
       const dt = document.createElement('dt');
@@ -99,7 +105,9 @@
       official.appendChild(item);
     });
 
-    info.appendChild(official);
+    if (official.children.length) {
+      info.appendChild(official);
+    }
 
     const techSection = document.createElement('section');
     techSection.id = 'wu-evt-tech';

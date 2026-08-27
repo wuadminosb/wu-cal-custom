@@ -1,5 +1,14 @@
 (() => {
   'use strict';
+  const commonReservable = [
+    ['Wireless Presenter',
+      '<p>Logitech Spotlight Plus zum Weiterschalten von Folien inklusive virtuellem Laserpointer.</p>',
+      'Buchbare / reservierbare Technik'],
+    ['Notebook',
+      '<p>Vorinstalliert: Microsoft Office, Microsoft Teams, Zoom, Firefox, Edge und Acrobat Reader.</p>'],
+    ['Tonsumme für Mitschnitt',
+      '<p>Tonsumme per XLR-Ausgang zur Aufzeichnung.</p>']
+  ];
   const target = window.wuEventSpaceRoomConfigs = window.wuEventSpaceRoomConfigs || [];
   target.push(
 {
