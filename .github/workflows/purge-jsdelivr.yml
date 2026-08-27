@@ -23,6 +23,8 @@ jobs:
 
           urls=(
             "https://purge.jsdelivr.net/gh/${GITHUB_REPOSITORY}@main/wu-cal-custom-osb-loader.js"
+            "https://purge.jsdelivr.net/gh/${GITHUB_REPOSITORY}@main/wu-cal-custom-osb-loader-v5.js?v=20260827-2"
+            "https://purge.jsdelivr.net/gh/${GITHUB_REPOSITORY}@main/wu-cal-custom-short-internal-profile.js?v=20260827-2"
             "https://purge.jsdelivr.net/gh/${GITHUB_REPOSITORY}@main/wu-cal-custom-room-details.js?v=20260826-1"
             "https://purge.jsdelivr.net/gh/${GITHUB_REPOSITORY}@main/wu-cal-custom-room-details-3-6.js?v=20260826-1"
             "https://purge.jsdelivr.net/gh/${GITHUB_REPOSITORY}@main/wu-cal-custom-room-details-event-spaces-data-festsaal-1.js?v=20260826-2"
