@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION = '20260828-3';
+  const VERSION = '20260828-4';
   const ROOT_ID = 'wu-confirmation';
 
   const clean = value =>
@@ -14,7 +14,9 @@
 
   function findMyEventsElement(doc = document) {
     return [...doc.querySelectorAll('a,button,[role="button"]')]
-      .find(element => norm(element.textContent) === 'meine veranstaltungen') || null;
+      .find(element =>
+        norm(element.textContent) === 'meine veranstaltungen'
+      ) || null;
   }
 
   function openMyEventsSameTab() {
@@ -41,29 +43,32 @@
     const root = document.getElementById(ROOT_ID);
     if (!root) return false;
 
-    const button = root.querySelector('.wu-cf-primary');
-    if (!button) return false;
+    const current = root.querySelector('.wu-cf-primary');
+    if (!current) return false;
 
-    if (button.dataset.wuTargetFix === VERSION) return true;
+    if (current.dataset.wuTargetFix === VERSION) return true;
 
+    /*
+     * Wichtig: Der Primary-Button aus wu-cal-custom-confirmation.js
+     * besitzt bereits einen onclick-Handler, der window.open() verwendet.
+     * Durch Klonen werden ALLE alten JS-Handler entfernt.
+     */
+    const button = current.cloneNode(true);
     button.dataset.wuTargetFix = VERSION;
 
-    button.addEventListener(
-      'click',
-      event => {
-        event.preventDefault();
-        event.stopPropagation();
-        event.stopImmediatePropagation();
-        openMyEventsSameTab();
-      },
-      true
-    );
+    current.replaceWith(button);
+
+    button.addEventListener('click', event => {
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+      openMyEventsSameTab();
+    });
 
     return true;
   }
 
   let pending = false;
-
   const schedule = () => {
     if (pending) return;
     pending = true;
@@ -79,7 +84,9 @@
     subtree: true
   });
 
-  [0, 100, 300, 700, 1500].forEach(delay => setTimeout(apply, delay));
+  [0, 100, 300, 700, 1500, 3000].forEach(delay =>
+    setTimeout(apply, delay)
+  );
 
   window.wuConfirmationTarget = {
     version: VERSION,
