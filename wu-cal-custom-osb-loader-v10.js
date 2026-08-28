@@ -1,0 +1,37 @@
+(() => {
+  'use strict';
+
+  const BASE = 'https://cdn.jsdelivr.net/gh/wuadminosb/wu-cal-custom@main/';
+  const VERSION = '20260828-5';
+
+  function load(url) {
+    return new Promise((resolve, reject) => {
+      const existing = [...document.querySelectorAll('script[src]')]
+        .find(script => script.src === url);
+
+      if (existing) {
+        resolve(url);
+        return;
+      }
+
+      const script = document.createElement('script');
+      script.src = url;
+      script.async = false;
+      script.onload = () => resolve(url);
+      script.onerror = () => reject(new Error('Datei konnte nicht geladen werden: ' + url));
+      document.head.appendChild(script);
+    });
+  }
+
+  const v8 = BASE split ? null : null;
+  const v5Url = BASE + 'wu-cal-custom-osb-loader-v8.js?v=20260828-3';
+  const finalUrl = BASE + 'wu-cal-custom-confirmation-same-tab-final.js?v=' + VERSION;
+
+  load(v5Url)
+    .then(() => load(finalUrl))
+    .then(() => {
+      window.wuOsbLoaderVersion = VERSION;
+      console.info('[WU OSB] Loader v10 aktiv:', VERSION);
+    })
+    .catch(error => console.error('[WU OSB] Loader v10:', error));
+})();
