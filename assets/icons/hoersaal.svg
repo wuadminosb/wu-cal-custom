@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" role="img" aria-labelledby="title desc">
+  <title id="title">Hörsaal</title>
+  <desc id="desc">Neutrales WU-OSB Symbolbild für Hörsäle</desc>
+  <rect width="800" height="500" rx="28" fill="#F3F7F9"/>
+  <rect x="190" y="62" width="420" height="132" rx="14" fill="#FFFFFF" stroke="#007B9E" stroke-width="8"/>
+  <rect x="382" y="194" width="36" height="28" rx="6" fill="#007B9E"/>
+  <rect x="345" y="222" width="110" height="12" rx="6" fill="#007B9E"/>
+  <g fill="#B7CBD5">
+    <circle cx="300" cy="130" r="18"/>
+    <circle cx="400" cy="130" r="18"/>
+    <circle cx="500" cy="130" r="18"/>
+  </g>
+  <g fill="#D8E4EA">
+    <rect x="270" y="155" width="60" height="12" rx="6"/>
+    <rect x="370" y="155" width="60" height="12" rx="6"/>
+    <rect x="470" y="155" width="60" height="12" rx="6"/>
+  </g>
+  <g fill="#007B9E">
+    <rect x="118" y="284" width="564" height="18" rx="9"/>
+    <rect x="148" y="346" width="504" height="18" rx="9"/>
+  </g>
+  <g fill="#AFC4CF">
+    <rect x="142" y="248" width="52" height="36" rx="9"/>
+    <rect x="244" y="248" width="52" height="36" rx="9"/>
+    <rect x="346" y="248" width="52" height="36" rx="9"/>
+    <rect x="448" y="248" width="52" height="36" rx="9"/>
+    <rect x="550" y="248" width="52" height="36" rx="9"/>
+    <rect x="188" y="310" width="52" height="36" rx="9"/>
+    <rect x="290" y="310" width="52" height="36" rx="9"/>
+    <rect x="392" y="310" width="52" height="36" rx="9"/>
+    <rect x="494" y="310" width="52" height="36" rx="9"/>
+  </g>
+  <g fill="#4E5C66">
+    <rect x="132" y="284" width="12" height="46" rx="6"/>
+    <rect x="234" y="284" width="12" height="46" rx="6"/>
+    <rect x="336" y="284" width="12" height="46" rx="6"/>
+    <rect x="438" y="284" width="12" height="46" rx="6"/>
+    <rect x="540" y="284" width="12" height="46" rx="6"/>
+    <rect x="178" y="346" width="12" height="46" rx="6"/>
+    <rect x="280" y="346" width="12" height="46" rx="6"/>
+    <rect x="382" y="346" width="12" height="46" rx="6"/>
+    <rect x="484" y="346" width="12" height="46" rx="6"/>
+  </g>
+  <g transform="translate(278 414)">
+    <rect width="244" height="54" rx="27" fill="#E6F5EB"/>
+    <circle cx="31" cy="27" r="12" fill="#2FA866"/>
+    <path d="M25 27l4 4 8-9" fill="none" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="55" y="35" fill="#1F7C4A" font-family="Arial, Helvetica, sans-serif" font-size="26" font-weight="700">Hörsaal</text>
+  </g>
+</svg>
