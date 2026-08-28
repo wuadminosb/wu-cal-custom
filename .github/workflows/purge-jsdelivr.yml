@@ -44,6 +44,12 @@ jobs:
             "https://purge.jsdelivr.net/gh/${GITHUB_REPOSITORY}@main/assets/icons/seminarraum.svg?v=20260828-1"
             "https://purge.jsdelivr.net/gh/${GITHUB_REPOSITORY}@main/assets/icons/hoersaal.svg?v=20260828-1"
             "https://purge.jsdelivr.net/gh/${GITHUB_REPOSITORY}@main/assets/icons/besprechungsraum.svg?v=20260828-1"
+            "https://purge.jsdelivr.net/gh/${GITHUB_REPOSITORY}@main/wu-cal-custom-osb-loader-v8.js?v=20260828-2"
+            "https://purge.jsdelivr.net/gh/${GITHUB_REPOSITORY}@main/wu-cal-custom-room-image-catalog.js?v=20260828-2"
+            "https://purge.jsdelivr.net/gh/${GITHUB_REPOSITORY}@main/wu-cal-custom-summary-images.js?v=20260828-2"
+            "https://purge.jsdelivr.net/gh/${GITHUB_REPOSITORY}@main/wu-cal-custom-confirmation-target.js?v=20260828-2"
+            "https://purge.jsdelivr.net/gh/${GITHUB_REPOSITORY}@main/assets/icons/stand.svg?v=20260828-2"
+            "https://purge.jsdelivr.net/gh/${GITHUB_REPOSITORY}@main/assets/icons/raum.svg?v=20260828-2"
           )
 
           for url in "${urls[@]}"; do
