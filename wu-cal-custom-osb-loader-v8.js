@@ -2,7 +2,7 @@
     'use strict';
 
     const CDN_BASE = 'https://cdn.jsdelivr.net/gh/wuadminosb/wu-cal-custom@main/';
-    const VERSION = '20260828-2';
+    const VERSION = '20260828-3';
     const versioned = file => CDN_BASE + file + '?v=' + VERSION;
     const fixed = (file, version) => CDN_BASE + file + (version ? '?v=' + version : '');
 

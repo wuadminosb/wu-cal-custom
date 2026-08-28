@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION = '20260828-2';
+  const VERSION = '20260828-3';
   const ROOT_ID = 'wu-confirmation';
 
   const clean = value =>
@@ -12,52 +12,29 @@
 
   const norm = value => clean(value).toLocaleLowerCase('de');
 
-  function findMenuLink(label) {
-    return [...document.querySelectorAll('a[href],a[routerlink]')]
-      .find(link => norm(link.textContent) === norm(label)) || null;
+  function findMyEventsElement(doc = document) {
+    return [...doc.querySelectorAll('a,button,[role="button"]')]
+      .find(element => norm(element.textContent) === 'meine veranstaltungen') || null;
   }
 
-  function hrefOf(element) {
-    if (!element) return '';
+  function openMyEventsSameTab() {
+    const target = findMyEventsElement();
 
-    if (element.href) return element.href;
-
-    const route =
-      element.getAttribute('routerlink') ||
-      element.getAttribute('ng-reflect-router-link');
-
-    if (!route) return '';
-
-    try {
-      return new URL(route, location.origin).href;
-    } catch (_) {
-      return '';
-    }
-  }
-
-  function openNewTab(url) {
-    if (!url) return false;
-
-    return !!window.open(
-      url,
-      '_blank',
-      'noopener,noreferrer'
-    );
-  }
-
-  function openMyEvents() {
-    const link = findMenuLink('Meine Veranstaltungen');
-    const href = hrefOf(link);
-
-    if (!href) {
+    if (!target) {
       console.error(
         '[WU Confirmation Target]',
-        'Ziel "Meine Veranstaltungen" wurde nicht gefunden.'
+        'Natives Ziel "Meine Veranstaltungen" wurde nicht gefunden.'
       );
       return false;
     }
 
-    return openNewTab(href);
+    console.info(
+      '[WU Confirmation Target] Navigiere per nativem Momentus-Klick im gleichen Tab.',
+      target
+    );
+
+    target.click();
+    return true;
   }
 
   function apply() {
@@ -65,7 +42,9 @@
     if (!root) return false;
 
     const button = root.querySelector('.wu-cf-primary');
-    if (!button || button.dataset.wuTargetFix === VERSION) return true;
+    if (!button) return false;
+
+    if (button.dataset.wuTargetFix === VERSION) return true;
 
     button.dataset.wuTargetFix = VERSION;
 
@@ -75,7 +54,7 @@
         event.preventDefault();
         event.stopPropagation();
         event.stopImmediatePropagation();
-        openMyEvents();
+        openMyEventsSameTab();
       },
       true
     );
@@ -84,6 +63,7 @@
   }
 
   let pending = false;
+
   const schedule = () => {
     if (pending) return;
     pending = true;
@@ -104,6 +84,6 @@
   window.wuConfirmationTarget = {
     version: VERSION,
     apply,
-    openMyEvents
+    openMyEventsSameTab
   };
 })();
