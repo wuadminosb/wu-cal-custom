@@ -5,6 +5,8 @@ Neutrale, lokale SVG-Platzhalter für Räume, für die kein verifiziertes raumsp
 ## Dateien
 
 - `seminarraum.svg` – neutrales Symbolbild für Seminarräume.
+- `hoersaal.svg` – neutrales Symbolbild für Hörsäle.
+- `besprechungsraum.svg` – neutrales Symbolbild für Besprechungsräume.
 
 ## Resolver-Regel
 
