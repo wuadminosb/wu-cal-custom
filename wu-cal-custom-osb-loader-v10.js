@@ -23,11 +23,10 @@
     });
   }
 
-  const v8 = BASE split ? null : null;
-  const v5Url = BASE + 'wu-cal-custom-osb-loader-v8.js?v=20260828-3';
+  const v8Url = BASE + 'wu-cal-custom-osb-loader-v8.js?v=20260828-3';
   const finalUrl = BASE + 'wu-cal-custom-confirmation-same-tab-final.js?v=' + VERSION;
 
-  load(v5Url)
+  load(v8Url)
     .then(() => load(finalUrl))
     .then(() => {
       window.wuOsbLoaderVersion = VERSION;
