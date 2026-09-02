@@ -1,7 +1,9 @@
 (() => {
   'use strict';
 
-  const BASE = 'https://cdn.jsdelivr.net/gh/wuadminosb/wu-cal-custom@main/';
+  const SELF = document.currentScript?.src || '';
+  const match = SELF.match(/^(https:\/\/cdn\.jsdelivr\.net\/gh\/wuadminosb\/wu-cal-custom@[^/]+\/)/);
+  const BASE = match ? match[1] : 'https://cdn.jsdelivr.net/gh/wuadminosb/wu-cal-custom@main/';
   const VERSION = '20260902-1';
 
   function load(url) {
@@ -36,7 +38,7 @@
     ]))
     .then(() => {
       window.wuOsbLoaderVersion = VERSION;
-      console.info('[WU OSB] Loader v11 aktiv:', VERSION);
+      console.info('[WU OSB] Loader v11 aktiv:', VERSION, 'Base:', BASE);
     })
     .catch(error => console.error('[WU OSB] Loader v11:', error));
 })();
