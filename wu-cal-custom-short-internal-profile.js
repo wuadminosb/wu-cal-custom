@@ -7,8 +7,6 @@
     ['Ist ein Besichtigungstermin erwünscht', 'Nein'],
     ['Handelt es sich um eine geschlossene oder öffentliche Veranstaltung', 'geschlossene'],
     ['Handelt es sich um eine wissenschaftliche Veranstaltung', 'Nein'],
-    ['Handelt es sich bei Ihrer Veranstaltung um ein zertifiziertes Green Event', 'Nein'],
-    ['Nehmen Sie für Ihre Veranstaltung eine Förderung in Anspruch', 'Nein'],
     ['Erheben Sie Teilnahmegebühren', 'Nein'],
     ['Handelt es sich um eine Kooperationsveranstaltung', 'Nein']
   ];
