@@ -94,7 +94,7 @@
   function normalView() { clearHide(); }
 
   function takeSnapshot() {
-    snapshot = new Map(MANAED.map(([name]) => [name, value(field(name))]));
+    snapshot = new Map(MANAGED.map(([name]) => [name, value(field(name))]));
     autoApplied = false;
     console.info(LOG, 'Originalwerte gespeichert.');
   }
@@ -102,7 +102,7 @@
   function esc() {
     document.dispatchEvent(new KeyboardEvent('keydown', {
       key: 'Escape', code: 'Escape', keyCode: 27, which: 27,
-      bubbles: true, cancellable: true
+      bubbles: true, cancelable: true
     }));
   }
   async function panel(select) {
