@@ -7,8 +7,6 @@
     ['Ist ein Besichtigungstermin erwünscht', 'Nein'],
     ['Handelt es sich um eine geschlossene oder öffentliche Veranstaltung', 'geschlossene'],
     ['Handelt es sich um eine wissenschaftliche Veranstaltung', 'Nein'],
-    ['Handelt es sich bei Ihrer Veranstaltung um ein zertifiziertes Green Event', 'Nein'],
-    ['Nehmen Sie für Ihre Veranstaltung eine Förderung in Anspruch', 'Nein'],
     ['Erheben Sie Teilnahmegebühren', 'Nein'],
     ['Handelt es sich um eine Kooperationsveranstaltung', 'Nein']
   ];
@@ -96,7 +94,7 @@
   function normalView() { clearHide(); }
 
   function takeSnapshot() {
-    snapshot = new Map(MANAGED.map(([name]) => [name, value(field(name))]));
+    snapshot = new Map(MANAED.map(([name]) => [name, value(field(name))]));
     autoApplied = false;
     console.info(LOG, 'Originalwerte gespeichert.');
   }
@@ -104,7 +102,7 @@
   function esc() {
     document.dispatchEvent(new KeyboardEvent('keydown', {
       key: 'Escape', code: 'Escape', keyCode: 27, which: 27,
-      bubbles: true, cancelable: true
+      bubbles: true, cancellable: true
     }));
   }
   async function panel(select) {
