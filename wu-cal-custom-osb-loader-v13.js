@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION = '20261014-7';
+  const VERSION = '20261014-8';
   const source = document.currentScript?.src || '';
   const lastSlash = source.lastIndexOf('/');
   const base = source && lastSlash >= 0
@@ -29,7 +29,6 @@
         reject(new Error('Loader v12 nicht bereit'));
         return;
       }
-
       setTimeout(check, 100);
     };
 
@@ -39,8 +38,8 @@
   load('wu-cal-custom-osb-loader-v12.js?v=20261001-1')
     .then(waitForV12)
     .then(() => Promise.all([
-      load('wu-cal-custom-calendar-forum-note.js?v=20261014-7'),
-      load('wu-cal-custom-series-weekday-state.js?v=20261014-7')
+      load('wu-cal-custom-calendar-forum-note.js?v=20261014-8'),
+      load('wu-cal-custom-series-weekday-state.js?v=20261014-8')
     ]))
     .then(() => {
       window.wuOsbLoaderVersion = VERSION;
