@@ -3,8 +3,11 @@
 
   const STYLE_ID = 'wu-calendar-forum-note-style';
   const NOTE_CLASS = 'wu-calendar-forum-note';
-  const TARGET_TEXT = 'Das Forum kann nicht über SpaceBert angefragt werden';
-  const INTRO_TEXT = 'Der untenstehende Kalender bietet eine Übersicht';
+  const HEADER_SELECTOR = '.usi-subpageHeader';
+  const HEADING_SELECTOR = '.usi-subHeading';
+  const DESKTOP_PARAGRAPH_SELECTOR = 'p.usi-desktop';
+  const TARGET_HEADING = 'Verfügbarkeitskalender';
+  const NOTE_MARKER = 'Hinweis: Das Forum';
   let updatePending = false;
 
   function ensureStyles() {
@@ -32,16 +35,16 @@
 
   function buildNote() {
     const note = document.createElement('p');
-    note.className = NOTE_CLASS;
+    note.className = `usi-desktop ${NOTE_CLASS}`;
 
-    note.append(document.createTextNode('Hinweis: Das '));
+    note.appendChild(document.createTextNode('Hinweis: Das '));
 
     const forum = document.createElement('strong');
     forum.className = 'wu-calendar-forum-name';
     forum.textContent = 'Forum';
-    note.append(forum);
+    note.appendChild(forum);
 
-    note.append(document.createTextNode(
+    note.appendChild(document.createTextNode(
       ' kann nicht über SpaceBert angefragt werden. Die Verfügbarkeit erfragen Sie bitte unter '
     ));
 
@@ -49,36 +52,45 @@
     mail.className = 'wu-calendar-forum-mail';
     mail.href = 'mailto:events@wu.ac.at';
     mail.textContent = 'events@wu.ac.at';
-    note.append(mail, document.createTextNode('.'));
+    note.appendChild(mail);
+
+    note.appendChild(document.createTextNode('.'));
 
     return note;
+  }
+
+  function findCalendarHeader() {
+    return Array.from(document.querySelectorAll(HEADER_SELECTOR)).find(header => {
+      const heading = header.querySelector(HEADING_SELECTOR);
+      return heading?.textContent.trim() === TARGET_HEADING;
+    }) || null;
   }
 
   function applyCalendarNote() {
     ensureStyles();
 
-    const paragraphs = Array.from(document.querySelectorAll('p'));
-    const target = paragraphs.find(paragraph => {
-      const text = paragraph.textContent || '';
-      return text.includes(INTRO_TEXT) && text.includes(TARGET_TEXT);
-    });
+    const header = findCalendarHeader();
+    if (!header) return false;
 
+    const target = header.querySelector(DESKTOP_PARAGRAPH_SELECTOR);
     if (!target) return false;
 
     if (target.nextElementSibling?.classList.contains(NOTE_CLASS)) {
       return true;
     }
 
-    const fullText = (target.textContent || '').replace(/\s+/g, ' ').trim();
-    const noteStart = fullText.indexOf('Hinweis:');
-
+    const text = (target.textContent || '').replace(/\s+/g, ' ').trim();
+    const noteStart = text.indexOf(NOTE_MARKER);
     if (noteStart === -1) return false;
 
-    const intro = fullText.slice(0, noteStart).trim();
+    const intro = text.slice(0, noteStart).trim();
     if (!intro) return false;
+
+    header.querySelector(`.${NOTE_CLASS}`)?.remove();
 
     target.textContent = intro;
     target.insertAdjacentElement('afterend', buildNote());
+
     return true;
   }
 
