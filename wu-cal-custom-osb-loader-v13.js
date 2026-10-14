@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION = '20261014-5';
+  const VERSION = '20261014-6';
   const source = document.currentScript?.src || '';
   const lastSlash = source.lastIndexOf('/');
   const base = source && lastSlash >= 0
@@ -39,8 +39,8 @@
   load('wu-cal-custom-osb-loader-v12.js?v=20261001-1')
     .then(waitForV12)
     .then(() => Promise.all([
-      load('wu-cal-custom-calendar-forum-note.js?v=20261014-5'),
-      load('wu-cal-custom-series-weekday-state.js?v=20261014-5')
+      load('wu-cal-custom-calendar-forum-note.js?v=20261014-6'),
+      load('wu-cal-custom-series-weekday-state.js?v=20261014-6')
     ]))
     .then(() => {
       window.wuOsbLoaderVersion = VERSION;
