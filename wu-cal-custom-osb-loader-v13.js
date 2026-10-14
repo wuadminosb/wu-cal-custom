@@ -1,8 +1,10 @@
 (() => {
   'use strict';
+
   const source = document.currentScript?.src || '';
-  const base = source
-    ? source.replace(/[^/]+(?:\?.*)?$\/, '')
+  const lastSlash = source.lastIndexOf('/');
+  const base = source && lastSlash >= 0
+    ? source.slice(0, lastSlash + 1)
     : 'https://cdn.jsdelivr.net/gh/wuadminosb/wu-cal-custom@main/';
 
   const load = file => new Promise((resolve, reject) => {
@@ -26,10 +28,10 @@
 
   load('wu-cal-custom-osb-loader-v12.js?v=20261001-1')
     .then(ready)
-    .then(() => load('wu-cal-custom-calendar-forum-note.js?v=20261014-2'))
+    .then(() => load('wu-cal-custom-calendar-forum-note.js?v=20261014-3'))
     .then(() => {
-      window.wuOsbLoaderVersion = '20261014-2';
-      console.info('[WU OSB] Loader v13 aktiv: 20261014-2');
+      window.wuOsbLoaderVersion = '20261014-3';
+      console.info('[WU OSB] Loader v13 aktiv: 20261014-3');
     })
     .catch(error => console.error('[WU OSB] Loader v13:', error));
 })();
