@@ -2,10 +2,16 @@
   'use strict';
 
   const STYLE_ID = 'wu-event-form-validation-style';
-  const FIXED_ERROR =
-    'Gewünschtes Setting (Mehrfachauswahl möglich) ist erforderlich';
-  const BROKEN_ERROR =
-    'The Gewünschtes Setting (Mehrfachauswahl möglich) ist erforderlich';
+  const ERROR_FIXES = new Map([
+    [
+      'The Gewünschtes Setting (Mehrfachauswahl möglich) ist erforderlich',
+      'Gewünschtes Setting (Mehrfachauswahl möglich) ist erforderlich'
+    ],
+    [
+      'The Gewünschtes Zusatzmobiliar (Mehrfachauswahl möglich) ist erforderlich',
+      'Gewünschtes Zusatzmobiliar (Mehrfachauswahl möglich) ist erforderlich'
+    ]
+  ]);
 
   function ensureStyles() {
     if (document.getElementById(STYLE_ID)) return;
@@ -55,18 +61,17 @@
     document.head.appendChild(style);
   }
 
-  function fixSettingErrorText(root = document) {
-    root
-      .querySelectorAll?.('mat-error, .mat-mdc-form-field-error, .mat-error')
-      .forEach(el => {
-        const text = (el.textContent || '').replace(/\s+/g, ' ').trim();
-        if (text === BROKEN_ERROR) el.textContent = FIXED_ERROR;
-      });
+  function fixErrorTexts(root = document) {
+    root.querySelectorAll?.('mat-error, .mat-mdc-form-field-error, .mat-error').forEach(el => {
+      const text = (el.textContent || '').replace(/\s+/g, ' ').trim();
+      const fixed = ERROR_FIXES.get(text);
+      if (fixed) el.textContent = fixed;
+    });
   }
 
   function init() {
     ensureStyles();
-    fixSettingErrorText();
+    fixErrorTexts();
 
     if (window.__wuEventFormValidationObserver) {
       window.__wuEventFormValidationObserver.disconnect();
@@ -76,23 +81,12 @@
       for (const mutation of mutations) {
         mutation.addedNodes.forEach(node => {
           if (node.nodeType !== Node.ELEMENT_NODE) return;
-          if (
-            node.matches?.('mat-error, .mat-mdc-form-field-error, .mat-error')
-          ) {
-            const text = (node.textContent || '').replace(/\s+/g, ' ').trim();
-            if (text === BROKEN_ERROR) node.textContent = FIXED_ERROR;
-          }
-          fixSettingErrorText(node);
+          fixErrorTexts(node);
         });
       }
     });
 
-    observer.observe(document.body, {
-      childList: true,
-      subtree: true,
-      characterData: false
-    });
-
+    observer.observe(document.body, { childList: true, subtree: true });
     window.__wuEventFormValidationObserver = observer;
     console.info('[WU OSB] Formularvalidierungs-Styling aktiv.');
   }
