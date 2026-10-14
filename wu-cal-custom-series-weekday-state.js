@@ -15,17 +15,19 @@
   const observedGroups = new WeakMap();
   const scheduledGroups = new WeakSet();
   let rootObserver = null;
+  let overlayObserver = null;
+  let refreshPending = false;
 
-  function setImportant(el, prop, value) {
-    el.style.setProperty(prop, value, 'important');
-  }
+  const setImportant = (el, prop, value) => {
+    if (el) el.style.setProperty(prop, value, 'important');
+  };
 
-  function isWeekend(toggle) {
+  const isWeekend = toggle => {
     const value = toggle.getAttribute('value');
     return value === '0' || value === '6';
-  }
+  };
 
-  function applyState(toggle) {
+  const applyState = toggle => {
     const button = toggle.querySelector('.mat-button-toggle-button');
     if (!button || isWeekend(toggle)) return;
 
@@ -36,20 +38,19 @@
     setImportant(toggle, 'background-color', bg);
     setImportant(toggle, 'border-color', WU);
     setImportant(toggle, 'color', fg);
-
     setImportant(button, 'background-color', bg);
     setImportant(button, 'color', fg);
 
     const label = button.querySelector('.mat-button-toggle-label-content');
-    if (label) setImportant(label, 'color', fg);
-  }
+    setImportant(label, 'color', fg);
+  };
 
-  function styleSearchToggle(toggle) {
+  const styleSearchToggle = toggle => {
     if (isWeekend(toggle)) return;
     applyState(toggle);
-  }
+  };
 
-  function styleResultsToggle(toggle) {
+  const styleResultsToggle = toggle => {
     if (isWeekend(toggle)) {
       setImportant(toggle, 'display', 'none');
       return;
@@ -57,98 +58,99 @@
 
     const button = toggle.querySelector('.mat-button-toggle-button');
     if (!button) return;
-
     const label = button.querySelector('.mat-button-toggle-label-content');
 
-    setImportant(toggle, 'display', 'flex');
-    setImportant(toggle, 'flex', '0 0 48px');
-    setImportant(toggle, 'width', '48px');
-    setImportant(toggle, 'height', '36px');
-    setImportant(toggle, 'min-width', '48px');
-    setImportant(toggle, 'max-width', '48px');
-    setImportant(toggle, 'height', '36px');
-    setImportant(toggle, 'min-height', '36px');
-    setImportant(toggle, 'max-height', '36px');
-    setImportant(toggle, 'margin', '0');
-    setImportant(toggle, 'padding', '0');
-    setImportant(toggle, 'border-width', '1px');
-    setImportant(toggle, 'border-style', 'solid');
-    setImportant(toggle, 'border-color', WU);
-    setImportant(toggle, 'border-radius', '0');
-    setImportant(toggle, 'box-shadow', 'none');
-    setImportant(toggle, 'overflow', 'hidden');
+    [
+      ['display', 'flex'],
+      ['flex', '0 0 48px'],
+      ['width', '48px'],
+      ['min-width', '48px'],
+      ['max-width', '48px'],
+      ['height', '36px'],
+      ['min-height', '36px'],
+      ['max-height', '36px'],
+      ['margin', '0'],
+      ['padding', '0'],
+      ['border-width', '1px'],
+      ['border-style', 'solid'],
+      ['border-color', WU],
+      ['border-radius', '0'],
+      ['box-shadow', 'none'],
+      ['overflow', 'hidden']
+    ].forEach(([p, v]) => setImportant(toggle, p, v));
 
-    setImportant(button, 'display', 'flex');
-    setImportant(button, 'align-items', 'center');
-    setImportant(button, 'justify-content', 'center');
-    setImportant(button, 'width', '48px');
-    setImportant(button, 'height', '34px');
-    setImportant(button, 'min-height', '34px');
-    setImportant(button, 'min-width', '48px');
-    setImportant(button, 'margin', '0');
-    setImportant(button, 'padding', '0');
-    setImportant(button, 'border', '0');
-    setImportant(button, 'border-radius', '0');
-    setImportant(button, 'box-shadow', 'none');
+    [
+      ['display', 'flex'],
+      ['align-items', 'center'],
+      ['justify-content', 'center'],
+      ['width', '48px'],
+      ['min-width', '48px'],
+      ['height', '34px'],
+      ['min-height', '34px'],
+      ['margin', '0'],
+      ['padding', '0'],
+      ['border', '0'],
+      ['border-radius', '0'],
+      ['box-shadow', 'none']
+    ].forEach(([p, v]) => setImportant(button, p, v));
 
     if (label) {
-      setImportant(label, 'display', 'block');
-      setImportant(label, 'width', '100%');
-      setImportant(label, 'padding', '0');
-      setImportant(label, 'margin', '0');
-      setImportant(label, 'line-height', '34px');
-      setImportant(label, 'text-align', 'center');
-      setImportant(label, 'font-size', '14px');
-      setImportant(label, 'font-weight', '400');
+      [
+        ['display', 'block'],
+        ['width', '100%'],
+        [padding', '0'],
+        ['margin', '0'],
+        ['line-height', '34px'],
+        ['text-align', 'center'],
+        ['font-size', '14px'],
+        ['font-weight', '400']
+      ].forEach(([p, v]) => setImportant(label, p, v));
     }
 
     applyState(toggle);
-  }
+  };
 
-  function applyGroup(group, context) {
+  const applyGroup = (group, context) => {
     if (!group?.isConnected) return;
 
     if (context === 'results') {
-      setImportant(group, 'display', 'flex');
-      setImportant(group, 'position', 'static');
-      setImportant(group, 'width', 'auto');
-      setImportant(group, 'height', '36px');
-      setImportant(group, 'gap', '8px');
-      setImportant(group, 'margin', '8px 0 14px 0');
-      setImportant(group, 'padding', '0');
-      setImportant(group, 'border', '0');
-      setImportant(group, 'overflow', 'visible');
-      setImportant(group, 'background', 'transparent');
+      [
+        ['display', 'flex'],
+        [position', 'static'],
+        ['width', 'auto'],
+        ['height', '36px'],
+        ['gap', '8px'],
+        ['margin', '8px 0 14px 0'],
+        ['padding', '0'],
+        ['border', '0'],
+        ['overflow', 'visible'],
+        ['background', 'transparent']
+      ].forEach(([p, v]) => setImportant(group, p, v));
     }
 
     group.querySelectorAll('mat-button-toggle').forEach(toggle => {
-      if (context === 'results') {
-        styleResultsToggle(toggle);
-      } else {
-        styleSearchToggle(toggle);
-      }
+      if (context === 'results') styleResultsToggle(toggle);
+      else styleSearchToggle(toggle);
     });
-  }
+  };
 
-  function scheduleGroup(group, context) {
+  const scheduleGroup = (group, context) => {
     if (scheduledGroups.has(group)) return;
     scheduledGroups.add(group);
-
     requestAnimationFrame(() => {
       scheduledGroups.delete(group);
       applyGroup(group, context);
     });
-  }
+  };
 
-  function observeGroup(group, context) {
+  const observeGroup = (group, context) => {
     const existing = observedGroups.get(group);
     if (existing?.context === context) {
       scheduleGroup(group, context);
       return;
     }
 
-    if (existing) existing.observer.disconnect();
-
+    existing?.observer.disconnect();
     applyGroup(group, context);
 
     const observer = new MutationObserver(() => scheduleGroup(group, context));
@@ -160,16 +162,16 @@
     });
 
     observedGroups.set(group, { observer, context });
-  }
+  };
 
-  function prepareSearchGroups() {
+  const prepareSearchGroups = () => {
     document.querySelectorAll(SEARCH_GROUP_SELECTOR).forEach(group => {
       if (group.closest(RESULTS_SIDEBAR_SELECTOR)) return;
       observeGroup(group, 'search');
     });
-  }
+  };
 
-  function prepareResultsGroup() {
+  const prepareResultsGroup = () => {
     const sidebar = document.querySelector(RESULTS_SIDEBAR_SELECTOR);
     if (!sidebar) return;
 
@@ -182,25 +184,127 @@
     }
 
     observeGroup(group, 'results');
-  }
+  };
 
-  function refresh() {
+  const findFieldByLabel = (root, labelText) =>
+    [...root.querySelectorAll('mat-form-field')].find(field =>
+      [...field.querySelectorAll('mat-label')].some(
+        label => label.textContent.trim() === labelText
+      )
+    ) || null;
+
+  const styleSidebarField = field => {
+    if (!field) return;
+
+    [
+      ['display', 'flex'],
+      ['width', '100%'],
+      ['max-width', '100%'],
+      ['min-width', '0'],
+      ['margin', '0 0 8px 0'],
+      ['padding', '0']
+    ].forEach(([p, v]) => setImportant(field, p, v));
+
+    const wrapper = field.querySelector('.mat-mdc-text-field-wrapper');
+    setImportant(wrapper, 'width', '100%');
+    setImportant(wrapper, 'max-width', '100%');
+
+    const flex = field.querySelector(`mat-mdc-form-field-flex`);
+    setImportant(flex, 'width', '100%');
+    setImportant(flex, 'max-width', '100%');
+
+    const infix = field.querySelector(`mat-mdc-form-field-infix`);
+    if (infix) {
+      setImportant(infix, 'width', 'auto');
+      setImportant(infix, 'min-width', '0');
+      setImportant(infix, 'max-width', 'none');
+      setImportant(infix, 'flex', '1 1 auto');
+    }
+
+    const outline = field.querySelector('.mdc-notched-outline');
+    setImportant(outline, 'width', '100%');
+    setImportant(outline, 'max-width', '100%');
+  };
+
+  const prepareMonthlyResultsLayout = () => {
+    if (!location.pathname.includes('/searchresults')) return;
+
+    const sidebar = document.querySelector(RESULTS_SIDEBAR_SELECTOR);
+    if (!sidebar) return;
+
+    const repeat = findFieldByLabel(sidebar, 'Wiederholt');
+    const ordinal = findFieldByLabel(sidebar, 'Wiederkehrend jede');
+    const day = findFieldByLabel(sidebar, 'Tag');
+    if (!repeat || !ordinal || !day) return;
+
+    if (!/Monatlich/i.test(repeat.textContent || '')) return;
+
+    if (ordinal.previousElementSibling !== repeat) {
+      repeat.insertAdjacentElement('afterend', ordinal);
+    }
+    if (day.previousElementSibling !== ordinal) {
+      ordinal.insertAdjacentElement('afterend', day);
+    }
+
+    [repeat, ordinal, day].forEach(styleSidebarField);
+  };
+
+  const hideSaturday = () => {
+    if (
+      !location.pathname.includes('/search') &&
+      !location.pathname.includes('/searchresults')
+    ) return;
+
+    const candidates = document.querySelectorAll(
+      [
+        '.cdk-overlay-container [role="option"]',
+        '.cdk-overlay-container mat-option',
+        '.cdk-overlay-container .mat-mdc-option',
+        '.cdk-overlay-container .mat-option',
+        '.mat-mdc-select-panel [role="option"]',
+        '.mat-select-panel [role="option"]'
+      ].join(',')
+    );
+
+    candidates.forEach(option => {
+      const text = (option.textContent || '').replace(/\s+/g, ' ').trim();
+      if (text !== 'Samstag') return;
+
+      setImportant(option, 'display', 'none');
+      option.setAttribute('aria-hidden', 'true');
+    });
+  };
+
+  const refresh = () => {
+    refreshPending = false;
     prepareSearchGroups();
     prepareResultsGroup();
-  }
+    prepareMonthlyResultsLayout();
+    hideSaturday();
+  };
 
-  function init() {
+  const scheduleRefresh = () => {
+    if (refreshPending) return;
+    refreshPending = true;
+    requestAnimationFrame(refresh);
+  };
+
+  const init = () => {
     refresh();
 
-    rootObserver = new MutationObserver(() => {
-      requestAnimationFrame(refresh);
-    });
-
+    rootObserver = new MutationObserver(scheduleRefresh);
     rootObserver.observe(document.body, {
       subtree: true,
       childList: true
     });
-  }
+
+    const overlay = document.querySelector('.cdk-overlay-container') || document.body;
+    overlayObserver = new MutationObserver(() => requestAnimationFrame(hideSaturday));
+    overlayObserver.observe(overlay, {
+      subtree: true,
+      childList: true
+    });
+  };
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init, { once: true });
