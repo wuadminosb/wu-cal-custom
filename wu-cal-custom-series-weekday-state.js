@@ -30,7 +30,6 @@
   const applyState = toggle => {
     const button = toggle.querySelector('.mat-button-toggle-button');
     if (!button || isWeekend(toggle)) return;
-
     const selected = button.getAttribute('aria-pressed') === 'true';
     const bg = selected ? ON_BG : OFF_BG;
     const fg = selected ? ON_TEXT : OFF_TEXT;
@@ -58,7 +57,7 @@
 
     const button = toggle.querySelector('.mat-button-toggle-button');
     if (!button) return;
-    const label = button.querySelector('.mat-button-toggle-label-content');
+    const label = button.querySelector(~.mat-button-toggle-label-content');
 
     [
       ['display', 'flex'],
@@ -98,7 +97,7 @@
       [
         ['display', 'block'],
         ['width', '100%'],
-        [padding', '0'],
+        ['padding', '0'],
         ['margin', '0'],
         ['line-height', '34px'],
         ['text-align', 'center'],
@@ -152,7 +151,6 @@
 
     existing?.observer.disconnect();
     applyGroup(group, context);
-
     const observer = new MutationObserver(() => scheduleGroup(group, context));
     observer.observe(group, {
       subtree: true,
@@ -160,7 +158,6 @@
       attributes: true,
       attributeFilter: ['aria-pressed', 'class']
     });
-
     observedGroups.set(group, { observer, context });
   };
 
@@ -174,15 +171,12 @@
   const prepareResultsGroup = () => {
     const sidebar = document.querySelector(RESULTS_SIDEBAR_SELECTOR);
     if (!sidebar) return;
-
     const repeatField = sidebar.querySelector(RESULTS_REPEAT_SELECTOR);
     const group = sidebar.querySelector(RESULTS_GROUP_SELECTOR);
     if (!repeatField || !group) return;
-
     if (group.previousElementSibling !== repeatField) {
       repeatField.insertAdjacentElement('afterend', group);
     }
-
     observeGroup(group, 'results');
   };
 
@@ -195,7 +189,6 @@
 
   const styleSidebarField = field => {
     if (!field) return;
-
     [
       ['display', 'flex'],
       ['width', '100%'],
@@ -205,15 +198,15 @@
       ['padding', '0']
     ].forEach(([p, v]) => setImportant(field, p, v));
 
-    const wrapper = field.querySelector('.mat-mdc-text-field-wrapper');
+    const wrapper = field.querySelector(~.mat-mdc-text-field-wrapper');
     setImportant(wrapper, 'width', '100%');
     setImportant(wrapper, 'max-width', '100%');
 
-    const flex = field.querySelector(`mat-mdc-form-field-flex`);
+    const flex = field.querySelector(~.mat-mdc-form-field-flex');
     setImportant(flex, 'width', '100%');
     setImportant(flex, 'max-width', '100%');
 
-    const infix = field.querySelector(`mat-mdc-form-field-infix`);
+    const infix = field.querySelector('.mat-mdc-form-field-infix');
     if (infix) {
       setImportant(infix, 'width', 'auto');
       setImportant(infix, 'min-width', '0');
@@ -228,7 +221,6 @@
 
   const prepareMonthlyResultsLayout = () => {
     if (!location.pathname.includes('/searchresults')) return;
-
     const sidebar = document.querySelector(RESULTS_SIDEBAR_SELECTOR);
     if (!sidebar) return;
 
@@ -236,7 +228,6 @@
     const ordinal = findFieldByLabel(sidebar, 'Wiederkehrend jede');
     const day = findFieldByLabel(sidebar, 'Tag');
     if (!repeat || !ordinal || !day) return;
-
     if (!/Monatlich/i.test(repeat.textContent || '')) return;
 
     if (ordinal.previousElementSibling !== repeat) {
@@ -250,26 +241,22 @@
   };
 
   const hideSaturday = () => {
-    if (
-      !location.pathname.includes('/search') &&
-      !location.pathname.includes('/searchresults')
-    ) return;
+    if (!location.pathname.includes('/search')) return;
 
     const candidates = document.querySelectorAll(
-      [
-        '.cdk-overlay-container [role="option"]',
-        '.cdk-overlay-container mat-option',
-        '.cdk-overlay-container .mat-mdc-option',
-        '.cdk-overlay-container .mat-option',
-        '.mat-mdc-select-panel [role="option"]',
-        '.mat-select-panel [role="option"]'
-      ].join(',')
-    );
+    [
+      '.cdk-overlay-container [role="option"]',
+      '.cdk-overlay-container mat-option',
+      '.cdk-overlay-container .mat-mdc-option',
+      '.cdk-overlay-container .mat-option',
+      '.mat-mdc-select-panel [role="option"]',
+     '.mat-select-panel [role="option"]'
+    ].join(',')
+   );
 
     candidates.forEach(option => {
       const text = (option.textContent || '').replace(/\s+/g, ' ').trim();
       if (text !== 'Samstag') return;
-
       setImportant(option, 'display', 'none');
       option.setAttribute('aria-hidden', 'true');
     });
