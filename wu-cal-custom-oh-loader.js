@@ -7,7 +7,7 @@
     console.error('[ÖH OSB] Unbekannte Skriptquelle; Loader beendet.');
     return;
   }
-  const BASE = match[1], VERSION = '20261002-1', GLOBAL = '__wuOehLoader';
+  const BASE = match[1], VERSION = '20261016-1', GLOBAL = '__wuOehLoader';
   if (window[GLOBAL]) return;
   window[GLOBAL] = { version: VERSION, ready: false };
   // WU questionnaire scripts and the v8/v11/v12 wrappers MUST NOT be loaded here.
@@ -44,7 +44,8 @@
       load('wu-cal-custom-required-legend.js'),
       load('wu-cal-custom-hide-required-note.js'),
       load('wu-cal-custom-hide-course-option.js'),
-      load('wu-cal-custom-oh-conditional-required.js', true)
+      load('wu-cal-custom-oh-conditional-required.js', true),
+      load('wu-cal-custom-oh-event-types.js', true)
     ]);
     await load('wu-cal-custom-room-image-catalog.js');
     await Promise.all([
