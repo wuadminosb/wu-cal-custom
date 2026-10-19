@@ -1,269 +1,368 @@
 (() => {
-  'use strict';
+    'use strict';
 
-  window.__ohRules?.stop?.();
+    const VERSION = '20261019-3';
+    const rules = [
+        {
+            source: 'Ist im Zuge der Veranstaltung eine Verteilung geplant?',
+            target: 'Wenn ja, geben Sie nähere Informationen an (was, wann, wo?)',
+            required: value => norm(value).startsWith('ja'),
+            message: 'Bitte geben Sie nähere Informationen zur geplanten Verteilung an.'
+        },
+        {
+            source: 'Handelt es sich um eine Veranstaltung gemäß §5 HSG?',
+            target: 'Wenn ja, geben Sie die Begründung an',
+            required: value => norm(value).startsWith('ja'),
+            message: 'Bitte geben Sie die Begründung an.'
+        },
+        {
+            source: 'Erheben Sie Teilnahmegebühren oder Eintrittsgelder?',
+            target: 'Wenn ja, in welcher Höhe?',
+            required: value => norm(value).startsWith('ja'),
+            message: 'Bitte geben Sie die Höhe der Teilnahmegebühren bzw. Eintrittsgelder an.'
+        },
+        {
+            source: 'Handelt es sich um eine Kooperationsveranstaltung?',
+            target: 'Wenn ja, bitte den /die Kooperationspartner*in angeben',
+            required: value => norm(value).startsWith('ja'),
+            message: 'Bitte geben Sie den/die Kooperationspartner*in an.'
+        }
+    ];
 
-  const VERSION = '20261019-2';
-  const STYLE_ID = 'wu-oh-required-marker-styles';
-  const MARKER_ATTR = 'data-wu-oh-required-marker';
+    const styleId = 'wu-oh-conditional-required-style';
+    const invalidClass = 'wu-conditional-invalid';
+    const markerClass = 'wu-conditional-required-marker';
+    const errorClass = 'wu-conditional-required-error';
 
-  const rules = [
-    { source: ['verteilung geplant'], targets: ['-1003123026'] },
-    { source: ['§5 hsg'], targets: ['-1003123039'] },
-    { source: ['teilnahmegebühren', 'eintrittsgelder eingehoben'], targets: ['-1003123034', '-1003123020'] },
-    { source: ['kooperationsveranstaltung'], targets: ['-1003123009'] }
-  ];
+    let active = null;
+    let pageObserver = null;
+    let scheduled = false;
 
-  const norm = (s) =>
-    String(s || '')
-      .replace(/\s+/g, ' ')
-      .trim()
-      .toLocaleLowerCase('de');
-
-  const saved = new Map();
-  let queued = false;
-  let stopped = false;
-  let locked = null;
-
-  function ensureStyles() {
-    if (document.getElementById(STYLE_ID)) return;
-
-    const style = document.createElement('style');
-    style.id = STYLE_ID;
-    style.textContent = `
-      app-dynamic-form .mat-mdc-form-field-required-marker,
-      app-dynamic-form .mat-mdc-form-field-required-marker::after,
-      app-dynamic-form .mat-form-field-required-marker,
-      app-dynamic-form .mat-form-field-required-marker::after,
-      app-dynamic-form .mdc-floating-label--required,
-      app-dynamic-form .mdc-floating-label--required::after,
-      app-dynamic-form [${MARKER_ATTR}] {
-        color: #d32f2f !important;
-      }
-
-      app-dynamic-form [${MARKER_ATTR}] {
-        font-weight: 700;
-      }
-    `;
-    document.head.appendChild(style);
-  }
-
-  function button() {
-    return [...document.querySelectorAll('button')].find((b) =>
-      norm(b.textContent).includes('zur übersicht gehen')
-    );
-  }
-
-  function unlock() {
-    if (locked?.dataset.ohLock === '1') {
-      locked.disabled = false;
-      delete locked.dataset.ohLock;
-    }
-    locked = null;
-  }
-
-  function findSource(fields, terms) {
-    return fields.find((field) => {
-      const label = norm(field.querySelector('mat-label')?.textContent);
-      return (
-        terms.some((term) => label.includes(term)) &&
-        field.querySelector('mat-select') &&
-        field.getClientRects().length
-      );
-    });
-  }
-
-  function findTarget(ids) {
-    for (const id of ids) {
-      const input = document.getElementById(id);
-      if (input?.isConnected) return input;
-    }
-    return null;
-  }
-
-  function hasNativeVisualMarker(field) {
-    if (!field) return false;
-    return Boolean(
-      field.querySelector(
-        '.mat-mdc-form-field-required-marker, .mat-form-field-required-marker'
-      ) ||
-      field.querySelector('.mdc-floating-label--required')
-    );
-  }
-
-  function syncVisualMarker(input, wanted, originallyRequired) {
-    const field = input.closest('mat-form-field');
-    const label = field?.querySelector('mat-label');
-
-    if (!field || !label) return;
-
-    const existing = label.querySelector(`[${MARKER_ATTR}]`);
-
-    if (!wanted || originallyRequired || hasNativeVisualMarker(field)) {
-      existing?.remove();
-      return;
+    function norm(value) {
+        return String(value || '')
+            .replace(/\u00a0/g, ' ')
+            .replace(/\s+/g, ' ')
+            .trim()
+            .toLocaleLowerCase('de');
     }
 
-    if (!existing) {
-      const marker = document.createElement('span');
-      marker.setAttribute(MARKER_ATTR, 'true');
-      marker.setAttribute('aria-hidden', 'true');
-      marker.textContent = ' *';
-      label.appendChild(marker);
+    function addStyles() {
+        if (document.getElementById(styleId)) return;
+
+        const style = document.createElement('style');
+        style.id = styleId;
+        style.textContent = `
+app-dynamic-form .mat-mdc-form-field-required-marker,
+app-dynamic-form .mat-mdc-form-field-required-marker::after,
+app-dynamic-form .mdc-floating-label--required,
+app-dynamic-form .mdc-floating-label--required::after {
+    color: #d32f2f !important;
+}
+app-dynamic-form mat-form-field.${invalidClass} .mdc-notched-outline__leading,
+app-dynamic-form mat-form-field.${invalidClass} .mdc-notched-outline__notch,
+app-dynamic-form mat-form-field.${invalidClass} .mdc-notched-outline__trailing {
+    border-color: #d32f2f !important;
+}
+app-dynamic-form mat-form-field.${invalidClass} .mdc-floating-label,
+app-dynamic-form mat-form-field.${invalidClass} mat-label {
+    color: #d32f2f !important;
+}
+app-dynamic-form mat-form-field.${invalidClass}
+.mat-mdc-form-field-hint-wrapper {
+    display: none !important;
+}
+app-dynamic-form .${errorClass} {
+    display: block;
+    padding: 0 16px;
+    color: #d32f2f;
+    font-size: 12px;
+    line-height: 16px;
+}
+app-dynamic-form .${errorClass}[hidden] {
+    display: none !import;
+}`;
+        document.head.appendChild(style);
     }
-  }
 
-  function restoreVisualMarker(input) {
-    input
-      .closest('mat-form-field')
-      ?.querySelector(`[${MARKER_ATTR}]`)
-      ?.remove();
-  }
+    function field(root, text) {
+        return [...root.querySelectorAll('mat-form-field')].find(item =>
+            norm(item.querySelector('mat-label')?.textContent) === norm(text)
+        );
+    }
 
-  function check(report = false) {
-    ensureStyles();
+    function resolve(root, rule, index) {
+        const sourceField = field(root, rule.source);
+        const targetField = field(root, rule.target);
+        const select = sourceField?.querySelector('mat-select');
+        const input = targetField?.querySelector(
+            'input:not([hidden]),textarea:not([hidden])'
+        );
+        const label = targetField?.querySelector('label.mdc-floating-label');
 
-    const fields = [...document.querySelectorAll('mat-form-field')];
-    const missing = [];
+        if (!sourceField || !targetField || !select || !input || !label) {
+            return null;
+        }
 
-    for (const rule of rules) {
-      const source = findSource(fields, rule.source);
-      const input = findTarget(rule.targets);
+        return {
+            rule,
+            select,
+            field: targetField,
+            input,
+            label,
+            errorId: `wu-oh-conditional-required-error-${index}`,
+            original: {
+                required: input.getAttribute('required'),
+                ariaRequired: input.getAttribute('aria-required'),
+                describedBy: input.getAttribute('aria-describedby')
+            }
+        };
+    }
 
-      if (!source || !input) continue;
+    function selected(select) {
+        return select.querySelector(
+            '.mat-mdc-select-value-text,.mat-mdc-select-min-line'
+        )?.textContent?.trim() || '';
+    }
 
-      if (!saved.has(input)) {
-        saved.set(input, {
-          required: input.required,
-          aria: input.getAttribute('aria-required')
+    function restore(element, name, value) {
+        if (value === null) element.removeAttribute(name);
+        else element.setAttribute(name, value);
+    }
+
+    function install(item) {
+        let touched = false;
+
+        const required = () => item.rule.required(selected(item.select));
+        const empty = () => item.input.value.trim() === '';
+
+        function setMarker(show) {
+            let own = item.label.querySelector(`.${markerClass}`);
+            const native = item.label.querySelector(
+                '.mat-mdc-form-field-required-marker,' +
+                '.mat-form-field-required-marker'
+            );
+
+            if (show && !native && !own) {
+                own = document.createElement('span');
+                own.className =
+                    'mat-mdc-form-field-required-marker ' +
+                    'mdc-floating-label--required ' +
+                    markerClass;
+                own.setAttribute('aria-hidden', 'true');
+                item.label.appendChild(own);
+            } else if (!show) {
+                own?.remove();
+            }
+        }
+
+        function getError() {
+            let error = item.field.querySelector(`#${item.errorId}`);
+            if (error) return error;
+            error = document.createElement('div');
+            error.id = item.errorId;
+            error.className = errorClass;
+            error.setAttribute('role', 'alert');
+            error.textContent = item.rule.message;
+            error.hidden = true;
+            const wrapper = item.field.querySelector(
+                '.mat-mdc-form-field-subscript-wrapper'
+            );
+            (wrapper || item.field).appendChild(error);
+            return error;
+        }
+
+        function setDescription(show) {
+            const ids = new Set(
+                String(item.original.describedBy || '')
+                    .split(/\s+/)
+                    .filter(Boolean)
+            );
+
+            if (show) ids.add(item.errorId);
+
+            if (ids.size) {
+                item.input.setAttribute(
+                    'aria-describedby',
+                    [...ids].join(' ')
+                );
+            } else {
+                item.input.removeAttribute('aria-describedby');
+            }
+        }
+
+        function update(force = false) {
+            const mustFill = required();
+            const invalid = mustFill && empty() && (touched || force);
+
+            item.input.toggleAttribute('required', mustFill);
+            item.input.setAttribute('aria-required', String(mustFill));
+            setMarker(mustFill);
+
+            item.input.setCustomValidity(
+                mustFill && empty() ? item.rule.message : ''
+            );
+
+            item.field.classList.toggle(invalidClass, invalid);
+            getError().hidden = !invalid;
+            setDescription(invalid);
+        }
+
+        const touch = () => {
+            touched = true;
+            update();
+        };
+
+        const invalid = () => {
+            touched = true;
+            update(true);
+        };
+
+        item.input.addEventListener('input', touch);
+        item.input.addEventListener('blur', touch);
+        item.input.addEventListener('invalid', invalid);
+
+        const observer = new MutationObserver(() => update());
+        observer.observe(item.select, {
+            childList: true,
+            characterData: true,
+            subtree: true
         });
-      }
 
-      const selection = norm(
-        source.querySelector(
-          '.mat-mdc-select-min-line, .mat-mdc-select-value-text, .mat-select-value-text'
-        )?.textContent
-      );
+        item.update = update;
+        item.isInvalid = () => required() && empty();
+        item.connected = () =>
+            item.select.isConnected &&
+            item.field.isConnected &&
+            item.input.isConnected &&
+            item.label.isConnected;
 
-      const active = /ja(?:$|[\s.,;:!()\-])/.test(selection);
-      const empty = !String(input.value || '').trim();
-      const original = saved.get(input);
-      const wanted = original.required || active;
+        item.cleanup = () => {
+            observer.disconnect();
+            item.input.removeEventListener('input', touch);
+            item.input.removeEventListener('blur', touch);
+            item.input.removeEventListener('invalid', invalid);
+            item.label.querySelector(`.${markerClass}`)?.remove();
+            item.field.querySelector(`#${item.errorId}`)?.remove();
+            item.field.classList.remove(invalidClass);
+            item.input.setCustomValidity('');
 
-      if (input.required !== wanted) input.required = wanted;
+            restore(item.input, 'required', item.original.required);
+            restore(
+                item.input,
+                'aria-required',
+                item.original.ariaRequired
+            );
+            restore(
+                item.input,
+                'aria-describedby',
+                item.original.describedBy
+            );
+        };
 
-      if (input.getAttribute('aria-required') !== String(wanted)) {
-        input.setAttribute('aria-required', String(wanted));
-      }
-
-      syncVisualMarker(input, wanted, original.required);
-
-      if (!active || !empty) input.setCustomValidity('');
-
-      if (active && empty) {
-        missing.push(input);
-        if (report) {
-          input.setCustomValidity('Bei Ja ist dieses Feld verpflichtend.');
-        }
-      }
+        update();
+        return item;
     }
 
-    const next = button();
+    function cleanup() {
+        if (!active) return;
 
-    if (locked && locked !== next) unlock();
-
-    if (next && missing.length && !next.disabled) {
-      next.disabled = true;
-      next.dataset.ohLock = '1';
-      locked = next;
+        active.form.removeEventListener('submit', active.submit, true);
+        active.items.forEach(item => item.cleanup());
+        active = null;
     }
 
-    if (!missing.length) unlock();
+    function refresh() {
+        const root = document.querySelector('app-dynamic-form');
+        const form = root?.querySelector('form') || root?.closest('form');
 
-    return missing;
-  }
-
-  function schedule() {
-    if (queued || stopped) return;
-
-    queued = true;
-    requestAnimationFrame(() => {
-      queued = false;
-      check();
-    });
-  }
-
-  function guard(event) {
-    if (
-      event.type === 'click' &&
-      !norm(event.target.closest?.('button')?.textContent).includes(
-        'zur übersicht gehen'
-      )
-    ) {
-      return;
-    }
-
-    const missing = check(true);
-    if (!missing.length) return;
-
-    event.preventDefault();
-    event.stopImmediatePropagation();
-    missing[0].focus();
-    missing[0].reportValidity();
-  }
-
-  ensureStyles();
-
-  const observer = new MutationObserver(schedule);
-  observer.observe(document.body, {
-    childList: true,
-    subtree: true
-  });
-
-  for (const type of ['input', 'change']) {
-    document.addEventListener(type, schedule, true);
-  }
-
-  for (const type of ['click', 'submit']) {
-    document.addEventListener(type, guard, true);
-  }
-
-  window.__ohRules = {
-    version: VERSION,
-    check,
-    stop() {
-      stopped = true;
-      observer.disconnect();
-
-      for (const type of ['input', 'change']) {
-        document.removeEventListener(type, schedule, true);
-      }
-
-      for (const type of ['click', 'submit']) {
-        document.removeEventListener(type, guard, true);
-      }
-
-      unlock();
-
-      for (const [input, value] of saved) {
-        if (!input.isConnected) continue;
-
-        input.required = value.required;
-
-        if (value.aria === null) {
-          input.removeAttribute('aria-required');
-        } else {
-          input.setAttribute('aria-required', value.aria);
+        if (!root || !form) {
+            cleanup();
+            return;
         }
 
-        input.setCustomValidity('');
-        restoreVisualMarker(input);
-      }
+        if (
+            active?.form === form &&
+            active.items.every(item => item.connected())
+        ) {
+            active.items.forEach(item => item.update());
+            return;
+        }
 
-      saved.clear();
-      delete window.__ohRules;
+        const found = rules.map((rule, index) =>
+            resolve(root, rule, index)
+        );
+
+        if (found.some(item => !item)) return;
+
+        cleanup();
+
+        const items = found.map(install);
+        const submit = event => {
+            items.forEach(item => item.update(true));
+
+            const first = items.find(item => item.isInvalid());
+            if (!first) return;
+
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            first.input.focus();
+            first.input.reportValidity();
+
+            console.warn(
+                '[ÖH OSB] Absenden verhindert:',
+                first.rule.message
+            );
+        };
+
+        form.addEventListener('submit', submit, true);
+        active = { form, items, submit };
+
+        console.info(
+            '[ÖH OSB] Bedingte Pflichtfelder wurden aktiviert.',
+            VERSION
+        );
     }
-  };
 
-  schedule();
+    function schedule() {
+        if (scheduled) return;
+
+        scheduled = true;
+        requestAnimationFrame(() => {
+            scheduled = false;
+            refresh();
+        });
+    }
+
+    function start() {
+        addStyles();
+        schedule();
+
+        pageObserver = new MutationObserver(schedule);
+        pageObserver.observe(document.body, {
+            childList: true,
+            subtree: true
+        });
+    }
+
+    function stop() {
+        cleanup();
+        pageObserver?.disconnect();
+        pageObserver = null;
+        document.getElementById(styleId)?.remove();
+        delete window.__ohRules;
+    }
+
+    window.__ohRules?.stop?.();
+    window.__ohRules = {
+        version: VERSION,
+        stop,
+        refresh
+    };
+
+    if (document.body) start();
+    else {
+        document.addEventListener('DOMContentLoaded', start, {
+            once: true
+        });
+    }
 })();
