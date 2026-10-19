@@ -3,12 +3,12 @@
 
   window.__ohRules?.stop?.();
 
-  const VERSION = '20261019-1';
+  const VERSION = '20261019-2';
   const STYLE_ID = 'wu-oh-required-marker-styles';
   const MARKER_ATTR = 'data-wu-oh-required-marker';
 
   const rules = [
-    { source: ['verteilung geplant'], targets: ['-1003123027'] },
+    { source: ['verteilung geplant'], targets: ['-1003123026'] },
     { source: ['§5 hsg'], targets: ['-1003123039'] },
     { source: ['teilnahmegebühren', 'eintrittsgelder eingehoben'], targets: ['-1003123034', '-1003123020'] },
     { source: ['kooperationsveranstaltung'], targets: ['-1003123009'] }
@@ -217,8 +217,7 @@
   const observer = new MutationObserver(schedule);
   observer.observe(document.body, {
     childList: true,
-    subtree: true,
-    characterData: true
+    subtree: true
   });
 
   for (const type of ['input', 'change']) {
