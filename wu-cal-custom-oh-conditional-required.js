@@ -3,7 +3,7 @@
 
   window.__ohRules?.stop?.();
 
-  const VERSION = '20261019-5';
+  const VERSION = '20261019-6';
   const STYLE_ID = 'wu-oh-conditional-required-styles';
   const INVALID_CLASS = 'wu-conditional-invalid';
   const MARKER_CLASS = 'wu-conditional-required-marker';
@@ -52,7 +52,7 @@
 
   let active = null;
   let pageObserver = null;
-  let nativeMessageObserver = null;
+  let messageObserver = null;
   let scheduled = false;
   let messageScheduled = false;
 
@@ -152,18 +152,19 @@ app-dynamic-form .${ERROR_CLASS}[hidden] {
   }
 
   function install(item) {
-    let touched = false;
-
     const mustFill = () => item.rule.required(selectedText(item.select));
     const empty = () => item.input.value.trim() === '';
 
     function setMarker(show) {
       let own = item.label.querySelector(`.${MARKER_CLASS}`);
-      const native = item.label.querySelector('.mat-mdc-form-field-required-marker, .mat-form-field-required-marker');
+      const native = item.label.querySelector(
+        '.mat-mdc-form-field-required-marker, .mat-form-field-required-marker'
+      );
 
       if (show && !native && !own) {
         own = document.createElement('span');
-        own.className = `mat-mdc-form-field-required-marker mdc-floating-label--required ${MARKER_CLASS}`;
+        own.className =
+          `mat-mdc-form-field-required-marker mdc-floating-label--required ${MARKER_CLASS}`;
         own.setAttribute('aria-hidden', 'true');
         item.label.appendChild(own);
       } else if (!show) {
@@ -181,18 +182,21 @@ app-dynamic-form .${ERROR_CLASS}[hidden] {
       }
 
       wrapper = document.createElement('div');
-      wrapper.className = `mat-mdc-form-field-error-wrapper ng-star-inserted ${ERROR_WRAPPER_CLASS}`;
+      wrapper.className =
+        `mat-mdc-form-field-error-wrapper ng-star-inserted ${ERROR_WRAPPER_CLASS}`;
       wrapper.hidden = true;
 
       const error = document.createElement('mat-error');
       error.id = item.errorId;
-      error.className = `mat-mdc-form-field-error mat-mdc-form-field-bottom-align ${ERROR_CLASS}`;
+      error.className =
+        `mat-mdc-form-field-error mat-mdc-form-field-bottom-align ${ERROR_CLASS}`;
       error.setAttribute('role', 'alert');
       error.hidden = true;
 
       const inner = document.createElement('div');
       inner.className = 'ng-star-inserted';
       inner.textContent = item.rule.message;
+
       error.appendChild(inner);
       wrapper.appendChild(error);
       item.subscript.insertBefore(wrapper, item.subscript.firstChild);
@@ -208,54 +212,46 @@ app-dynamic-form .${ERROR_CLASS}[hidden] {
       );
 
       if (show) ids.add(item.errorId);
-      if (ids.size) {
-        item.input.setAttribute('aria-describedby', [...ids].join(' '));
-      } else {
-        item.input.removeAttribute('aria-describedby');
-      }
+      else ids.delete(item.errorId);
+
+      if (ids.size) item.input.setAttribute('aria-describedby', [...ids].join(' '));
+      else item.input.removeAttribute('aria-describedby');
     }
 
-    function update(force = false) {
+    function update() {
       const required = mustFill();
-      const isEmpty = empty();
-      const invalid = required && isEmpty && (touched || force);
+      const invalid = required && empty();
 
       item.input.toggleAttribute('required', required);
       item.input.setAttribute('aria-required', String(required));
-      item.input.setCustomValidity(required && isEmpty ? item.rule.message : '');
+      item.input.setCustomValidity(invalid ? item.rule.message : '');
 
       setMarker(required);
+
       item.field.classList.toggle(INVALID_CLASS, invalid);
       item.field.classList.toggle('mat-form-field-invalid', invalid);
 
       const { wrapper, error } = ensureError();
       wrapper.hidden = !invalid;
       error.hidden = !invalid;
+
       if (item.hintWrapper) {
         item.hintWrapper.style.display = invalid ? 'none' : item.original.hintDisplay;
       }
+
       setDescription(invalid);
     }
 
-    const onInput = () => {
-      touched = true;
-      update();
-    };
-    const onBlur = () => {
-      touched = true;
-      update();
-    };
+    const onInput = () => update();
     const onInvalid = event => {
       event.preventDefault();
-      touched = true;
-      update(true);
+      update();
     };
 
     item.input.addEventListener('input', onInput);
-    item.input.addEventListener('blur', onBlur);
     item.input.addEventListener('invalid', onInvalid);
 
-    const selectObserver = new MutationObserver(() => update());
+    const selectObserver = new MutationObserver(update);
     selectObserver.observe(item.select, {
       childList: true,
       characterData: true,
@@ -273,18 +269,21 @@ app-dynamic-form .${ERROR_CLASS}[hidden] {
     item.cleanup = () => {
       selectObserver.disconnect();
       item.input.removeEventListener('input', onInput);
-      item.input.removeEventListener('blur', onBlur);
       item.input.removeEventListener('invalid', onInvalid);
+
       item.label.querySelector(`.${MARKER_CLASS}`)?.remove();
       item.subscript.querySelector(`.${ERROR_WRAPPER_CLASS}`)?.remove();
       item.field.classList.remove(INVALID_CLASS);
+
       if (!item.original.materialInvalid) {
         item.field.classList.remove('mat-form-field-invalid');
       }
+
       item.input.setCustomValidity('');
       restoreAttr(item.input, 'required', item.original.required);
       restoreAttr(item.input, 'aria-required', item.original.ariaRequired);
       restoreAttr(item.input, 'aria-describedby', item.original.describedBy);
+
       if (item.hintWrapper) {
         item.hintWrapper.style.display = item.original.hintDisplay;
       }
@@ -325,7 +324,7 @@ app-dynamic-form .${ERROR_CLASS}[hidden] {
     const items = found.map(install);
 
     const submit = event => {
-      items.forEach(item => item.update(true));
+      items.forEach(item => item.update());
       const first = items.find(item => item.isInvalid());
       if (!first) return;
 
@@ -338,7 +337,10 @@ app-dynamic-form .${ERROR_CLASS}[hidden] {
     form.addEventListener('submit', submit, true);
     active = { form, items, submit };
 
-    console.info('[ÖH OSB] Bedingte Pflichtfelder aktiviert.', VERSION);
+    console.info(
+      '[ÖH OSB] Bedingte Pflichtfelder aktiviert.',
+      VERSION
+   );
   }
 
   function schedule() {
@@ -356,15 +358,21 @@ app-dynamic-form .${ERROR_CLASS}[hidden] {
         'app-dynamic-form mat-error, app-dynamic-form .mat-mdc-form-field-error'
       )
       .forEach(error => {
+        const full = String(error.textContent || '').trim();
+
+        if (!/^The\s*/i.test(full) || !/\bist erforderlich\s*d/i.test(full)) {
+          return;
+        }
+
         const walker = document.createTreeWalker(error, NodeFilter.SHOW_TEXT);
         let node;
+
         while ((node = walker.nextNode())) {
           const original = node.nodeValue || '';
-          const corrected = original.replace(
-            /^(\s*)The\s+(?=.+ \sist erforderlich\s*$)/i,
-            '$1'
-          );
-          if (corrected !== original) node.nodeValue = corrected;
+          if (!/^\s*The\s*/i.test(original)) continue;
+
+          node.nodeValue = original.replace(/^(\s*)The\s*/i, '$1');
+          break;
         }
       });
   }
@@ -389,8 +397,8 @@ app-dynamic-form .${ERROR_CLASS}[hidden] {
       subtree: true
     });
 
-    nativeMessageObserver = new MutationObserver(scheduleMessageFix);
-    nativeMessageObserver.observe(document.body, {
+    messageObserver = new MutationObserver(scheduleMessageFix);
+    messageObserver.observe(document.body, {
       childList: true,
       characterData: true,
       subtree: true
@@ -400,9 +408,9 @@ app-dynamic-form .${ERROR_CLASS}[hidden] {
   function stop() {
     cleanup();
     pageObserver?.disconnect();
-    nativeMessageObserver?.disconnect();
+    messageObserver?.disconnect();
     pageObserver = null;
-    nativeMessageObserver = null;
+    messageObserver = null;
     document.getElementById(STYLE_ID)?.remove();
     delete window.__ohRules;
   }
@@ -410,7 +418,8 @@ app-dynamic-form .${ERROR_CLASS}[hidden] {
   window.__ohRules = {
     version: VERSION,
     refresh,
-    stop
+    stop,
+    fixNativeRequiredMessages
   };
 
   if (document.body) start();
