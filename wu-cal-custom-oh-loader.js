@@ -7,7 +7,7 @@
     console.error('[ÖH OSB] Unbekannte Skriptquelle; Loader beendet.');
     return;
   }
-  const BASE = match[1], VERSION = '20261019-2', GLOBAL = '__wuOehLoader';
+  const BASE = match[1], VERSION = '20261019-3', GLOBAL = '__wuOehLoader';
   if (window[GLOBAL]) return;
   window[GLOBAL] = { version: VERSION, ready: false };
   // WU questionnaire scripts and the v8/v11/v12 wrappers MUST NOT be loaded here.
@@ -60,6 +60,6 @@
     ]);
     // Exclude confirmation.js: known syntax error on main; browser regression test required.
     window[GLOBAL].ready = true;
-    console.info('[ÖH OSB] Loader aktiv:', VERSION);
+    console.info('[ÖH OSB] Loader aktit:', VERSION);
   })().catch(err => console.error('[ÖH OSB] Initialisierung unvollständig:', err));
 })();
