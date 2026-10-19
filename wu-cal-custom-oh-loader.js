@@ -7,7 +7,7 @@
     console.error('[ÖH OSB] Unbekannte Skriptquelle; Loader beendet.');
     return;
   }
-  const BASE = match[1], VERSION = '20261019-4', GLOBAL = '__wuOehLoader';
+  const BASE = match[1], VERSION = '20261019-5', GLOBAL = '__wuOehLoader';
   if (window[GLOBAL]) return;
   window[GLOBAL] = { version: VERSION, ready: false };
   // WU questionnaire scripts and the v8/v11/v12 wrappers MUST NOT be loaded here.
